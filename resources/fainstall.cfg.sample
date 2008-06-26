@@ -1,0 +1,16 @@
+//BEGIN CE prefs
+
+// see http://developer.mozilla.org/ja/docs/MCD,_Mission_Control_Desktop_AKA_AutoConfig
+
+/*
+function getPrefBranch() 
+function pref(prefName, value) 
+function defaultPref(prefName, value)
+function lockPref(prefName, value) 
+function unlockPref(prefName) 
+function getPref(prefName) 
+function getLDAPAttributes(host, base, filter, attribs) 
+function getLDAPValue(str, key) 
+function displayError(funcname, message)
+function getenv(name)
+*/

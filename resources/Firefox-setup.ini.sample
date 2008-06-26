@@ -1,0 +1,7 @@
+[Install]
+InstallDirectoryName=Mozilla Firefox
+InstallDirectoryPath=
+QuickLaunchShortcut=true
+DesktopShortcut=true
+StartMenuShortcuts=true
+StartMenuDirectoryName=Mozilla Firefox

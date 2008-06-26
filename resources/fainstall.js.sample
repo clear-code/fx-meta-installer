@@ -1,0 +1,7 @@
+// see http://developer.mozilla.org/ja/docs/MCD,_Mission_Control_Desktop_AKA_AutoConfig
+
+// pref("general.config.obscure_value", 0);
+// pref("general.config.filename", "fainstall.cfg");
+// pref("general.config.vendor", "fainstall");
+// pref("autoadmin.global_config_url", "http://server/autoconfig.jsc");
+

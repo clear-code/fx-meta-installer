@@ -1,0 +1,37 @@
+= 7zS.sfxのビルド方法(コマンドライン)
+
+1. Visual Studioをインストール。
+   (VC6となっているが、恐らく2003でも2005でもOK)
+2. 7zipのソースを解凍
+3. CPP/MyVersion.hとCPP/MyVersionInfo.rcのCopyright等を修正。
+4. CPP/7zip/Bundles/SFXSetupのsetup.icoをFxAddonInstallerのnsis/fainstall.ico
+   で置き換える。
+5. スタートメニュー ->
+   Microsoft Visual Studio .NET 2003 ->
+   Visual Studio .NET ツール ->
+   Visual Studio .NET 2003 コマンド プロンプト
+   を実行する
+6. CPP/7zip/Bundles/SFXSetup以下に移動する。
+7. nmakeを実行する。
+8. CPP/7zip/Bundles/SFXSetup/O以下に7zS.sfxができる。
+
+デフォルトではダイナミックリンク版が生成される(msvcrt71.dllが必要)。
+スタティックリンク版をビルドするには、makefileなどにMY_STATIC_LINKマクロを定義し
+ておく必要がある(未検証)。
+
+
+= 7zS.sfxおよび7zSD.sfxのビルド方法(GUI)
+
+4.まで上記と同じ
+5. CPP\7zip\Bundles\SFXSetup\SFXSetup.dswをクリックして、Visual Studioを起動
+6. 7zS.sfxを作成する場合はツールバーの「Debug」となっているところを「Release」
+   に変更する。
+   7zSD.sfxを作成する場合は同箇所を「ReleaseD」に変更する。
+7. 「ビルド」->「ソリューションのビルド」でビルドする。
+8. c:\util(絶対パス決め打ち)以下にファイルができる。
+
+* パスを変更したい場合は
+ 「プロジェクト」->「SFXSetupのプロパティ」でダイアログを出し、
+ 「構成プロパティ」->「リンカ」->「出力ファイル」を変更。
+* こちらの方がファイルサイズがかなりでかいが、たぶん余計な物をリンクしてるだけ
+  だと思う。

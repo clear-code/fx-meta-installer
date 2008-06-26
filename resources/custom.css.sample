@@ -1,0 +1,12 @@
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
+@namespace xbl url("http://www.mozilla.org/xbl");
+
+/*
+@-moz-document
+	url-prefix(""),
+	url-prefix(""),
+	url-prefix("")
+	{
+}
+*/
