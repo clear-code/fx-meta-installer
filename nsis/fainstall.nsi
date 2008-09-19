@@ -360,6 +360,10 @@ Section "Install Additional Files" InstallAdditionalFiles
     ${If} ${FileExists} "$EXEDIR\resources\bookmarks.html"
       ${Locate} "$EXEDIR\resources" "/L=F /M=*.html" "InstallNormalFile"
     ${EndIf}
+    StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
+    ${If} ${FileExists} "$EXEDIR\resources\*.rdf"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.rdf" "InstallNormalFile"
+    ${EndIf}
 
     StrCpy $DIST_DIR "${APP_CONFIG_DIR}"
     ${If} ${FileExists} "$EXEDIR\resources\*.js"
