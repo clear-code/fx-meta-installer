@@ -285,10 +285,14 @@ Section "Install Application" InstallApp
 
     ${If} $APP_EXISTS != "1"
       ${If} ${FileExists} "${APP_INSTALLER_INI}"
+!ifdef APP_SILENT_INSTALL
+        ExecWait "$APP_INSTALLER_FINAL_PATH -ms -ira /INI=${APP_INSTALLER_INI}"
+!else
         ExecWait "$APP_INSTALLER_FINAL_PATH /INI=${APP_INSTALLER_INI}"
+!endif
       ${Else}
 !ifdef APP_SILENT_INSTALL
-        ExecWait "$APP_INSTALLER_FINAL_PATH -ms"
+        ExecWait "$APP_INSTALLER_FINAL_PATH -ms -ira"
 !else
         ExecWait "$APP_INSTALLER_FINAL_PATH"
 !endif
