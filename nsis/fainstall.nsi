@@ -22,6 +22,9 @@
 !else if ${APP_NAME} == "Thunderbird"
   !define APP_EXE "thunderbird.exe"
   !define APP_KEY "Mozilla\Mozilla Thunderbird"
+!else if ${APP_NAME} == "Netscape"
+  !define APP_EXE "Netscp.exe"
+  !define APP_KEY "Netscape\Netscape"
 !endif
 
 !ifndef APP_EXE
