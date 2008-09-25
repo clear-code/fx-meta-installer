@@ -111,6 +111,7 @@ Var APP_WRONG_VERSION
 Var PROCESSING_FILE
 Var DIST_DIR
 Var DIST_PATH
+Var DIST_FILE
 Var BACKUP_PATH
 Var BACKUP_COUNT
 Var INSTALLED_FILE
@@ -365,7 +366,7 @@ Section "Install Additional Files" InstallAdditionalFiles
 
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
     ${If} ${FileExists} "$EXEDIR\resources\bookmarks.html"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.html" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=bookmarks.html" "InstallNormalFile"
     ${EndIf}
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
     ${If} ${FileExists} "$EXEDIR\resources\*.rdf"
@@ -387,6 +388,11 @@ Section "Install Additional Files" InstallAdditionalFiles
     ${If} ${FileExists} "$EXEDIR\resources\*.manifest"
       ${Locate} "$EXEDIR\resources" "/L=F /M=*.manifest" "InstallNormalFile"
     ${EndIf}
+!if ${APP_NAME} == "Netscape"
+    ${If} ${FileExists} "$EXEDIR\resources\installed-chrome.txt"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=installed-chrome.txt" "AppendTextFile"
+    ${EndIf}
+!endif
 SectionEnd
 
 Function "InstallNormalFile"
@@ -408,6 +414,44 @@ Function "InstallNormalFile"
 
     Push $R0
 FunctionEnd
+
+!if ${APP_NAME} == "Netscape"
+Function "AppendTextFile"
+    StrCpy $PROCESSING_FILE "$R7"
+    StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
+    ${If} ${FileExists} "$DIST_PATH"
+      StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
+      StrCpy $BACKUP_COUNT 0
+      ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
+        IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
+        StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
+      ${EndWhile}
+      CopyFiles /SILENT "$DIST_PATH" "$BACKUP_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEXBackup" "$BACKUP_PATH"
+    ${EndIf}
+
+    ClearErrors
+    FileOpen $DIST_FILE "$DIST_PATH" a
+    FileOpen $PROCESSING_FILE "$EXEDIR\resources\$PROCESSING_FILE" r
+    MOVE_TO_END:
+      FileRead $DIST_FILE $1
+      IfErrors READ_AND_WRITE
+      GoTo MOVE_TO_END
+    READ_AND_WRITE:
+      FileRead $PROCESSING_FILE $1
+      FileWrite $DIST_FILE "$1$\n"
+      IfErrors END_WRITE
+      GoTo READ_AND_WRITE
+    END_WRITE:
+    FileClose $DIST_FILE
+    FileClose $PROCESSING_FILE
+
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEX" "$DIST_PATH"
+    IntOp $INSTALLED_FILE_INDEX $INSTALLED_FILE_INDEX + 1
+
+    Push $R0
+FunctionEnd
+!endif
 
 Section "Initialize Search Plugins" InitSearchPlugins
     StrCpy $DIST_PATH   "$APP_DIR\searchplugins"
@@ -687,10 +731,12 @@ Function GetAppPath
     ReadRegStr $APP_DIR HKLM $0 "Install Directory"
     StrCmp $APP_DIR "" ERR
 
-    IfFileExists "$APP_EXE_PATH" "" ERR
-    IfFileExists "$APP_DIR" "" ERR
-
-    StrCpy $APP_EXISTS "1"
+    ${If} ${FileExists} "$APP_EXE_PATH"
+      ${If} ${FileExists} "$APP_DIR"
+      ${OrIf} ${FileExists} "$APP_DIR\*.*"
+        StrCpy $APP_EXISTS "1"
+      ${EndIf}
+    ${EndIf}
 
   ERR:
 FunctionEnd
