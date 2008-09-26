@@ -69,6 +69,12 @@
 
 !define INIPATH             "$EXEDIR\${INSTALLER_NAME}.ini"
 
+!define SILENT_INSTALL_OPTIONS "-ms -ma -ira -ispf"
+; -ms   : サイレントインストール
+; -ma   : 自動インストール
+; -ira  : インストール完了後のアプリケーションの自動起動を無効（Netscape）
+; -ispf : インストール完了後のスタートメニュー内フォルダを開く処理を無効（Netscape）
+
 ;=== Program Details
 Name    "${PRODUCT_FULL_NAME}"
 OutFile "..\${INSTALLER_NAME}.exe"
@@ -287,13 +293,13 @@ Section "Install Application" InstallApp
     ${If} $APP_EXISTS != "1"
       ${If} ${FileExists} "${APP_INSTALLER_INI}"
 !ifdef APP_SILENT_INSTALL
-        ExecWait "$APP_INSTALLER_FINAL_PATH -ms -ira /INI=${APP_INSTALLER_INI}"
+        ExecWait "$APP_INSTALLER_FINAL_PATH ${SILENT_INSTALL_OPTIONS} /INI=${APP_INSTALLER_INI}"
 !else
         ExecWait "$APP_INSTALLER_FINAL_PATH /INI=${APP_INSTALLER_INI}"
 !endif
       ${Else}
 !ifdef APP_SILENT_INSTALL
-        ExecWait "$APP_INSTALLER_FINAL_PATH -ms -ira"
+        ExecWait "$APP_INSTALLER_FINAL_PATH ${SILENT_INSTALL_OPTIONS}"
 !else
         ExecWait "$APP_INSTALLER_FINAL_PATH"
 !endif
