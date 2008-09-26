@@ -69,11 +69,11 @@
 
 !define INIPATH             "$EXEDIR\${INSTALLER_NAME}.ini"
 
-!define SILENT_INSTALL_OPTIONS "-ms -ma -ira -ispf"
+!define SILENT_INSTALL_OPTIONS "-ms -ira -ispf"
 ; -ms   : サイレントインストール
-; -ma   : 自動インストール
-; -ira  : インストール完了後のアプリケーションの自動起動を無効（Netscape）
-; -ispf : インストール完了後のスタートメニュー内フォルダを開く処理を無効（Netscape）
+; -ma   : 自動インストール（進行状況をダイアログで表示、Netscape用）
+; -ira  : インストール完了後のアプリケーションの自動起動を無効（Netscape用）
+; -ispf : インストール完了後のスタートメニュー内フォルダを開く処理を無効（Netscape用）
 
 ;=== Program Details
 Name    "${PRODUCT_FULL_NAME}"
@@ -105,6 +105,21 @@ Var APP_EXE_PATH
 Var APP_EULA_FINAL_PATH
 Var APP_INSTALLER_FINAL_PATH
 Var APP_DIR
+!if ${APP_NAME} == "Netscape"
+Var SHORTCUT_NAME
+Var EXISTS_SHORTCUT_DESKTOP
+Var EXISTS_SHORTCUT_DESKTOP_IM
+Var EXISTS_SHORTCUT_DESKTOP_MAIL
+Var EXISTS_SHORTCUT_QUICKLAUNCH
+Var EXISTS_SHORTCUT_QUICKLAUNCH_MAIL
+Var EXISTS_SHORTCUT_STARTMENU
+Var SHORTCUT_PATH_DESKTOP
+Var SHORTCUT_PATH_DESKTOP_IM
+Var SHORTCUT_PATH_DESKTOP_MAIL
+Var SHORTCUT_PATH_QUICKLAUNCH
+Var SHORTCUT_PATH_QUICKLAUNCH_MAIL
+Var SHORTCUT_PATH_STARTMENU
+!endif
 Var APP_EXISTS
 Var APP_INSTALLED
 Var APP_MAX_VERSION
@@ -290,6 +305,10 @@ Section "Install Application" InstallApp
     Call GetAppPath
     Call CheckAppVersion
 
+!if ${APP_NAME} == "Netscape"
+    Call CheckShortcutsExistence
+!endif
+
     ${If} $APP_EXISTS != "1"
       ${If} ${FileExists} "${APP_INSTALLER_INI}"
 !ifdef APP_SILENT_INSTALL
@@ -307,6 +326,10 @@ Section "Install Application" InstallApp
 
       Call GetAppPath
       Call CheckAppVersion
+
+!if ${APP_NAME} == "Netscape"
+      Call UpdateShortcutsExistence
+!endif
 
       ${If} $APP_EXISTS != "1"
         ${If} $APP_WRONG_VERSION == "1"
@@ -330,6 +353,74 @@ Section "Install Application" InstallApp
     StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
     SetOutPath $INSTDIR
 SectionEnd
+
+!if ${APP_NAME} == "Netscape"
+Function "CheckShortcutsExistence"
+    ${If} ${FileExists} "${APP_INSTALLER_INI}"
+      ReadINIStr $SHORTCUT_NAME "${APP_INSTALLER_INI}" "Install" "ShortcutName"
+    ${EndIf}
+    ${IfThen} $SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "${APP_NAME} $APP_VERSION" ${|}
+
+    SetShellVarContext all
+    StrCpy $SHORTCUT_PATH_DESKTOP "$DESKTOP\$SHORTCUT_NAME.lnk"
+    ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP "1" ${|}
+    StrCpy $SHORTCUT_PATH_DESKTOP_IM "$DESKTOP\Instant Messenger.lnk"
+    ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_IM "1" ${|}
+    StrCpy $SHORTCUT_PATH_DESKTOP_MAIL "$DESKTOP\Netscape Mail & Newsgroups.lnk"
+    ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_MAIL "1" ${|}
+    SetShellVarContext current
+
+    StrCpy $SHORTCUT_PATH_QUICKLAUNCH "$QUICKLAUNCH\$SHORTCUT_NAME.lnk"
+    ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH "1" ${|}
+    StrCpy $SHORTCUT_PATH_QUICKLAUNCH_MAIL "$QUICKLAUNCH\Netscape Mail & Newsgroups.lnk"
+    ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL "1" ${|}
+
+    ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
+    ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU\*.*"
+      StrCpy $EXISTS_SHORTCUT_STARTMENU "1"
+    ${EndIf}
+FunctionEnd
+
+Function "UpdateShortcutsExistence"
+    ${If} ${FileExists} "${APP_INSTALLER_INI}"
+      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "DesktopShortcut"
+      ${If} "$1" == "false"
+        ${If} "$EXISTS_SHORTCUT_DESKTOP" == ""
+        ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP"
+          Delete "$SHORTCUT_PATH_DESKTOP"
+        ${EndIf}
+        ${If} "$EXISTS_SHORTCUT_DESKTOP_IM" == ""
+        ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM"
+          Delete "$SHORTCUT_PATH_DESKTOP_IM"
+        ${EndIf}
+        ${If} "$EXISTS_SHORTCUT_DESKTOP_MAIL" == ""
+        ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL"
+          Delete "$SHORTCUT_PATH_DESKTOP_MAIL"
+        ${EndIf}
+      ${EndIf}
+
+      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
+      ${If} "$1" == "false"
+        ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH" == ""
+        ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH"
+          Delete "$SHORTCUT_PATH_QUICKLAUNCH"
+        ${EndIf}
+        ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH_MAIL" == ""
+        ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
+          Delete "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
+        ${EndIf}
+      ${EndIf}
+
+      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "StartMenuShortcuts"
+      ${If} "$1" == "false"
+        ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
+        ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU\*.*"
+          ${IfThen} "$EXISTS_SHORTCUT_STARTMENU" == "" ${|} RMDir /r "$SHORTCUT_PATH_STARTMENU" ${|}
+        ${EndIf}
+      ${EndIf}
+    ${EndIf}
+FunctionEnd
+!endif
 
 Section "Install Add-ons" InstallAddons
     StrCpy $ADDON_INDEX 0
@@ -736,6 +827,11 @@ Function GetAppPath
     ; Application directory
     ReadRegStr $APP_DIR HKLM $0 "Install Directory"
     StrCmp $APP_DIR "" ERR
+
+!if ${APP_NAME} == "Netscape"
+    ; program folder
+    ReadRegStr $SHORTCUT_PATH_STARTMENU HKLM $0 "Program Folder Path"
+!endif
 
     ${If} ${FileExists} "$APP_EXE_PATH"
       ${If} ${FileExists} "$APP_DIR"
