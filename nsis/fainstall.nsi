@@ -71,6 +71,7 @@
 !define INIPATH             "$EXEDIR\${INSTALLER_NAME}.ini"
 
 !define SILENT_INSTALL_OPTIONS "-ms -ira -ispf"
+!define SILENT_UNINSTALL_OPTIONS "-ms"
 ; -ms   : サイレントインストール（INIを無視）
 ; -ma   : 自動インストール（進行状況をダイアログで表示、Netscape用）
 ; -ira  : インストール完了後のアプリケーションの自動起動を無効（Netscape用）
@@ -751,10 +752,28 @@ Function un.onUninstSuccess
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
       StrCmp $APP_DIR "" RETURN
 
+!if ${APP_NAME} == "Netscape"
+      ${If} ${FileExists} "$APP_DIR\uninstall\install_wizard*.log"
+!else
       ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
-        MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES UNINSTALL_APP IDNO RETURN
-        UNINSTALL_APP:
+!endif
+!ifndef APP_SILENT_INSTALL
+        MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES UNINSTALL_APP "" SKIP_APP_UNINSTALLATION
+!endif
+!ifdef APP_SILENT_INSTALL
+  !if ${APP_NAME} == "Netscape"
+        ExecWait "$APP_DIR\uninstall\NSUninst.exe ${SILENT_UNINSTALL_OPTIONS}"
+  !else
+        ExecWait "$APP_DIR\uninstall\helper.exe ${SILENT_UNINSTALL_OPTIONS}"
+  !endif
+!else
+  !if ${APP_NAME} == "Netscape"
+        ExecWait "$APP_DIR\uninstall\NSUninst.exe"
+  !else
         ExecWait "$APP_DIR\uninstall\helper.exe"
+  !endif
+!endif
+        SKIP_APP_UNINSTALLATION:
       ${EndIf}
 
       RETURN:
