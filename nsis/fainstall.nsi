@@ -113,12 +113,14 @@ Var EXISTS_SHORTCUT_DESKTOP_MAIL
 Var EXISTS_SHORTCUT_QUICKLAUNCH
 Var EXISTS_SHORTCUT_QUICKLAUNCH_MAIL
 Var EXISTS_SHORTCUT_STARTMENU
+Var EXISTS_SHORTCUT_STARTMENU_PROGRAM
 Var SHORTCUT_PATH_DESKTOP
 Var SHORTCUT_PATH_DESKTOP_IM
 Var SHORTCUT_PATH_DESKTOP_MAIL
 Var SHORTCUT_PATH_QUICKLAUNCH
 Var SHORTCUT_PATH_QUICKLAUNCH_MAIL
 Var SHORTCUT_PATH_STARTMENU
+Var SHORTCUT_PATH_STARTMENU_PROGRAM
 !endif
 Var APP_EXISTS
 Var APP_INSTALLED
@@ -368,6 +370,8 @@ Function "CheckShortcutsExistence"
     ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_IM "1" ${|}
     StrCpy $SHORTCUT_PATH_DESKTOP_MAIL "$DESKTOP\Netscape Mail & Newsgroups.lnk"
     ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_MAIL "1" ${|}
+    StrCpy $SHORTCUT_PATH_STARTMENU "$STARTMENU\$SHORTCUT_NAME.lnk"
+    ${IfThen} ${FileExists} "$SHORTCUT_PATH_STARTMENU" ${|} StrCpy $EXISTS_SHORTCUT_STARTMENU "1" ${|}
     SetShellVarContext current
 
     StrCpy $SHORTCUT_PATH_QUICKLAUNCH "$QUICKLAUNCH\$SHORTCUT_NAME.lnk"
@@ -375,9 +379,9 @@ Function "CheckShortcutsExistence"
     StrCpy $SHORTCUT_PATH_QUICKLAUNCH_MAIL "$QUICKLAUNCH\Netscape Mail & Newsgroups.lnk"
     ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL "1" ${|}
 
-    ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
-    ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU\*.*"
-      StrCpy $EXISTS_SHORTCUT_STARTMENU "1"
+    ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+    ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
+      StrCpy $EXISTS_SHORTCUT_STARTMENU_PROGRAM "1"
     ${EndIf}
 FunctionEnd
 
@@ -413,9 +417,13 @@ Function "UpdateShortcutsExistence"
 
       ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "StartMenuShortcuts"
       ${If} "$1" == "false"
-        ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
-        ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU\*.*"
-          ${IfThen} "$EXISTS_SHORTCUT_STARTMENU" == "" ${|} RMDir /r "$SHORTCUT_PATH_STARTMENU" ${|}
+        ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
+        ${AndIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
+          Delete "$SHORTCUT_PATH_STARTMENU"
+        ${EndIf}
+        ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+        ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
+          ${IfThen} "$EXISTS_SHORTCUT_STARTMENU_PROGRAM" == "" ${|} RMDir /r "$SHORTCUT_PATH_STARTMENU_PROGRAM" ${|}
         ${EndIf}
       ${EndIf}
     ${EndIf}
@@ -830,7 +838,7 @@ Function GetAppPath
 
 !if ${APP_NAME} == "Netscape"
     ; program folder
-    ReadRegStr $SHORTCUT_PATH_STARTMENU HKLM $0 "Program Folder Path"
+    ReadRegStr $SHORTCUT_PATH_STARTMENU_PROGRAM HKLM $0 "Program Folder Path"
 !endif
 
     ${If} ${FileExists} "$APP_EXE_PATH"
