@@ -10,6 +10,7 @@
 !insertmacro un.GetOptions
 !include "WordFunc.nsh"
 !insertmacro WordFind
+!insertmacro WordReplace
 !insertmacro VersionCompare
 !insertmacro VersionConvert
 
@@ -107,6 +108,7 @@ Var APP_INSTALLER_FINAL_PATH
 Var APP_DIR
 !if ${APP_NAME} == "Netscape"
 Var SHORTCUT_NAME
+Var PROGRAM_FOLDER_NAME
 Var EXISTS_SHORTCUT_DESKTOP
 Var EXISTS_SHORTCUT_DESKTOP_IM
 Var EXISTS_SHORTCUT_DESKTOP_MAIL
@@ -360,29 +362,35 @@ SectionEnd
 Function "CheckShortcutsExistence"
     ${If} ${FileExists} "${APP_INSTALLER_INI}"
       ReadINIStr $SHORTCUT_NAME "${APP_INSTALLER_INI}" "Install" "ShortcutName"
+      ReadINIStr $PROGRAM_FOLDER_NAME "${APP_INSTALLER_INI}" "Install" "StartMenuDirectoryName"
     ${EndIf}
     ${IfThen} $SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "${APP_NAME} $APP_VERSION" ${|}
+    ${IfThen} $PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "${APP_NAME} $APP_VERSION" ${|}
 
     SetShellVarContext all
+
     StrCpy $SHORTCUT_PATH_DESKTOP "$DESKTOP\$SHORTCUT_NAME.lnk"
     ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP "1" ${|}
     StrCpy $SHORTCUT_PATH_DESKTOP_IM "$DESKTOP\Instant Messenger.lnk"
     ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_IM "1" ${|}
     StrCpy $SHORTCUT_PATH_DESKTOP_MAIL "$DESKTOP\Netscape Mail & Newsgroups.lnk"
     ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_MAIL "1" ${|}
+
     StrCpy $SHORTCUT_PATH_STARTMENU "$STARTMENU\$SHORTCUT_NAME.lnk"
     ${IfThen} ${FileExists} "$SHORTCUT_PATH_STARTMENU" ${|} StrCpy $EXISTS_SHORTCUT_STARTMENU "1" ${|}
+
+    StrCpy $SHORTCUT_PATH_STARTMENU_PROGRAM "$SMPROGRAMS\$PROGRAM_FOLDER_NAME"
+    ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+    ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
+      StrCpy $EXISTS_SHORTCUT_STARTMENU_PROGRAM "1"
+    ${EndIf}
+
     SetShellVarContext current
 
     StrCpy $SHORTCUT_PATH_QUICKLAUNCH "$QUICKLAUNCH\$SHORTCUT_NAME.lnk"
     ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH "1" ${|}
     StrCpy $SHORTCUT_PATH_QUICKLAUNCH_MAIL "$QUICKLAUNCH\Netscape Mail & Newsgroups.lnk"
     ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL "1" ${|}
-
-    ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
-    ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
-      StrCpy $EXISTS_SHORTCUT_STARTMENU_PROGRAM "1"
-    ${EndIf}
 FunctionEnd
 
 Function "UpdateShortcutsExistence"
@@ -835,11 +843,6 @@ Function GetAppPath
     ; Application directory
     ReadRegStr $APP_DIR HKLM $0 "Install Directory"
     StrCmp $APP_DIR "" ERR
-
-!if ${APP_NAME} == "Netscape"
-    ; program folder
-    ReadRegStr $SHORTCUT_PATH_STARTMENU_PROGRAM HKLM $0 "Program Folder Path"
-!endif
 
     ${If} ${FileExists} "$APP_EXE_PATH"
       ${If} ${FileExists} "$APP_DIR"
