@@ -71,7 +71,6 @@
 !define INIPATH             "$EXEDIR\${INSTALLER_NAME}.ini"
 
 !define SILENT_INSTALL_OPTIONS "-ms -ira -ispf"
-!define SILENT_UNINSTALL_OPTIONS "-ms"
 ; -ms   : サイレントインストール（INIを無視）
 ; -ma   : 自動インストール（進行状況をダイアログで表示、Netscape用）
 ; -ira  : インストール完了後のアプリケーションの自動起動を無効（Netscape用）
@@ -762,9 +761,9 @@ Function un.onUninstSuccess
 !endif
 !ifdef APP_SILENT_INSTALL
   !if ${APP_NAME} == "Netscape"
-        ExecWait "$APP_DIR\uninstall\NSUninst.exe ${SILENT_UNINSTALL_OPTIONS}"
+        ExecWait `"$APP_DIR\uninstall\NSUninst.exe" -ms`
   !else
-        ExecWait "$APP_DIR\uninstall\helper.exe ${SILENT_UNINSTALL_OPTIONS}"
+        ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
   !endif
 !else
   !if ${APP_NAME} == "Netscape"
