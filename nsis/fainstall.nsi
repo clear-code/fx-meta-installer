@@ -362,8 +362,8 @@ SectionEnd
 
 !if ${APP_NAME} == "Netscape"
 Function "CheckShortcutsExistence"
-    StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION"
-    StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION"
+    StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
+    StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     ${If} ${FileExists} "${APP_INSTALLER_INI}"
       ReadINIStr $SHORTCUT_NAME "${APP_INSTALLER_INI}" "Install" "ShortcutName"
       ReadINIStr $PROGRAM_FOLDER_NAME "${APP_INSTALLER_INI}" "Install" "StartMenuDirectoryName"
@@ -398,6 +398,9 @@ Function "CheckShortcutsExistence"
 FunctionEnd
 
 Function "UpdateShortcutsExistence"
+    StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
+    StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
+
     ${If} ${FileExists} "${APP_INSTALLER_INI}"
       ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "DesktopShortcut"
       ${If} "$1" == "false"
