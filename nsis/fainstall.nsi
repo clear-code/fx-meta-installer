@@ -107,7 +107,9 @@ Var APP_EULA_FINAL_PATH
 Var APP_INSTALLER_FINAL_PATH
 Var APP_DIR
 !if ${APP_NAME} == "Netscape"
+Var SHORTCUT_DEFAULT_NAME
 Var SHORTCUT_NAME
+Var PROGRAM_FOLDER_DEFAULT_NAME
 Var PROGRAM_FOLDER_NAME
 Var EXISTS_SHORTCUT_DESKTOP
 Var EXISTS_SHORTCUT_DESKTOP_IM
@@ -360,12 +362,14 @@ SectionEnd
 
 !if ${APP_NAME} == "Netscape"
 Function "CheckShortcutsExistence"
+    StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION"
+    StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION"
     ${If} ${FileExists} "${APP_INSTALLER_INI}"
       ReadINIStr $SHORTCUT_NAME "${APP_INSTALLER_INI}" "Install" "ShortcutName"
       ReadINIStr $PROGRAM_FOLDER_NAME "${APP_INSTALLER_INI}" "Install" "StartMenuDirectoryName"
     ${EndIf}
-    ${IfThen} $SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "${APP_NAME} $APP_VERSION" ${|}
-    ${IfThen} $PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "${APP_NAME} $APP_VERSION" ${|}
+    ${IfThen} $SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "$SHORTCUT_DEFAULT_NAME" ${|}
+    ${IfThen} $PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "$PROGRAM_FOLDER_DEFAULT_NAME" ${|}
 
     SetShellVarContext all
 
@@ -409,6 +413,12 @@ Function "UpdateShortcutsExistence"
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL"
           Delete "$SHORTCUT_PATH_DESKTOP_MAIL"
         ${EndIf}
+      ${Else}
+        SetShellVarContext all
+        ${If} ${FileExists} "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk"
+          Rename "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_DESKTOP"
+        ${EndIf}
+        SetShellVarContext current
       ${EndIf}
 
       ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
@@ -420,6 +430,10 @@ Function "UpdateShortcutsExistence"
         ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH_MAIL" == ""
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
           Delete "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
+        ${EndIf}
+      ${Else}
+        ${If} ${FileExists} "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk"
+          Rename "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_QUICKLAUNCH"
         ${EndIf}
       ${EndIf}
 
@@ -433,6 +447,13 @@ Function "UpdateShortcutsExistence"
         ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
           ${IfThen} "$EXISTS_SHORTCUT_STARTMENU_PROGRAM" == "" ${|} RMDir /r "$SHORTCUT_PATH_STARTMENU_PROGRAM" ${|}
         ${EndIf}
+      ${Else}
+        SetShellVarContext all
+        ${If} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME"
+        ${OrIf} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME\*.*"
+          Rename "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME" "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+        ${EndIf}
+        SetShellVarContext current
       ${EndIf}
     ${EndIf}
 FunctionEnd
