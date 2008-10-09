@@ -33,6 +33,10 @@
 //  http://nsis.sourceforge.net/Crypto_plug-in
 //  cryptoplg11.zipを展開し、インストーラを実行
 
+* UACプラグインをインストール．
+  http://nsis.sourceforge.net/UAC_plug-in
+  Release/*.dllをNSISインストール先のPluginsフォルダに移動
+
 * 7-Zipをインストール．
   http://www.7-zip.org/ja/
 

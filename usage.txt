@@ -4,11 +4,18 @@
 
 ・Windows 98以降（Windows 2000、Windows XP、Windows Vistaにて動作検証済み）
 
+■対応アプリケーション
+
+・Mozilla Firefox 2.0.0.x
+・Mozilla Firefox 3.0.x
+・Mozilla Thunderbird 2.0.0.x
+・Netscape 7.x
+
 ■Mozillaアプリケーションの自動インストール
 
-・Mozillaアプリケーション（FirefoxまたはThunderbird）について、インストール
-　されていない、またはインストール済みのバージョンが指定バージョンよりも古い
-　場合、指定バージョンのMozillaアプリケーションを自動的にインストールする。
+・Mozillaアプリケーションについて、インストールされていない、またはインストー
+　ル済みのバージョンが指定バージョンよりも古い場合、指定バージョンのMozilla
+　アプリケーションを自動的にインストールする。
 ・Mozillaアプリケーションの自動インストールに使用するインストーラは、任意の
 　パスに置いたファイルを利用できる。ファイルが存在しない場合は、Web上の
 　任意のダウンロードURIから自動的にダウンロードさせることもできる。
@@ -33,6 +40,8 @@
   ・*.cfg         ：AutoConfigファイルとして、%AppDir%\ にインストールされる。
   ・*.properties  ：%AppDir%\ にインストールされる。（*.jsなどからの参照用）
   ・bookmarks.html：新規プロファイルの初期ブックマークの内容として
+                    %AppDir%\defaults\profile\ にインストールされる。
+  ・*.rdf         ：新規プロファイルの初期設定として
                     %AppDir%\defaults\profile\ にインストールされる。
   ・*.jar         ：Mozillaアプリケーションの追加モジュールとして、
                     %AppDir%\chrome\ にインストールされる。
@@ -77,7 +86,10 @@ PRODUCT_WEB_LABEL：
 	対話モードのインストールウィザードに表示されるリンク文字列。
 
 APP_NAME：
-	要求するMozillaアプリケーションの名称。「Firefox」または「Thunderbird」。
+	要求するMozillaアプリケーションの名称。
+	Firefox    ：Mozilla Firefox
+	Thunderbird：Mozilla Thunderbird
+	Netscape   ：Netscape 7.x
 APP_MIN_VERSION：
 	Mozillaアプリケーションの最小対応バージョン。
 	Mozillaアプリケーションがすでにインストール済みで、ここで指定された
@@ -87,6 +99,8 @@ APP_MAX_VERSION：
 	Mozillaアプリケーションの最大対応バージョン。
 	Mozillaアプリケーションがすでにインストール済みで、ここで指定された
 	バージョンより新しい場合、インストールを中断する。
+	アドオンの最大対応バージョン表記の「2.0.0.*」のようなワイルドカードは
+	利用できない。この場合は代わりとして「2.0.0.99」を用いる。
 APP_DOWNLOAD_PATH（省略可）：
 	Mozillaアプリケーションの新規インストールまたはアップデートに使用する
 	インストーラを、システムのファイルパスで指定する。
@@ -276,6 +290,9 @@ DesktopShortcut：
 	デスクトップのショートカット作成の可否。
 	true：デスクトップにショートカットを作成する。
 	false：デスクトップにショートカットを作成しない。
+ShortcutName：
+	DesktopShortcutがfalseである場合に、削除対象とするショートカットの
+	名称。
 StartMenuShortcuts：
 	スタートメニューの項目追加の可否。
 	true：スタートメニューに項目を追加する。
@@ -283,6 +300,8 @@ StartMenuShortcuts：
 StartMenuDirectoryName：
 	StartMenuShortcutsがtrueである場合に、スタートメニュー内に作成する
 	サブメニューの名称。
+	StartMenuShortcutsがfalseである場合は、削除対象とするサブメニューの
+	名称として解釈する。
 QuickLaunchShortcut：
 	クイックランチへの登録の可否。
 	true：クイックランチにショートカットを作成する。
