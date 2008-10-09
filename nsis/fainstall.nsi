@@ -42,7 +42,7 @@
 
 !define LANG_JAPANESE       "1041"
 
-!define APP_INSTALLER_PATH  "$EXEDIR\${APP_NAME}-setup.exe"
+!define APP_INSTALLER_PATH  "$EXEDIR\resources\${APP_NAME}-setup.exe"
 !define APP_INSTALLER_INI   "$EXEDIR\resources\${APP_NAME}-setup.ini"
 !define APP_EXTENSIONS_DIR  "$APP_DIR\extensions"
 !define APP_CONFIG_DIR      "$APP_DIR\defaults\pref"
@@ -267,7 +267,10 @@ Section "Download Application" DownloadApp
     ${If} $APP_EXISTS != "1"
       StrCpy $APP_INSTALLER_FINAL_PATH "${APP_INSTALLER_PATH}"
 
-      ${If} ${FileExists} "$APP_DOWNLOAD_PATH"
+      ${IfThen} ${FileExists} "$APP_INSTALLER_FINAL_PATH" ${|} GoTo AppDownloadDone ${|}
+
+      ${If} "$APP_DOWNLOAD_PATH" != ""
+      ${AndIf} ${FileExists} "$APP_DOWNLOAD_PATH"
         StrCpy $APP_INSTALLER_FINAL_PATH "$APP_DOWNLOAD_PATH"
         GoTo AppDownloadDone
       ${EndIf}
@@ -318,15 +321,15 @@ Section "Install Application" InstallApp
     ${If} $APP_EXISTS != "1"
       ${If} ${FileExists} "${APP_INSTALLER_INI}"
 !if ${APP_NAME} == "Netscape"
-        ExecWait "$APP_INSTALLER_FINAL_PATH ${SILENT_INSTALL_OPTIONS}"
+        ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
 !else
-        ExecWait '$APP_INSTALLER_FINAL_PATH /INI="${APP_INSTALLER_INI}"'
+        ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="${APP_INSTALLER_INI}"'
 !endif
       ${Else}
 !ifdef APP_SILENT_INSTALL
-        ExecWait "$APP_INSTALLER_FINAL_PATH ${SILENT_INSTALL_OPTIONS}"
+        ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
 !else
-        ExecWait "$APP_INSTALLER_FINAL_PATH"
+        ExecWait '$APP_INSTALLER_FINAL_PATH'
 !endif
       ${EndIf}
 
