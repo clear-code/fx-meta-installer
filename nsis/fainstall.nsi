@@ -212,12 +212,15 @@ BrandingText " "
 ;=== MUI sections
 !ifdef APP_SILENT_INSTALL
 Function AppEULAPageCheck
+    LogSet on
+
     StrCpy $APP_EULA_DL_FAILED "0"
 
     Call GetAppPath
     Call CheckAppVersionWithMessage
 
     ${If} $APP_EXISTS != "1"
+      LogText "*** AppEULAPageCheck: Application does not exist so show EULA"
       StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
       ${If} ${FileExists} "$APP_EULA_PATH"
         StrCpy $APP_EULA_FINAL_PATH "$APP_EULA_PATH"
@@ -236,12 +239,16 @@ Function AppEULAPageCheck
         ${EndIf}
       ${EndUnless}
       EULADownloadDone:
+      LogText "*** AppEULAPageCheck: EULA = &APP_EULA_FINAL_PATH"
     ${Else}
+      LogText "*** AppEULAPageCheck: EULA does not exist"
       Abort
     ${EndIf}
 FunctionEnd
 
 Function AppEULAPageSetup
+    LogSet on
+
 !insertmacro MUI_HEADER_TEXT $(MSG_APP_EULA_TITLE) $(MSG_APP_EULA_SUBTITLE)
     FindWindow $0 "#32770" "" $HWNDPARENT
     GetDlgItem $0 $0 1000
@@ -250,9 +257,12 @@ FunctionEnd
 !endif
 
 Section "Download Application" DownloadApp
+    LogSet on
+
 !ifdef APP_SILENT_INSTALL
     ${If} $APP_EULA_DL_FAILED == "1"
       MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
+      LogText "*** DownloadApp: Application's EULA does not exist"
       Abort
     ${EndIf}
 !endif
@@ -265,6 +275,7 @@ Section "Download Application" DownloadApp
 !endif
 
     ${If} $APP_EXISTS != "1"
+      LogText "*** DownloadApp: Application dest not exist so do installation"
       StrCpy $APP_INSTALLER_FINAL_PATH "${APP_INSTALLER_PATH}"
 
       ${IfThen} ${FileExists} "$APP_INSTALLER_FINAL_PATH" ${|} GoTo AppDownloadDone ${|}
@@ -274,6 +285,8 @@ Section "Download Application" DownloadApp
         StrCpy $APP_INSTALLER_FINAL_PATH "$APP_DOWNLOAD_PATH"
         GoTo AppDownloadDone
       ${EndIf}
+
+      LogText "*** DownloadApp: Let's download from the Internet"
 
       ; overwrite subtitle
       SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_APP_DOWNLOAD_START)"
@@ -291,6 +304,7 @@ Section "Download Application" DownloadApp
 
       ${If} $R0 != "OK"
         MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
+        LogText "*** DownloadApp: Download failed"
         Abort
       ${EndIf}
 
@@ -302,15 +316,19 @@ Section "Download Application" DownloadApp
       ${If} "$APP_HASH" != ""
         ${If} $0 != "$APP_HASH"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_HASH_ERROR)" /SD IDOK
+          LogText "*** DownloadApp: Downloaded file is broken"
           Abort
         ${EndIf}
       ${EndIf}
 
       AppDownloadDone:
+      LogText "*** DownloadApp: installer is $APP_INSTALLER_FINAL_PATH"
     ${EndIf}
 SectionEnd
 
 Section "Install Application" InstallApp
+    LogSet on
+
     Call GetAppPath
     Call CheckAppVersion
 
@@ -319,6 +337,7 @@ Section "Install Application" InstallApp
 !endif
 
     ${If} $APP_EXISTS != "1"
+      LogText "*** InstallApp: Let's run installer"
       ${If} ${FileExists} "${APP_INSTALLER_INI}"
 !if ${APP_NAME} == "Netscape"
         ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
@@ -346,6 +365,7 @@ Section "Install Application" InstallApp
         ${Else}
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_INSTALL_ERROR)" /SD IDOK
         ${EndIf}
+        LogText "*** InstallApp: Version check failed"
         Abort
       ${EndIf}
 
@@ -361,10 +381,13 @@ Section "Install Application" InstallApp
 
     StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
     SetOutPath $INSTDIR
+    LogText "*** InstallApp: install to $INSTDIR"
 SectionEnd
 
 !if ${APP_NAME} == "Netscape"
 Function "CheckShortcutsExistence"
+    LogSet on
+
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     ${If} ${FileExists} "${APP_INSTALLER_INI}"
@@ -401,6 +424,8 @@ Function "CheckShortcutsExistence"
 FunctionEnd
 
 Function "UpdateShortcutsExistence"
+    LogSet on
+
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
 
@@ -471,7 +496,10 @@ Section "Install Add-ons" InstallAddons
 SectionEnd
 
 Function "InstallAddon"
+    LogSet on
+
     StrCpy $ADDON_FILE "$R7"
+    LogText "*** InstallAddon: install $ADDON_FILE"
 
     ReadINIStr $ADDON_NAME "${INIPATH}" "$ADDON_FILE" "AddonId"
     ${If} $ADDON_NAME == ""
@@ -479,16 +507,22 @@ Function "InstallAddon"
       StrCpy $ADDON_NAME "$ADDON_NAME@${PRODUCT_DOMAIN}"
     ${EndIf}
 
+    LogText "*** InstallAddon: ADDON_NAME = $ADDON_NAME"
+
     StrCpy $ADDON_DIR "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
     ZipDLL::extractall "$EXEDIR\resources\$ADDON_FILE" "$ADDON_DIR"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ADDON_INDEX" "$ADDON_DIR"
 
     IntOp $ADDON_INDEX $ADDON_INDEX + 1
 
+    LogText "*** InstallAddon: $ADDON_NAME successfully installed"
+
 ;    Push $R0
 FunctionEnd
 
 Section "Install Additional Files" InstallAdditionalFiles
+    LogSet on
+
     StrCpy $INSTALLED_FILE_INDEX 0
 
     StrCpy $DIST_DIR "$APP_DIR"
@@ -536,8 +570,11 @@ Section "Install Additional Files" InstallAdditionalFiles
 SectionEnd
 
 Function "InstallNormalFile"
+    LogSet on
+
     StrCpy $PROCESSING_FILE "$R7"
     StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
+    LogText "*** InstallNormalFile: install $PROCESSING_FILE to $DIST_PATH"
     ${If} ${FileExists} "$DIST_PATH"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
       StrCpy $BACKUP_COUNT 0
@@ -545,6 +582,7 @@ Function "InstallNormalFile"
         IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
         StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
       ${EndWhile}
+      LogText "*** InstallNormalFile: backup old file as $BACKUP_PATH"
       Rename "$DIST_PATH" "$BACKUP_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEXBackup" "$BACKUP_PATH"
     ${EndIf}
@@ -552,11 +590,14 @@ Function "InstallNormalFile"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEX" "$DIST_PATH"
     IntOp $INSTALLED_FILE_INDEX $INSTALLED_FILE_INDEX + 1
 
+    LogText "*** InstallNormalFile: $PROCESSING_FILE is successfully installed"
     Push $R0
 FunctionEnd
 
 !if ${APP_NAME} == "Netscape"
 Function "AppendTextFile"
+    LogSet on
+
     StrCpy $PROCESSING_FILE "$R7"
     StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
     ${If} ${FileExists} "$DIST_PATH"
@@ -594,15 +635,19 @@ FunctionEnd
 !endif
 
 Section "Initialize Search Plugins" InitSearchPlugins
+    LogSet on
+
     StrCpy $DIST_PATH   "$APP_DIR\searchplugins"
     StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
     StrCpy $BACKUP_COUNT 0
+    LogText "*** InitSearchPlugins: install to $DIST_PATH"
     ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
       IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
     ${EndWhile}
 
     CreateDirectory "$BACKUP_PATH"
+    LogText "*** InitSearchPlugins: BACKUP_PATH = $BACKUP_PATH"
 
     ${If} "$FX_ENABLED_SEARCH_PLUGINS" != ""
     ${AndIf} "$FX_ENABLED_SEARCH_PLUGINS" != "*"
@@ -628,6 +673,8 @@ Section "Initialize Search Plugins" InitSearchPlugins
 SectionEnd
 
 Function "CheckDisableSearchPlugin"
+    LogSet on
+
     StrCpy $PROCESSING_FILE "$R7"
 
     ${If} "$FX_ENABLED_SEARCH_PLUGINS" != "*"
@@ -808,6 +855,8 @@ FunctionEnd
 
 ;=== Utility functions
 Function CheckInstalled
+    LogSet on
+
     ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
     ${If} $R0 != ""
 !ifndef PRODUCT_SILENT_INSTALL
@@ -816,6 +865,7 @@ Function CheckInstalled
 !endif
 
     UNINST:
+      LogText "CheckInstalled: Application is installed by meta installer"
       ; アプリケーションがこのアドオンの旧バージョンによって
       ; 自動インストールされたものである場合、状態を引き継ぐ
       ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
@@ -828,6 +878,8 @@ Function CheckInstalled
 FunctionEnd
 
 Function LoadINI
+    LogSet on
+
     StrCpy $APP_DOWNLOAD_PATH "${APP_DOWNLOAD_PATH}"
     StrCpy $APP_EULA_PATH "${APP_EULA_PATH}"
     StrCpy $APP_DOWNLOAD_URL "${APP_DOWNLOAD_URL}"
@@ -838,21 +890,31 @@ Function LoadINI
 
     IfFileExists "${INIPATH}" "" NO_INI
 
+    LogText "*** LoadINI: INI file exists"
+
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadPath"
+    LogText "*** LoadINI: AppDownloadPath = $INI_TEMP"
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_DOWNLOAD_PATH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaPath"
+    LogText "*** LoadINI: AppEulaPath = $INI_TEMP"
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_EULA_PATH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadUrl"
+    LogText "*** LoadINI: AppDownloadUrl = $INI_TEMP"
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_DOWNLOAD_URL "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaUrl"
+    LogText "*** LoadINI: AppEulaUrl = $INI_TEMP"
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_EULA_URL "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppHash"
+    LogText "*** LoadINI: AppHash = $INI_TEMP"
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_HASH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppInstallTalkback"
+    LogText "*** LoadINI: AppInstallTalkback = $INI_TEMP"
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_INSTALL_TALKBACK "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxEnabledSearchPlugins"
+    LogText "*** LoadINI: FxEnabledSearchPlugins = $INI_TEMP"
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $FX_ENABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxDisabledSearchPlugins"
+    LogText "*** LoadINI: FxDisabledSearchPlugins = $INI_TEMP"
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $FX_DISABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
 
   NO_INI:
@@ -875,7 +937,11 @@ Function un.CheckAppProc
 FunctionEnd
 
 Function GetAppPath
+    LogSet on
+
     ${IfThen} $APP_INSTALLED != "1" ${|} StrCpy $APP_INSTALLED "0" ${|}
+
+    LogText "*** GetAppPath: Application installed"
 
     ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY}" "CurrentVersion"
     StrCmp $APP_VERSION "" ERR
@@ -885,13 +951,18 @@ Function GetAppPath
     ReadRegStr $APP_EXE_PATH HKLM $0 "PathToExe"
     StrCmp $APP_EXE_PATH "" ERR
 
+    LogText "*** GetAppPath: APP_EXE_PATH = $APP_EXE_PATH"
+
     ; Application directory
     ReadRegStr $APP_DIR HKLM $0 "Install Directory"
     StrCmp $APP_DIR "" ERR
 
+    LogText "*** GetAppPath: APP_DIR = $APP_DIR"
+
     ${If} ${FileExists} "$APP_EXE_PATH"
       ${If} ${FileExists} "$APP_DIR"
       ${OrIf} ${FileExists} "$APP_DIR\*.*"
+        LogText "*** GetAppPath: Application exists"
         StrCpy $APP_EXISTS "1"
       ${EndIf}
     ${EndIf}
@@ -920,20 +991,30 @@ Function GetFirstStrPart
 FunctionEnd
 
 Function CheckAppVersion
+    LogSet on
+
     Push $APP_VERSION
     Call GetFirstStrPart
     Pop $NORMALIZED_APP_VERSION
+
+    LogText "*** CheckAppVersion: APP_VERSION = $APP_VERSION"
+    LogText "*** CheckAppVersion: NORMALIZED_APP_VERSION = $NORMALIZED_APP_VERSION"
+    LogText "*** CheckAppVersion: APP_MIN_VERSION = $APP_MIN_VERSION"
+    LogText "*** CheckAppVersion: APP_MAX_VERSION = $APP_MAX_VERSION"
 
     ${VersionConvert} "$NORMALIZED_APP_VERSION" "abcdefghijklmnopqrstuvwxyz" $APP_VERSION_NUM
     StrCpy $APP_WRONG_VERSION "0"
 
     ${IfThen} $APP_EXISTS != "1" ${|} GoTo RETURN ${|}
 
+    LogText "*** CheckAppVersion: Application exists"
+
     ${VersionConvert} "${APP_MAX_VERSION}" "abcdefghijklmnopqrstuvwxyz" $APP_MAX_VERSION
     ${VersionCompare} "$APP_VERSION_NUM" "$APP_MAX_VERSION" $0
 
     ${If} $0 == 1
       StrCpy $APP_WRONG_VERSION "2"
+      LogText "*** CheckAppVersion: Installed version is too new"
       GoTo RETURN
     ${EndIf}
 
@@ -942,16 +1023,20 @@ Function CheckAppVersion
     ${If} $0 == 2
       StrCpy $APP_WRONG_VERSION "1"
       StrCpy $APP_EXISTS "0"
+      LogText "*** CheckAppVersion: Installed version is too old"
       GoTo RETURN
     ${EndIf}
   RETURN:
 FunctionEnd
 
 Function CheckAppVersionWithMessage
+    LogSet on
+
     ${IfThen} $APP_EXISTS != "1" ${|} GoTo RETURN ${|}
 
     Call CheckAppVersion
 
+    LogText "*** CheckAppVersionWithMessage: APP_WRONG_VERSION = $APP_WRONG_VERSION"
     ${Switch} $APP_WRONG_VERSION
 
       ${Case} 1

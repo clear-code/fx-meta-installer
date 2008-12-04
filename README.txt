@@ -3,6 +3,10 @@
 * NSISをインストール．
   http://nsis.sourceforge.net/Main_Page
 
+* ログ出力機能を有効にしてコンパイルされたNSISコンパイラを
+  別途ダウンロードしてインストール（標準の物に上書き）
+  http://nsis.sourceforge.net/Special_Builds
+
 * FindProcDLLプラグインをインストール．
   http://nsis.sourceforge.net/FindProcDLL_plug-in
   *.dllをNSISインストール先のPluginsフォルダに移動
