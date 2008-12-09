@@ -212,7 +212,9 @@ BrandingText " "
 ;=== MUI sections
 !ifdef APP_SILENT_INSTALL
 Function AppEULAPageCheck
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     StrCpy $APP_EULA_DL_FAILED "0"
 
@@ -220,7 +222,9 @@ Function AppEULAPageCheck
     Call CheckAppVersionWithMessage
 
     ${If} $APP_EXISTS != "1"
+!ifdef NSIS_CONFIG_LOG
       LogText "*** AppEULAPageCheck: Application does not exist so show EULA"
+!endif
       StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
       ${If} ${FileExists} "$APP_EULA_PATH"
         StrCpy $APP_EULA_FINAL_PATH "$APP_EULA_PATH"
@@ -239,15 +243,21 @@ Function AppEULAPageCheck
         ${EndIf}
       ${EndUnless}
       EULADownloadDone:
+!ifdef NSIS_CONFIG_LOG
       LogText "*** AppEULAPageCheck: EULA = &APP_EULA_FINAL_PATH"
+!endif
     ${Else}
+!ifdef NSIS_CONFIG_LOG
       LogText "*** AppEULAPageCheck: EULA does not exist"
+!endif
       Abort
     ${EndIf}
 FunctionEnd
 
 Function AppEULAPageSetup
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
 !insertmacro MUI_HEADER_TEXT $(MSG_APP_EULA_TITLE) $(MSG_APP_EULA_SUBTITLE)
     FindWindow $0 "#32770" "" $HWNDPARENT
@@ -257,12 +267,16 @@ FunctionEnd
 !endif
 
 Section "Download Application" DownloadApp
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
 !ifdef APP_SILENT_INSTALL
     ${If} $APP_EULA_DL_FAILED == "1"
       MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
+!ifdef NSIS_CONFIG_LOG
       LogText "*** DownloadApp: Application's EULA does not exist"
+!endif
       Abort
     ${EndIf}
 !endif
@@ -275,7 +289,9 @@ Section "Download Application" DownloadApp
 !endif
 
     ${If} $APP_EXISTS != "1"
+!ifdef NSIS_CONFIG_LOG
       LogText "*** DownloadApp: Application dest not exist so do installation"
+!endif
       StrCpy $APP_INSTALLER_FINAL_PATH "${APP_INSTALLER_PATH}"
 
       ${IfThen} ${FileExists} "$APP_INSTALLER_FINAL_PATH" ${|} GoTo AppDownloadDone ${|}
@@ -286,7 +302,9 @@ Section "Download Application" DownloadApp
         GoTo AppDownloadDone
       ${EndIf}
 
+!ifdef NSIS_CONFIG_LOG
       LogText "*** DownloadApp: Let's download from the Internet"
+!endif
 
       ; overwrite subtitle
       SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_APP_DOWNLOAD_START)"
@@ -304,7 +322,9 @@ Section "Download Application" DownloadApp
 
       ${If} $R0 != "OK"
         MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
+!ifdef NSIS_CONFIG_LOG
         LogText "*** DownloadApp: Download failed"
+!endif
         Abort
       ${EndIf}
 
@@ -316,18 +336,24 @@ Section "Download Application" DownloadApp
       ${If} "$APP_HASH" != ""
         ${If} $0 != "$APP_HASH"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_HASH_ERROR)" /SD IDOK
+!ifdef NSIS_CONFIG_LOG
           LogText "*** DownloadApp: Downloaded file is broken"
+!endif
           Abort
         ${EndIf}
       ${EndIf}
 
       AppDownloadDone:
+!ifdef NSIS_CONFIG_LOG
       LogText "*** DownloadApp: installer is $APP_INSTALLER_FINAL_PATH"
+!endif
     ${EndIf}
 SectionEnd
 
 Section "Install Application" InstallApp
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     Call GetAppPath
     Call CheckAppVersion
@@ -337,7 +363,9 @@ Section "Install Application" InstallApp
 !endif
 
     ${If} $APP_EXISTS != "1"
+!ifdef NSIS_CONFIG_LOG
       LogText "*** InstallApp: Let's run installer"
+!endif
       ${If} ${FileExists} "${APP_INSTALLER_INI}"
 !if ${APP_NAME} == "Netscape"
         ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
@@ -365,7 +393,9 @@ Section "Install Application" InstallApp
         ${Else}
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_INSTALL_ERROR)" /SD IDOK
         ${EndIf}
+!ifdef NSIS_CONFIG_LOG
         LogText "*** InstallApp: Version check failed"
+!endif
         Abort
       ${EndIf}
 
@@ -381,12 +411,16 @@ Section "Install Application" InstallApp
 
     StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
     SetOutPath $INSTDIR
+!ifdef NSIS_CONFIG_LOG
     LogText "*** InstallApp: install to $INSTDIR"
+!endif
 SectionEnd
 
 !if ${APP_NAME} == "Netscape"
 Function "CheckShortcutsExistence"
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
@@ -424,7 +458,9 @@ Function "CheckShortcutsExistence"
 FunctionEnd
 
 Function "UpdateShortcutsExistence"
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
@@ -496,10 +532,14 @@ Section "Install Add-ons" InstallAddons
 SectionEnd
 
 Function "InstallAddon"
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     StrCpy $ADDON_FILE "$R7"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** InstallAddon: install $ADDON_FILE"
+!endif
 
     ReadINIStr $ADDON_NAME "${INIPATH}" "$ADDON_FILE" "AddonId"
     ${If} $ADDON_NAME == ""
@@ -507,7 +547,9 @@ Function "InstallAddon"
       StrCpy $ADDON_NAME "$ADDON_NAME@${PRODUCT_DOMAIN}"
     ${EndIf}
 
+!ifdef NSIS_CONFIG_LOG
     LogText "*** InstallAddon: ADDON_NAME = $ADDON_NAME"
+!endif
 
     StrCpy $ADDON_DIR "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
     ZipDLL::extractall "$EXEDIR\resources\$ADDON_FILE" "$ADDON_DIR"
@@ -515,13 +557,17 @@ Function "InstallAddon"
 
     IntOp $ADDON_INDEX $ADDON_INDEX + 1
 
+!ifdef NSIS_CONFIG_LOG
     LogText "*** InstallAddon: $ADDON_NAME successfully installed"
+!endif
 
 ;    Push $R0
 FunctionEnd
 
 Section "Install Additional Files" InstallAdditionalFiles
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     StrCpy $INSTALLED_FILE_INDEX 0
 
@@ -570,11 +616,15 @@ Section "Install Additional Files" InstallAdditionalFiles
 SectionEnd
 
 Function "InstallNormalFile"
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     StrCpy $PROCESSING_FILE "$R7"
     StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** InstallNormalFile: install $PROCESSING_FILE to $DIST_PATH"
+!endif
     ${If} ${FileExists} "$DIST_PATH"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
       StrCpy $BACKUP_COUNT 0
@@ -582,7 +632,9 @@ Function "InstallNormalFile"
         IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
         StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
       ${EndWhile}
+!ifdef NSIS_CONFIG_LOG
       LogText "*** InstallNormalFile: backup old file as $BACKUP_PATH"
+!endif
       Rename "$DIST_PATH" "$BACKUP_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEXBackup" "$BACKUP_PATH"
     ${EndIf}
@@ -590,13 +642,17 @@ Function "InstallNormalFile"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEX" "$DIST_PATH"
     IntOp $INSTALLED_FILE_INDEX $INSTALLED_FILE_INDEX + 1
 
+!ifdef NSIS_CONFIG_LOG
     LogText "*** InstallNormalFile: $PROCESSING_FILE is successfully installed"
+!endif
     Push $R0
 FunctionEnd
 
 !if ${APP_NAME} == "Netscape"
 Function "AppendTextFile"
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     StrCpy $PROCESSING_FILE "$R7"
     StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
@@ -635,19 +691,25 @@ FunctionEnd
 !endif
 
 Section "Initialize Search Plugins" InitSearchPlugins
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     StrCpy $DIST_PATH   "$APP_DIR\searchplugins"
     StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
     StrCpy $BACKUP_COUNT 0
+!ifdef NSIS_CONFIG_LOG
     LogText "*** InitSearchPlugins: install to $DIST_PATH"
+!endif
     ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
       IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
     ${EndWhile}
 
     CreateDirectory "$BACKUP_PATH"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** InitSearchPlugins: BACKUP_PATH = $BACKUP_PATH"
+!endif
 
     ${If} "$FX_ENABLED_SEARCH_PLUGINS" != ""
     ${AndIf} "$FX_ENABLED_SEARCH_PLUGINS" != "*"
@@ -673,7 +735,9 @@ Section "Initialize Search Plugins" InitSearchPlugins
 SectionEnd
 
 Function "CheckDisableSearchPlugin"
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     StrCpy $PROCESSING_FILE "$R7"
 
@@ -855,7 +919,9 @@ FunctionEnd
 
 ;=== Utility functions
 Function CheckInstalled
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
     ${If} $R0 != ""
@@ -865,7 +931,9 @@ Function CheckInstalled
 !endif
 
     UNINST:
+!ifdef NSIS_CONFIG_LOG
       LogText "CheckInstalled: Application is installed by meta installer"
+!endif
       ; アプリケーションがこのアドオンの旧バージョンによって
       ; 自動インストールされたものである場合、状態を引き継ぐ
       ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
@@ -878,7 +946,9 @@ Function CheckInstalled
 FunctionEnd
 
 Function LoadINI
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     StrCpy $APP_DOWNLOAD_PATH "${APP_DOWNLOAD_PATH}"
     StrCpy $APP_EULA_PATH "${APP_EULA_PATH}"
@@ -890,31 +960,49 @@ Function LoadINI
 
     IfFileExists "${INIPATH}" "" NO_INI
 
+!ifdef NSIS_CONFIG_LOG
     LogText "*** LoadINI: INI file exists"
+!endif
 
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadPath"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** LoadINI: AppDownloadPath = $INI_TEMP"
+!endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_DOWNLOAD_PATH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaPath"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** LoadINI: AppEulaPath = $INI_TEMP"
+!endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_EULA_PATH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadUrl"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** LoadINI: AppDownloadUrl = $INI_TEMP"
+!endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_DOWNLOAD_URL "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaUrl"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** LoadINI: AppEulaUrl = $INI_TEMP"
+!endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_EULA_URL "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppHash"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** LoadINI: AppHash = $INI_TEMP"
+!endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_HASH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppInstallTalkback"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** LoadINI: AppInstallTalkback = $INI_TEMP"
+!endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_INSTALL_TALKBACK "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxEnabledSearchPlugins"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** LoadINI: FxEnabledSearchPlugins = $INI_TEMP"
+!endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $FX_ENABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxDisabledSearchPlugins"
+!ifdef NSIS_CONFIG_LOG
     LogText "*** LoadINI: FxDisabledSearchPlugins = $INI_TEMP"
+!endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $FX_DISABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
 
   NO_INI:
@@ -937,11 +1025,15 @@ Function un.CheckAppProc
 FunctionEnd
 
 Function GetAppPath
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     ${IfThen} $APP_INSTALLED != "1" ${|} StrCpy $APP_INSTALLED "0" ${|}
 
+!ifdef NSIS_CONFIG_LOG
     LogText "*** GetAppPath: Application installed"
+!endif
 
     ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY}" "CurrentVersion"
     StrCmp $APP_VERSION "" ERR
@@ -951,18 +1043,24 @@ Function GetAppPath
     ReadRegStr $APP_EXE_PATH HKLM $0 "PathToExe"
     StrCmp $APP_EXE_PATH "" ERR
 
+!ifdef NSIS_CONFIG_LOG
     LogText "*** GetAppPath: APP_EXE_PATH = $APP_EXE_PATH"
+!endif
 
     ; Application directory
     ReadRegStr $APP_DIR HKLM $0 "Install Directory"
     StrCmp $APP_DIR "" ERR
 
+!ifdef NSIS_CONFIG_LOG
     LogText "*** GetAppPath: APP_DIR = $APP_DIR"
+!endif
 
     ${If} ${FileExists} "$APP_EXE_PATH"
       ${If} ${FileExists} "$APP_DIR"
       ${OrIf} ${FileExists} "$APP_DIR\*.*"
+!ifdef NSIS_CONFIG_LOG
         LogText "*** GetAppPath: Application exists"
+!endif
         StrCpy $APP_EXISTS "1"
       ${EndIf}
     ${EndIf}
@@ -991,30 +1089,38 @@ Function GetFirstStrPart
 FunctionEnd
 
 Function CheckAppVersion
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     Push $APP_VERSION
     Call GetFirstStrPart
     Pop $NORMALIZED_APP_VERSION
 
+!ifdef NSIS_CONFIG_LOG
     LogText "*** CheckAppVersion: APP_VERSION = $APP_VERSION"
     LogText "*** CheckAppVersion: NORMALIZED_APP_VERSION = $NORMALIZED_APP_VERSION"
     LogText "*** CheckAppVersion: APP_MIN_VERSION = $APP_MIN_VERSION"
     LogText "*** CheckAppVersion: APP_MAX_VERSION = $APP_MAX_VERSION"
+!endif
 
     ${VersionConvert} "$NORMALIZED_APP_VERSION" "abcdefghijklmnopqrstuvwxyz" $APP_VERSION_NUM
     StrCpy $APP_WRONG_VERSION "0"
 
     ${IfThen} $APP_EXISTS != "1" ${|} GoTo RETURN ${|}
 
+!ifdef NSIS_CONFIG_LOG
     LogText "*** CheckAppVersion: Application exists"
+!endif
 
     ${VersionConvert} "${APP_MAX_VERSION}" "abcdefghijklmnopqrstuvwxyz" $APP_MAX_VERSION
     ${VersionCompare} "$APP_VERSION_NUM" "$APP_MAX_VERSION" $0
 
     ${If} $0 == 1
       StrCpy $APP_WRONG_VERSION "2"
+!ifdef NSIS_CONFIG_LOG
       LogText "*** CheckAppVersion: Installed version is too new"
+!endif
       GoTo RETURN
     ${EndIf}
 
@@ -1023,20 +1129,26 @@ Function CheckAppVersion
     ${If} $0 == 2
       StrCpy $APP_WRONG_VERSION "1"
       StrCpy $APP_EXISTS "0"
+!ifdef NSIS_CONFIG_LOG
       LogText "*** CheckAppVersion: Installed version is too old"
+!endif
       GoTo RETURN
     ${EndIf}
   RETURN:
 FunctionEnd
 
 Function CheckAppVersionWithMessage
+!ifdef NSIS_CONFIG_LOG
     LogSet on
+!endif
 
     ${IfThen} $APP_EXISTS != "1" ${|} GoTo RETURN ${|}
 
     Call CheckAppVersion
 
+!ifdef NSIS_CONFIG_LOG
     LogText "*** CheckAppVersionWithMessage: APP_WRONG_VERSION = $APP_WRONG_VERSION"
+!endif
     ${Switch} $APP_WRONG_VERSION
 
       ${Case} 1
