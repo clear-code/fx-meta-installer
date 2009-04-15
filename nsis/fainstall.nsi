@@ -773,6 +773,37 @@ Function "CheckDisableSearchPlugin"
     Push 0
 FunctionEnd
 
+Section "Initialize Distribution Customizer" InitDistributonCustomizer
+!ifdef NSIS_CONFIG_LOG
+    LogSet on
+!endif
+
+    StrCpy $DIST_PATH   "$APP_DIR\distribution"
+    StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
+    StrCpy $BACKUP_COUNT 0
+!ifdef NSIS_CONFIG_LOG
+    LogText "*** InitDistributonCustomizer: install to $DIST_PATH"
+!endif
+    ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
+      IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
+      StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
+    ${EndWhile}
+
+    StrCpy $DIST_DIR "$DIST_PATH"
+    ${If} ${FileExists} "$EXEDIR\resources\distribution.*"
+      ${If} ${FileExists} "$DIST_PATH"
+        WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup" "$BACKUP_PATH"
+        Rename "$DIST_PATH" "$BACKUP_PATH"
+!ifdef NSIS_CONFIG_LOG
+        LogText "*** InitDistributonCustomizer: BACKUP_PATH = $BACKUP_PATH"
+!endif
+      ${EndIf}
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
+      CreateDirectory "$DIST_PATH"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=distribution.*" "InstallNormalFile"
+    ${EndIf}
+SectionEnd
+
 Section -Post
     WriteUninstaller "${PRODUCT_UNINST_PATH}"
     WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR"
@@ -833,6 +864,18 @@ Section Uninstall
       ${Unless} ${FileExists} "$BACKUP_PATH\*.xml"
         RMDir /r "$BACKUP_PATH"
       ${EndUnless}
+    ${EndIf}
+
+    ; distributon customizer
+    ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup"
+    ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer"
+    ${If} $INSTALLED_FILE != ""
+      RMDir /r "$INSTALLED_FILE"
+    ${EndIf}
+    ${If} $BACKUP_PATH != ""
+    ${AndIf} ${FileExists} "$BACKUP_PATH"
+    ${AndIf} ${FileExists} "$BACKUP_PATH\*.*"
+      Rename "$BACKUP_PATH" "$INSTALLED_FILE"
     ${EndIf}
 
     RMDir /r "$INSTDIR"
