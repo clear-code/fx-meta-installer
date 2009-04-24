@@ -128,6 +128,7 @@ Var SHORTCUT_PATH_STARTMENU_PROGRAM
 !endif
 Var APP_EXISTS
 Var APP_INSTALLED
+Var NORMALIZED_VERSION
 Var APP_MAX_VERSION
 Var APP_MIN_VERSION
 !ifdef APP_SILENT_INSTALL
@@ -938,7 +939,8 @@ Function un.onUninstSuccess
       ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
 !endif
 !ifndef APP_SILENT_INSTALL
-        MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES UNINSTALL_APP "" SKIP_APP_UNINSTALLATION
+        MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES +2
+        GoTo SKIP_APP_UNINSTALLATION
 !endif
 !ifdef APP_SILENT_INSTALL
   !if ${APP_NAME} == "Netscape"
@@ -1156,8 +1158,10 @@ Function CheckAppVersion
     LogText "*** CheckAppVersion: Application exists"
 !endif
 
-    ${VersionConvert} "${APP_MAX_VERSION}" "abcdefghijklmnopqrstuvwxyz" $APP_MAX_VERSION
-    ${VersionCompare} "$APP_VERSION_NUM" "$APP_MAX_VERSION" $0
+    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "MaxVersion"
+    ${IfThen} $INI_TEMP == "" ${|} StrCpy $INI_TEMP "${APP_MAX_VERSION}" ${|}
+    ${VersionConvert} "$INI_TEMP" "abcdefghijklmnopqrstuvwxyz" $NORMALIZED_VERSION
+    ${VersionCompare} "$APP_VERSION_NUM" "$NORMALIZED_VERSION" $0
 
     ${If} $0 == 1
       StrCpy $APP_WRONG_VERSION "2"
@@ -1167,8 +1171,10 @@ Function CheckAppVersion
       GoTo RETURN
     ${EndIf}
 
-    ${VersionConvert} "${APP_MIN_VERSION}" "abcdefghijklmnopqrstuvwxyz" $APP_MIN_VERSION
-    ${VersionCompare} "$APP_VERSION_NUM" "$APP_MIN_VERSION" $0
+    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "MinVersion"
+    ${IfThen} $INI_TEMP == "" ${|} StrCpy $INI_TEMP "${APP_MIN_VERSION}" ${|}
+    ${VersionConvert} "$INI_TEMP" "abcdefghijklmnopqrstuvwxyz" $NORMALIZED_VERSION
+    ${VersionCompare} "$APP_VERSION_NUM" "$NORMALIZED_VERSION" $0
     ${If} $0 == 2
       StrCpy $APP_WRONG_VERSION "1"
       StrCpy $APP_EXISTS "0"
