@@ -1158,7 +1158,7 @@ Function CheckAppVersion
     LogText "*** CheckAppVersion: Application exists"
 !endif
 
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "MaxVersion"
+    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppMaxVersion"
     ${IfThen} $INI_TEMP == "" ${|} StrCpy $INI_TEMP "${APP_MAX_VERSION}" ${|}
     ${VersionConvert} "$INI_TEMP" "abcdefghijklmnopqrstuvwxyz" $NORMALIZED_VERSION
     ${VersionCompare} "$APP_VERSION_NUM" "$NORMALIZED_VERSION" $0
@@ -1171,7 +1171,7 @@ Function CheckAppVersion
       GoTo RETURN
     ${EndIf}
 
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "MinVersion"
+    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppMinVersion"
     ${IfThen} $INI_TEMP == "" ${|} StrCpy $INI_TEMP "${APP_MIN_VERSION}" ${|}
     ${VersionConvert} "$INI_TEMP" "abcdefghijklmnopqrstuvwxyz" $NORMALIZED_VERSION
     ${VersionCompare} "$APP_VERSION_NUM" "$NORMALIZED_VERSION" $0
