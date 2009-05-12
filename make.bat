@@ -41,6 +41,7 @@ copy 7z\pack.list "%INSTALLER_NAME%-source\"
 copy /b 7z\7zS.sfx + 7z\FxAddonInstaller.tag "%INSTALLER_NAME%-source\fainstall.sfx"
 copy 7z\7zr.exe "%INSTALLER_NAME%-source\"
 copy 7z\pack.bat "%INSTALLER_NAME%-source\%INSTALLER_NAME%.bat"
+copy 7z\pack.sh "%INSTALLER_NAME%-source\%INSTALLER_NAME%.sh"
 cd "%INSTALLER_NAME%-source\"
 
 call "%INSTALLER_NAME%.bat

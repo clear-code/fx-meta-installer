@@ -48,17 +48,20 @@ cd ..
 
 rm -r "$installer_name-source"
 mkdir "$installer_name-source"
+mkdir "$installer_name-source/resources"
 
 mv fainstall.exe "./$installer_name-source/"
 mv fainstall.ini "./$installer_name-source/"
 
-run tar -c -f- -X _excludes.txt -C resources . | tar -x -C "./$installer_name-source/resources"
+tar -c -f- --exclude-vcs -C resources . | tar -x -C "./$installer_name-source/resources"
 cp ./7z/pack.list "./$installer_name-source/"
 cat ./7z/7zS.sfx ./7z/FxAddonInstaller.tag > "./$installer_name-source/fainstall.sfx"
 cp ./7z/7zr.exe "./$installer_name-source/"
 cp ./7z/pack.bat "./$installer_name-source/$installer_name.bat"
-#cd "$installer_name-source"
-#
-#call "$installer_name.bat
-#
-#cd ..
+cp ./7z/pack.sh "./$installer_name-source/$installer_name.sh"
+cd "$installer_name-source"
+
+./$installer_name.sh
+
+cd ..
+

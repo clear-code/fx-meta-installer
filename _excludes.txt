@@ -1,2 +1,0 @@
-_excludes.txt
-.svn
