@@ -39,7 +39,8 @@
 
 * UACプラグインをインストール．
   http://nsis.sourceforge.net/UAC_plug-in
-  Release/*.dllをNSISインストール先のPluginsフォルダに移動
+  Release/U/*.dllをNSISインストール先のPluginsフォルダに移動
+  UAC.nshをNSISインストール先のIncludeフォルダに移動
 
 * 7-Zipをインストール．
   http://www.7-zip.org/ja/
