@@ -1,4 +1,4 @@
-;Copyright (C) 2008 ClearCode Inc.
+;Copyright (C) 2008-2009 ClearCode Inc.
 
 ;=== Libraries
 !include "LogicLib.nsh"
@@ -583,6 +583,21 @@ Section "Install Additional Files" InstallAdditionalFiles
     StrCpy $DIST_DIR "$APP_DIR\defaults"
     ${If} ${FileExists} "$EXEDIR\resources\*.cer"
       ${Locate} "$EXEDIR\resources" "/L=F /M=*.cer" "InstallNormalFile"
+    ${EndIf}
+    ${If} ${FileExists} "$EXEDIR\resources\*.crt"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.crt" "InstallNormalFile"
+    ${EndIf}
+    ${If} ${FileExists} "$EXEDIR\resources\*.pem"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.pem" "InstallNormalFile"
+    ${EndIf}
+    ${If} ${FileExists} "$EXEDIR\resources\*.cer.override"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.cer.override" "InstallNormalFile"
+    ${EndIf}
+    ${If} ${FileExists} "$EXEDIR\resources\*.crt.override"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.crt.override" "InstallNormalFile"
+    ${EndIf}
+    ${If} ${FileExists} "$EXEDIR\resources\*.pem.override"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.pem.override" "InstallNormalFile"
     ${EndIf}
 
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
