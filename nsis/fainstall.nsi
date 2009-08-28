@@ -572,7 +572,7 @@ Function "InstallAddon"
     ${If} $ADDON_TARGET_LOCATION != ""
       StrCpy $ADDON_DIR "$APP_DIR\$ADDON_TARGET_LOCATION\$ADDON_NAME"
     ${Else}
-      StrCpy $ADDON_DIR "${APP_EXTENSIONS_DIR}$ADDON_TARGET_LOCATION\$ADDON_NAME"
+      StrCpy $ADDON_DIR "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
     ${EndIf}
     ZipDLL::extractall "$EXEDIR\resources\$ADDON_FILE" "$ADDON_DIR"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ADDON_INDEX" "$ADDON_DIR"
