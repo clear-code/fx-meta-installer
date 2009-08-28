@@ -145,8 +145,10 @@ Var BACKUP_COUNT
 Var INSTALLED_FILE
 Var INSTALLED_FILE_INDEX
 
+Var ADDON_ORDER
 Var ADDON_FILE
 Var ADDON_NAME
+Var ADDON_TARGET_LOCATION
 Var ADDON_DIR
 Var ADDON_INDEX
 
@@ -529,7 +531,19 @@ FunctionEnd
 
 Section "Install Add-ons" InstallAddons
     StrCpy $ADDON_INDEX 0
-    ${Locate} "$EXEDIR\resources" "/L=F /M=*.xpi" "InstallAddon"
+    ReadINIStr $ADDON_ORDER "${INIPATH}" "${INSTALLER_NAME}" "InstallOrder"
+    ${If} $ADDON_ORDER == ""
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.xpi" "InstallAddon"
+    ${Else}
+      ${WordFind} $ADDON_ORDER " " "+$ADDON_INDEX"
+      StrCpy $ADDON_NAME $R0
+      ${While} $ADDON_NAME != ""
+        StrCpy $R7 $ADDON_NAME
+        Call InstallAddon
+        ${WordFind} $ADDON_ORDER " " "+$ADDON_INDEX"
+        StrCpy $ADDON_NAME $R0
+      ${EndWhile}
+    ${EndIf}
 SectionEnd
 
 Function "InstallAddon"
@@ -552,7 +566,11 @@ Function "InstallAddon"
     LogText "*** InstallAddon: ADDON_NAME = $ADDON_NAME"
 !endif
 
-    StrCpy $ADDON_DIR "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
+    ReadINIStr $ADDON_TARGET_LOCATION "${INIPATH}" "$ADDON_FILE" "TargetLocation"
+    ${If} $ADDON_TARGET_LOCATION != ""
+      StrCpy $ADDON_TARGET_LOCATION "$ADDON_TARGET_LOCATION\"
+    ${EndIf}
+    StrCpy $ADDON_DIR "${APP_EXTENSIONS_DIR}\$ADDON_TARGET_LOCATION$ADDON_NAME"
     ZipDLL::extractall "$EXEDIR\resources\$ADDON_FILE" "$ADDON_DIR"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ADDON_INDEX" "$ADDON_DIR"
 
