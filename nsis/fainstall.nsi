@@ -536,13 +536,12 @@ Section "Install Add-ons" InstallAddons
     ${If} $ADDON_ORDER == ""
       ${Locate} "$EXEDIR\resources" "/L=F /M=*.xpi" "InstallAddon"
     ${Else}
-      IntOp $ADDON_ORDER_INDEX $ADDON_INDEX + 1
-      ${WordFind} $ADDON_ORDER " " "+$ADDON_ORDER_INDEX" $ADDON_NAME
-      ${While} $ADDON_NAME != $ADDON_ORDER
-        StrCpy $R7 $ADDON_NAME
-        Call InstallAddon
+      ${While} 1 == 1
         IntOp $ADDON_ORDER_INDEX $ADDON_ORDER_INDEX + 1
         ${WordFind} $ADDON_ORDER " " "+$ADDON_ORDER_INDEX" $ADDON_NAME
+        ${IfThen} $ADDON_NAME == $ADDON_ORDER ${|} ${Break} ${|}
+        StrCpy $R7 $ADDON_NAME
+        Call InstallAddon
       ${EndWhile}
     ${EndIf}
 SectionEnd
