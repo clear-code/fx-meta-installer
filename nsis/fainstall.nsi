@@ -539,7 +539,6 @@ Section "Install Add-ons" InstallAddons
       IntOp $ADDON_ORDER_INDEX $ADDON_INDEX + 1
       ${WordFind} $ADDON_ORDER " " "+$ADDON_ORDER_INDEX" $ADDON_NAME
       ${While} $ADDON_NAME != $ADDON_ORDER
-        MessageBox MB_OK|MB_ICONEXCLAMATION "install $ADDON_NAME" /SD IDOK
         StrCpy $R7 $ADDON_NAME
         Call InstallAddon
         IntOp $ADDON_ORDER_INDEX $ADDON_ORDER_INDEX + 1
