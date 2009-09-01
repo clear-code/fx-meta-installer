@@ -539,7 +539,9 @@ Section "Install Add-ons" InstallAddons
       ${While} 1 == 1
         IntOp $ADDON_LIST_INDEX $ADDON_LIST_INDEX + 1
         ${WordFind} $ADDON_LIST " " "+$ADDON_LIST_INDEX" $ADDON_NAME
-        ${IfThen} $ADDON_NAME == $ADDON_LIST ${|} ${Break} ${|}
+        ${If} $ADDON_LIST_INDEX > 1
+          ${IfThen} $ADDON_NAME == $ADDON_LIST ${|} ${Break} ${|}
+        ${EndIf}
         StrCpy $R7 $ADDON_NAME
         Call InstallAddon
       ${EndWhile}
