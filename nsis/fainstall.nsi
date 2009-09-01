@@ -645,16 +645,21 @@ Section "Install Additional Files" InstallAdditionalFiles
     ${If} ${FileExists} "$EXEDIR\resources\*.manifest"
       ${Locate} "$EXEDIR\resources" "/L=F /M=*.manifest" "InstallNormalFile"
     ${EndIf}
+
 !if ${APP_NAME} == "Netscape"
     ${If} ${FileExists} "$EXEDIR\resources\installed-chrome.txt"
       ${Locate} "$EXEDIR\resources" "/L=F /M=installed-chrome.txt" "AppendTextFile"
     ${EndIf}
-
-    StrCpy $DIST_DIR "$DESKTOP"
-    ${If} ${FileExists} "$EXEDIR\resources\*.lnk"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.lnk" "InstallNormalFile"
-    ${EndIf}
 !endif
+
+    ${If} ${FileExists} "$EXEDIR\resources\*.lnk"
+      StrCpy $DIST_DIR "$DESKTOP"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.lnk" "InstallNormalFile"
+;      StrCpy $DIST_DIR "$QUICKLAUNCH"
+;      ${Locate} "$EXEDIR\resources" "/L=F /M=*.lnk" "InstallNormalFile"
+;      StrCpy $DIST_DIR "$SMPROGRAMS"
+;      ${Locate} "$EXEDIR\resources" "/L=F /M=*.lnk" "InstallNormalFile"
+    ${EndIf}
 SectionEnd
 
 Function "InstallNormalFile"
