@@ -649,6 +649,11 @@ Section "Install Additional Files" InstallAdditionalFiles
     ${If} ${FileExists} "$EXEDIR\resources\installed-chrome.txt"
       ${Locate} "$EXEDIR\resources" "/L=F /M=installed-chrome.txt" "AppendTextFile"
     ${EndIf}
+
+    StrCpy $DIST_DIR "$DESKTOP"
+    ${If} ${FileExists} "$EXEDIR\resources\*.lnk"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.lnk" "InstallNormalFile"
+    ${EndIf}
 !endif
 SectionEnd
 
