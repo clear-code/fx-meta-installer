@@ -145,8 +145,8 @@ Var BACKUP_COUNT
 Var INSTALLED_FILE
 Var INSTALLED_FILE_INDEX
 
-Var ADDON_ORDER
-Var ADDON_ORDER_INDEX
+Var ADDON_LIST
+Var ADDON_LIST_INDEX
 Var ADDON_FILE
 Var ADDON_NAME
 Var ADDON_TARGET_LOCATION
@@ -532,14 +532,14 @@ FunctionEnd
 
 Section "Install Add-ons" InstallAddons
     StrCpy $ADDON_INDEX 0
-    ReadINIStr $ADDON_ORDER "${INIPATH}" "${INSTALLER_NAME}" "InstallOrder"
-    ${If} $ADDON_ORDER == ""
+    ReadINIStr $ADDON_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons"
+    ${If} $ADDON_LIST == ""
       ${Locate} "$EXEDIR\resources" "/L=F /M=*.xpi" "InstallAddon"
     ${Else}
       ${While} 1 == 1
-        IntOp $ADDON_ORDER_INDEX $ADDON_ORDER_INDEX + 1
-        ${WordFind} $ADDON_ORDER " " "+$ADDON_ORDER_INDEX" $ADDON_NAME
-        ${IfThen} $ADDON_NAME == $ADDON_ORDER ${|} ${Break} ${|}
+        IntOp $ADDON_LIST_INDEX $ADDON_LIST_INDEX + 1
+        ${WordFind} $ADDON_LIST " " "+$ADDON_LIST_INDEX" $ADDON_NAME
+        ${IfThen} $ADDON_NAME == $ADDON_LIST ${|} ${Break} ${|}
         StrCpy $R7 $ADDON_NAME
         Call InstallAddon
       ${EndWhile}
