@@ -153,10 +153,10 @@ Var ADDON_TARGET_LOCATION
 Var ADDON_DIR
 Var ADDON_INDEX
 
-Var PLUGIN_LIST
-Var PLUGIN_LIST_INDEX
-Var PLUGIN_NAME
-Var PLUGIN_INSTALL_OPTIONS
+Var EXTRA_INSTALLER_LIST
+Var EXTRA_INSTALLER_LIST_INDEX
+Var EXTRA_INSTALLER_NAME
+Var EXTRA_INSTALLER_OPTIONS
 
 Var UNINSTALL_FAILED
 
@@ -603,30 +603,30 @@ Function "InstallAddon"
 ;    Push $R0
 FunctionEnd
 
-Section "Install Plugins" InstallPlugins
-    ReadINIStr $PLUGIN_LIST "${INIPATH}" "${INSTALLER_NAME}" "Plugins"
-    ${If} $PLUGIN_LIST != ""
+Section "Install Extra Installers" InstallExtraInstallers
+    ReadINIStr $EXTRA_INSTALLER_LIST "${INIPATH}" "${INSTALLER_NAME}" "Installers"
+    ${If} $EXTRA_INSTALLER_LIST != ""
       ${While} 1 == 1
-        StrCpy $PLUGIN_LIST_INDEX 0
-        ${WordFind} $PLUGIN_LIST " " "+$PLUGIN_LIST_INDEX" $PLUGIN_NAME
-        ${If} $PLUGIN_LIST_INDEX > 1
-          ${IfThen} $PLUGIN_NAME == $PLUGIN_LIST ${|} ${Break} ${|}
+        StrCpy $EXTRA_INSTALLER_LIST_INDEX 0
+        ${WordFind} $EXTRA_INSTALLER_LIST " " "+$EXTRA_INSTALLER_LIST_INDEX" $EXTRA_INSTALLER_NAME
+        ${If} $EXTRA_INSTALLER_LIST_INDEX > 1
+          ${IfThen} $EXTRA_INSTALLER_NAME == $EXTRA_INSTALLER_LIST ${|} ${Break} ${|}
         ${EndIf}
-        Call InstallPlugin
-        IntOp $PLUGIN_LIST_INDEX $PLUGIN_LIST_INDEX + 1
+        Call InstallExtraInstaller
+        IntOp $EXTRA_INSTALLER_LIST_INDEX $EXTRA_INSTALLER_LIST_INDEX + 1
       ${EndWhile}
     ${EndIf}
 SectionEnd
 
-Function "InstallPlugin"
+Function "InstallExtraInstaller"
 !ifdef NSIS_CONFIG_LOG
     LogSet on
-    LogText "*** InstallPlugin: install $PLUGIN_NAME"
+    LogText "*** InstallExtraInstaller: install $EXTRA_INSTALLER_NAME"
 !endif
-    ReadINIStr $PLUGIN_INSTALL_OPTIONS "${INIPATH}" "$PLUGIN_NAME" "Options"
-    ExecWait '"$EXEDIR\resources\$PLUGIN_NAME" $PLUGIN_INSTALL_OPTIONS'
+    ReadINIStr $EXTRA_INSTALLER_OPTIONS "${INIPATH}" "$EXTRA_INSTALLER_NAME" "Options"
+    ExecWait '"$EXEDIR\resources\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
 !ifdef NSIS_CONFIG_LOG
-    LogText "*** InstallPlugin: $PLUGIN_NAME successfully installed"
+    LogText "*** InstallExtraInstaller: $EXTRA_INSTALLER_NAME successfully installed"
 !endif
 FunctionEnd
 
