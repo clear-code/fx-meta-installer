@@ -536,30 +536,47 @@ FunctionEnd
 !endif
 
 Section "Install Add-ons" InstallAddons
+!ifdef NSIS_CONFIG_LOG
+    LogSet on
+!endif
     StrCpy $ADDON_INDEX 0
     ReadINIStr $ADDON_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons"
     ${If} $ADDON_LIST == ""
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.xpi" "InstallAddon"
-    ${Else}
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
+    ${EndIf}
+!ifdef NSIS_CONFIG_LOG
+    LogSet on
+    LogText "*** ADDONS: $ADDON_LIST"
+!endif
+    ${Unless} $ADDON_LIST == ""
+      StrCpy $ADDON_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ADDON_LIST_INDEX $ADDON_LIST_INDEX + 1
-        ${WordFind} $ADDON_LIST " " "+$ADDON_LIST_INDEX" $ADDON_NAME
+        ${WordFind} $ADDON_LIST " " "+$ADDON_LIST_INDEX" $ADDON_FILE
         ${If} $ADDON_LIST_INDEX > 1
-          ${IfThen} $ADDON_NAME == $ADDON_LIST ${|} ${Break} ${|}
+          ${IfThen} $ADDON_FILE == $ADDON_LIST ${|} ${Break} ${|}
         ${EndIf}
-        StrCpy $R7 $ADDON_NAME
         Call InstallAddon
       ${EndWhile}
-    ${EndIf}
+    ${EndUnless}
 SectionEnd
+
+Function "CollectAddonFiles"
+!ifdef NSIS_CONFIG_LOG
+    LogSet on
+    LogText "*** CollectAddonFiles: $R7"
+!endif
+    ${If} $ADDON_LIST == ""
+      StrCpy $ADDON_LIST "$R7"
+    ${Else}
+      StrCpy $ADDON_LIST "$ADDON_LIST $R7"
+    ${EndIf}
+    Push $ADDON_LIST
+FunctionEnd
 
 Function "InstallAddon"
 !ifdef NSIS_CONFIG_LOG
     LogSet on
-!endif
-
-    StrCpy $ADDON_FILE "$R7"
-!ifdef NSIS_CONFIG_LOG
     LogText "*** InstallAddon: install $ADDON_FILE"
 !endif
 
@@ -574,7 +591,7 @@ Function "InstallAddon"
 !endif
 
     ReadINIStr $ADDON_TARGET_LOCATION "${INIPATH}" "$ADDON_FILE" "TargetLocation"
-    ${If} $ADDON_TARGET_LOCATION != ""
+    ${Unless} $ADDON_TARGET_LOCATION == ""
       ${WordReplace} "$ADDON_TARGET_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ADDON_TARGET_LOCATION
       ${WordReplace} "$ADDON_TARGET_LOCATION" "%appdir%" "$APP_DIR" "+*" $ADDON_TARGET_LOCATION
       ${WordReplace} "$ADDON_TARGET_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ADDON_TARGET_LOCATION
@@ -590,7 +607,7 @@ Function "InstallAddon"
       StrCpy $ADDON_DIR "$ADDON_TARGET_LOCATION\$ADDON_NAME"
     ${Else}
       StrCpy $ADDON_DIR "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
-    ${EndIf}
+    ${EndUnless}
     ZipDLL::extractall "$EXEDIR\resources\$ADDON_FILE" "$ADDON_DIR"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ADDON_INDEX" "$ADDON_DIR"
 
@@ -605,17 +622,17 @@ FunctionEnd
 
 Section "Install Extra Installers" InstallExtraInstallers
     ReadINIStr $EXTRA_INSTALLER_LIST "${INIPATH}" "${INSTALLER_NAME}" "Installers"
-    ${If} $EXTRA_INSTALLER_LIST != ""
+    ${Unless} $EXTRA_INSTALLER_LIST == ""
+      StrCpy $EXTRA_INSTALLER_LIST_INDEX 0
       ${While} 1 == 1
-        StrCpy $EXTRA_INSTALLER_LIST_INDEX 0
+        IntOp $EXTRA_INSTALLER_LIST_INDEX $EXTRA_INSTALLER_LIST_INDEX + 1
         ${WordFind} $EXTRA_INSTALLER_LIST " " "+$EXTRA_INSTALLER_LIST_INDEX" $EXTRA_INSTALLER_NAME
         ${If} $EXTRA_INSTALLER_LIST_INDEX > 1
           ${IfThen} $EXTRA_INSTALLER_NAME == $EXTRA_INSTALLER_LIST ${|} ${Break} ${|}
         ${EndIf}
         Call InstallExtraInstaller
-        IntOp $EXTRA_INSTALLER_LIST_INDEX $EXTRA_INSTALLER_LIST_INDEX + 1
       ${EndWhile}
-    ${EndIf}
+    ${EndUnless}
 SectionEnd
 
 Function "InstallExtraInstaller"
@@ -639,80 +656,80 @@ Section "Install Additional Files" InstallAdditionalFiles
 
     StrCpy $DIST_DIR "$APP_DIR"
     ${If} ${FileExists} "$EXEDIR\resources\*.cfg"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.cfg" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cfg" "InstallNormalFile"
     ${EndIf}
     ${If} ${FileExists} "$EXEDIR\resources\*.properties"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.properties" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.properties" "InstallNormalFile"
     ${EndIf}
 
     StrCpy $DIST_DIR "$APP_DIR\defaults"
     ${If} ${FileExists} "$EXEDIR\resources\*.cer"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.cer" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer" "InstallNormalFile"
     ${EndIf}
     ${If} ${FileExists} "$EXEDIR\resources\*.crt"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.crt" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.crt" "InstallNormalFile"
     ${EndIf}
     ${If} ${FileExists} "$EXEDIR\resources\*.pem"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.pem" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.pem" "InstallNormalFile"
     ${EndIf}
     ${If} ${FileExists} "$EXEDIR\resources\*.cer.override"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.cer.override" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer.override" "InstallNormalFile"
     ${EndIf}
     ${If} ${FileExists} "$EXEDIR\resources\*.crt.override"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.crt.override" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.crt.override" "InstallNormalFile"
     ${EndIf}
     ${If} ${FileExists} "$EXEDIR\resources\*.pem.override"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.pem.override" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.pem.override" "InstallNormalFile"
     ${EndIf}
 
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
     ${If} ${FileExists} "$EXEDIR\resources\bookmarks.html"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=bookmarks.html" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
     ${EndIf}
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
     ${If} ${FileExists} "$EXEDIR\resources\*.rdf"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.rdf" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
     ${EndIf}
 
     StrCpy $DIST_DIR "${APP_CONFIG_DIR}"
     ${If} ${FileExists} "$EXEDIR\resources\*.js"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.js" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.js" "InstallNormalFile"
     ${EndIf}
 
     StrCpy $DIST_DIR "$APP_DIR\chrome"
     ${If} ${FileExists} "$EXEDIR\resources\*.css"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.css" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.css" "InstallNormalFile"
     ${EndIf}
     ${If} ${FileExists} "$EXEDIR\resources\*.jar"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.jar" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.jar" "InstallNormalFile"
     ${EndIf}
     ${If} ${FileExists} "$EXEDIR\resources\*.manifest"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.manifest" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.manifest" "InstallNormalFile"
     ${EndIf}
 
     StrCpy $DIST_DIR "$APP_DIR\components"
     ${If} ${FileExists} "$EXEDIR\resources\*.xpt"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.xpt" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpt" "InstallNormalFile"
     ${EndIf}
 
     StrCpy $DIST_DIR "$APP_DIR\plugins"
     ${If} ${FileExists} "$EXEDIR\resources\*.dll"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.dll" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
     ${EndIf}
 
 !if ${APP_NAME} == "Netscape"
     ${If} ${FileExists} "$EXEDIR\resources\installed-chrome.txt"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=installed-chrome.txt" "AppendTextFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=installed-chrome.txt" "AppendTextFile"
     ${EndIf}
 !endif
 
     ${If} ${FileExists} "$EXEDIR\resources\*.lnk"
       StrCpy $DIST_DIR "$DESKTOP"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.lnk" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
 ;      StrCpy $DIST_DIR "$QUICKLAUNCH"
-;      ${Locate} "$EXEDIR\resources" "/L=F /M=*.lnk" "InstallNormalFile"
+;      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
 ;      StrCpy $DIST_DIR "$SMPROGRAMS"
-;      ${Locate} "$EXEDIR\resources" "/L=F /M=*.lnk" "InstallNormalFile"
+;      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
     ${EndIf}
 SectionEnd
 
@@ -814,11 +831,11 @@ Section "Initialize Search Plugins" InitSearchPlugins
 
     ${If} "$FX_ENABLED_SEARCH_PLUGINS" != ""
     ${AndIf} "$FX_ENABLED_SEARCH_PLUGINS" != "*"
-      ${Locate} "$APP_DIR\searchplugins" "/L=F /M=*.xml" "CheckDisableSearchPlugin"
+      ${Locate} "$APP_DIR\searchplugins" "/L=F /G=0 /M=*.xml" "CheckDisableSearchPlugin"
     ${EndIf}
     ${If} "$FX_DISABLED_SEARCH_PLUGINS" == "*"
     ${OrIf} "$FX_DISABLED_SEARCH_PLUGINS" != ""
-      ${Locate} "$APP_DIR\searchplugins" "/L=F /M=*.xml" "CheckDisableSearchPlugin"
+      ${Locate} "$APP_DIR\searchplugins" "/L=F /G=0 /M=*.xml" "CheckDisableSearchPlugin"
     ${EndIf}
 
     ${If} ${FileExists} "$BACKUP_PATH\*.xml"
@@ -831,7 +848,7 @@ Section "Initialize Search Plugins" InitSearchPlugins
     ; install additional engines
     StrCpy $DIST_DIR "$APP_DIR\searchplugins"
     ${If} ${FileExists} "$EXEDIR\resources\*.xml"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=*.xml" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xml" "InstallNormalFile"
     ${EndIf}
 SectionEnd
 
@@ -901,7 +918,7 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       ${EndIf}
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
       CreateDirectory "$DIST_PATH"
-      ${Locate} "$EXEDIR\resources" "/L=F /M=distribution.*" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=distribution.*" "InstallNormalFile"
     ${EndIf}
 SectionEnd
 
@@ -961,7 +978,7 @@ Section Uninstall
     ${If} $BACKUP_PATH != ""
     ${AndIf} ${FileExists} "$BACKUP_PATH"
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.xml"
-      ${un.Locate} "$BACKUP_PATH" "/L=F /M=*.xml" "un.EnableSearchPlugin"
+      ${un.Locate} "$BACKUP_PATH" "/L=F /G=0 /M=*.xml" "un.EnableSearchPlugin"
       ${Unless} ${FileExists} "$BACKUP_PATH\*.xml"
         RMDir /r "$BACKUP_PATH"
       ${EndUnless}
