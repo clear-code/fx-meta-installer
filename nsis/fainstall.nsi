@@ -658,6 +658,16 @@ Section "Install Additional Files" InstallAdditionalFiles
       ${Locate} "$EXEDIR\resources" "/L=F /M=*.manifest" "InstallNormalFile"
     ${EndIf}
 
+    StrCpy $DIST_DIR "$APP_DIR\components"
+    ${If} ${FileExists} "$EXEDIR\resources\*.xpt"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.xpt" "InstallNormalFile"
+    ${EndIf}
+
+    StrCpy $DIST_DIR "$APP_DIR\plugins"
+    ${If} ${FileExists} "$EXEDIR\resources\*.dll"
+      ${Locate} "$EXEDIR\resources" "/L=F /M=*.dll" "InstallNormalFile"
+    ${EndIf}
+
 !if ${APP_NAME} == "Netscape"
     ${If} ${FileExists} "$EXEDIR\resources\installed-chrome.txt"
       ${Locate} "$EXEDIR\resources" "/L=F /M=installed-chrome.txt" "AppendTextFile"
