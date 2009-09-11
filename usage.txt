@@ -8,6 +8,7 @@
 
 ・Mozilla Firefox 2.0.0.x
 ・Mozilla Firefox 3.0.x
+・Mozilla Firefox 3.5.x
 ・Mozilla Thunderbird 2.0.0.x
 ・Netscape 7.x
 
@@ -31,7 +32,7 @@
 　インストールできる。
 　詳細は「メタインストーラのビルド後の挙動の変更」の項を参照。
 
-■設定ファイルの自動配置
+■それ以外のファイルの自動配置
 
 ・resourcesフォルダ内に特定の名前のファイルを置くと、所定の位置に自動的に
 　インストールされる。
@@ -48,7 +49,12 @@
   ・*.manifest    ：Mozillaアプリケーションの追加モジュールの定義ファイルとして、
                     %AppDir%\chrome\ にインストールされる。
   ・*.css         ：%AppDir%\chrome\ にインストールされる。（globalChrome.css用）
-  ・*.cer         ：%AppDir%\defaults\ にインストールされる。（certimporter用）
+  ・*.cer, *.pem, *.crt,
+    *.cer.override, *.pem.override, *.crt.override
+                  ：%AppDir%\defaults\ にインストールされる。（certimporter用）
+  ・*.xpt         ：%AppDir%\components\ にインストールされる。
+  ・*.dll         ：%AppDir%\plugins\ にインストールされる。
+  ・*.lnk         ：デスクトップ上にインストールされる。
 
 ■ビルド方法
 
@@ -207,24 +213,40 @@ AppInstallTalkback：
 	どうかの設定。
 	true：Talkbackをインストールする。
 	false：Talkbackをインストールしない。
+Addons：（省略可能）
+	インストール対象のXPIファイル名の半角スペース区切りのリスト。この値として
+	記述されたXPIファイルが、記述された順番に従ってインストールされる。
+	省略時は、resourcesフォルダ内にあるすべてのXPIファイルが順不同でインストール
+	される。
 
 以下の設定については、無指定の場合はビルド時の指定が有効となる。
 
-AppDownloadPath：
+AppMinVersion：（省略可能）
+	Mozillaアプリケーションの最小対応バージョン。
+	Mozillaアプリケーションがすでにインストール済みで、ここで指定された
+	バージョンより古い場合、Mozillaアプリケーション自体の上書きインストール
+	（アップデート）を試みる。
+AppMaxVersion：（省略可能）
+	Mozillaアプリケーションの最大対応バージョン。
+	Mozillaアプリケーションがすでにインストール済みで、ここで指定された
+	バージョンより新しい場合、インストールを中断する。
+	アドオンの最大対応バージョン表記の「2.0.0.*」のようなワイルドカードは
+	利用できない。この場合は代わりとして「2.0.0.99」を用いる。
+AppDownloadPath：（省略可能）
 	Mozillaアプリケーションの新規インストールまたはアップデートに使用する
 	インストーラを、システムのファイルパスで指定する。
 	ファイル共有サーバ上のパスまたはローカルのファイルパスを指定可能。
 	無指定、またはファイルがそのパスに存在しない場合、AppDownloadUrlからの
 	ダウンロードを試みる。
-AppDownloadUrl：
+AppDownloadUrl：（省略可能）
 	Mozillaアプリケーションのインストーラのダウンロード元URI。
 	AppDownloadPathが無指定またはファイルが存在しない場合、このURIからの
 	ダウンロードを試みる。
 	ダウンロードに失敗した場合は、インストールを中断する。
-AppHash：
+AppHash：（省略可能）
 	AppDownloadUrlからダウンロードしたファイルが正しいものであるかどうかを
 	検証するためのハッシュ値。MD5ハッシュ文字列を指定。
-AppEulaPath：
+AppEulaPath：（省略可能）
 	メタインストーラのビルド時にMozillaアプリケーションをサイレントインストール
 	するよう指定されていた場合に、インストールウィザードで表示する
 	Mozillaアプリケーションの利用許諾書（テキストファイル）を、
@@ -234,7 +256,7 @@ AppEulaPath：
 	ダウンロードを試みる。
 	メタインストーラのビルド時にサイレントインストールモードを指定されていた
 	場合は無視される。
-AppEulaUrl：
+AppEulaUrl：（省略可能）
 	Mozillaアプリケーションの利用許諾書のダウンロード元URI。
 	AppEulaPathが無指定またはファイルが存在しない場合、このURIからの
 	ダウンロードを試みる。
@@ -242,12 +264,12 @@ AppEulaUrl：
 	メタインストーラのビルド時にサイレントインストールモードを指定されていた
 	場合は無視される。
 
-FxEnabledSearchPlugins：
+FxEnabledSearchPlugins：（省略可能）
 	Firefoxの検索バーで、初期状態で有効にする検索エンジンのファイル名のリスト。
 	無指定または「*」を指定した場合、すべての検索エンジンを有効にする。
 	検索エンジンのファイル名を列挙した場合、列挙されなかった検索エンジンは
 	無効化される。
-FxDisabledSearchPlugins：
+FxDisabledSearchPlugins：（省略可能）
 	Firefoxの検索バーで、初期状態で無効にする検索エンジンのファイル名のリスト。
 	無指定の場合、すべての検索エンジンを有効にする。
 	「*」を指定した場合、すべての検索エンジンを無効にする。
@@ -263,12 +285,24 @@ FxDisabledSearchPlugins：
 
 ■[*.xpi]セクション
 
-resourcesフォルダに*.xpiファイルとして置かれた各アドオンの内部IDを
-AddonIdで指定する。
-セクションが存在しない、またはAddonIdが未指定の場合、IDを
-「<アドオンのファイル名から拡張子を除いた部分>@<PRODUCT_DOMAINの値>」
-とみなしてインストールする。
-正しい内部IDを指定ないとアドオンのアンインストールに失敗するので注意。
+resourcesフォルダに*.xpiファイルとして置かれた各アドオンについての情報を
+提供する。
+
+AddonId：（省略可能）
+	アドオンの内部ID。アドオンのインストール先フォルダに、このID文字列の
+	名前でフォルダが作成され、その中にXPIファイルの内容が展開される。
+	省略時は
+	「<アドオンのファイル名から拡張子を除いた部分>@<PRODUCT_DOMAINの値>」
+	として扱われる。
+	正しい内部IDを指定ないとアドオンのアンインストールに失敗するので注意。
+TargetLocation：（省略可能）
+	アドオンのインストール先フォルダのパス。以下のプレースホルダを使用可能。
+	  %AppDir%  : Firefoxのインストール先フォルダ
+	  %AppData% : Windowsのアプリケーション情報保存先フォルダ
+	              （C:\Users\<username>\AppData\Roaming など）
+	  %Home%    : ユーザのホーム（C:\Users\<username> など）
+	  %Desktop% : デスクトップ（C:\Users\<username>\Desktop など）
+	省略時は「%AppDir%\extensions」として扱われる。
 
 
 ■■Mozillaアプリケーションのサイレントインストールの挙動の変更
