@@ -202,9 +202,11 @@ BrandingText " "
 
 !ifdef APP_SILENT_INSTALL
 !define MUI_LICENSEPAGE_RADIOBUTTONS
+!ifndef APP_SKIP_INSTALL
 !define MUI_PAGE_CUSTOMFUNCTION_PRE "AppEULAPageCheck"
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW "AppEULAPageSetup"
 !insertmacro MUI_PAGE_LICENSE "dummy.txt"
+!endif
 !endif
 
 !insertmacro MUI_PAGE_INSTFILES
@@ -220,6 +222,7 @@ BrandingText " "
 
 ;=== MUI sections
 !ifdef APP_SILENT_INSTALL
+!ifndef APP_SKIP_INSTALL
 Function AppEULAPageCheck
 !ifdef NSIS_CONFIG_LOG
     LogSet on
@@ -274,7 +277,19 @@ Function AppEULAPageSetup
     CustomLicense::LoadFile "$APP_EULA_FINAL_PATH" $0
 FunctionEnd
 !endif
+!endif
 
+!ifdef APP_SKIP_INSTALL
+Section "Initialize Variables" InitializeVariables
+    Call GetAppPath
+    Call CheckAppVersion
+    ${If} $APP_EXISTS != "1"
+      MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_INSTALLED_ERROR)" /SD IDOK
+      Abort
+    ${EndIf}
+SectionEnd
+!endif
+!ifndef APP_SKIP_INSTALL
 Section "Download Application" DownloadApp
 !ifdef NSIS_CONFIG_LOG
     LogSet on
@@ -424,6 +439,7 @@ Section "Install Application" InstallApp
     LogText "*** InstallApp: install to $INSTDIR"
 !endif
 SectionEnd
+!endif
 
 !if ${APP_NAME} == "Netscape"
 Function "CheckShortcutsExistence"
@@ -1087,6 +1103,7 @@ Function CheckInstalled
 
     ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
     ${If} $R0 != ""
+!ifndef APP_SKIP_INSTALL
 !ifndef PRODUCT_SILENT_INSTALL
       MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_ALREADY_INSTALLED)" IDOK UNINST
       Abort
@@ -1104,6 +1121,7 @@ Function CheckInstalled
       ; Ç±Ç§ÇµÇ»Ç¢Ç∆ÅCÇ∑ÇÆÇ…èIóπÇµÇƒñﬂÇ¡ÇƒÇ´ÇƒÇµÇ‹Ç§Ç›ÇΩÇ¢
       ExecWait '$R0 /AddonOnly _?=$INSTDIR'
 
+!endif
     ${EndIf}
 FunctionEnd
 

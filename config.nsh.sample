@@ -27,4 +27,6 @@
 !define FX_ENABLED_SEARCH_PLUGINS  "*"
 !define FX_DISABLED_SEARCH_PLUGINS ""
 
+;!define APP_SKIP_INSTALL
+
 ;===================================================================
