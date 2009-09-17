@@ -143,19 +143,16 @@ Var DIST_FILE
 Var BACKUP_PATH
 Var BACKUP_COUNT
 Var INSTALLED_FILE
-Var INSTALLED_FILE_INDEX
 
-Var ADDON_LIST
-Var ADDON_LIST_INDEX
-Var ADDON_FILE
+Var ITEMS_LIST
+Var ITEMS_LIST_INDEX
+Var ITEM_NAME
+Var ITEM_INDEX
+
 Var ADDON_NAME
 Var ADDON_TARGET_LOCATION
 Var ADDON_DIR
-Var ADDON_INDEX
 
-Var EXTRA_INSTALLER_LIST
-Var EXTRA_INSTALLER_LIST_INDEX
-Var EXTRA_INSTALLER_NAME
 Var EXTRA_INSTALLER_OPTIONS
 
 Var UNINSTALL_FAILED
@@ -556,22 +553,22 @@ Section "Install Add-ons" InstallAddons
     !ifdef NSIS_CONFIG_LOG
       LogSet on
     !endif
-    StrCpy $ADDON_INDEX 0
-    ReadINIStr $ADDON_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons"
-    ${If} $ADDON_LIST == ""
+    StrCpy $ITEM_INDEX 0
+    ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons"
+    ${If} $ITEMS_LIST == ""
       ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
     ${EndIf}
     !ifdef NSIS_CONFIG_LOG
       LogSet on
-      LogText "*** ADDONS: $ADDON_LIST"
+      LogText "*** ADDONS: $ITEMS_LIST"
     !endif
-    ${Unless} $ADDON_LIST == ""
-      StrCpy $ADDON_LIST_INDEX 0
+    ${Unless} $ITEMS_LIST == ""
+      StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
-        IntOp $ADDON_LIST_INDEX $ADDON_LIST_INDEX + 1
-        ${WordFind} $ADDON_LIST " " "+$ADDON_LIST_INDEX" $ADDON_FILE
-        ${If} $ADDON_LIST_INDEX > 1
-          ${IfThen} $ADDON_FILE == $ADDON_LIST ${|} ${Break} ${|}
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST " " "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
         ${EndIf}
         Call InstallAddon
       ${EndWhile}
@@ -583,23 +580,23 @@ Function "CollectAddonFiles"
       LogSet on
       LogText "*** CollectAddonFiles: $R7"
     !endif
-    ${If} $ADDON_LIST == ""
-      StrCpy $ADDON_LIST "$R7"
+    ${If} $ITEMS_LIST == ""
+      StrCpy $ITEMS_LIST "$R7"
     ${Else}
-      StrCpy $ADDON_LIST "$ADDON_LIST $R7"
+      StrCpy $ITEMS_LIST "$ITEMS_LIST $R7"
     ${EndIf}
-    Push $ADDON_LIST
+    Push $ITEMS_LIST
 FunctionEnd
 
 Function "InstallAddon"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
-      LogText "*** InstallAddon: install $ADDON_FILE"
+      LogText "*** InstallAddon: install $ITEM_NAME"
     !endif
 
-    ReadINIStr $ADDON_NAME "${INIPATH}" "$ADDON_FILE" "AddonId"
+    ReadINIStr $ADDON_NAME "${INIPATH}" "$ITEM_NAME" "AddonId"
     ${If} $ADDON_NAME == ""
-      ${GetBaseName} $ADDON_FILE $ADDON_NAME
+      ${GetBaseName} $ITEM_NAME $ADDON_NAME
       StrCpy $ADDON_NAME "$ADDON_NAME@${PRODUCT_DOMAIN}"
     ${EndIf}
 
@@ -607,7 +604,7 @@ Function "InstallAddon"
       LogText "*** InstallAddon: ADDON_NAME = $ADDON_NAME"
     !endif
 
-    ReadINIStr $ADDON_TARGET_LOCATION "${INIPATH}" "$ADDON_FILE" "TargetLocation"
+    ReadINIStr $ADDON_TARGET_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
     ${Unless} $ADDON_TARGET_LOCATION == ""
       ${WordReplace} "$ADDON_TARGET_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ADDON_TARGET_LOCATION
       ${WordReplace} "$ADDON_TARGET_LOCATION" "%appdir%" "$APP_DIR" "+*" $ADDON_TARGET_LOCATION
@@ -625,10 +622,10 @@ Function "InstallAddon"
     ${Else}
       StrCpy $ADDON_DIR "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
     ${EndUnless}
-    ZipDLL::extractall "$EXEDIR\resources\$ADDON_FILE" "$ADDON_DIR"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ADDON_INDEX" "$ADDON_DIR"
+    ZipDLL::extractall "$EXEDIR\resources\$ITEM_NAME" "$ADDON_DIR"
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ADDON_DIR"
 
-    IntOp $ADDON_INDEX $ADDON_INDEX + 1
+    IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallAddon: $ADDON_NAME successfully installed"
@@ -637,15 +634,21 @@ Function "InstallAddon"
     ;Push $R0
 FunctionEnd
 
+Section "Install Shortcuts" InstallShortcuts
+SectionEnd
+
+Function "InstallShortcut"
+FunctionEnd
+
 Section "Install Extra Installers" InstallExtraInstallers
-    ReadINIStr $EXTRA_INSTALLER_LIST "${INIPATH}" "${INSTALLER_NAME}" "Installers"
-    ${Unless} $EXTRA_INSTALLER_LIST == ""
-      StrCpy $EXTRA_INSTALLER_LIST_INDEX 0
+    ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Installers"
+    ${Unless} $ITEMS_LIST == ""
+      StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
-        IntOp $EXTRA_INSTALLER_LIST_INDEX $EXTRA_INSTALLER_LIST_INDEX + 1
-        ${WordFind} $EXTRA_INSTALLER_LIST " " "+$EXTRA_INSTALLER_LIST_INDEX" $EXTRA_INSTALLER_NAME
-        ${If} $EXTRA_INSTALLER_LIST_INDEX > 1
-          ${IfThen} $EXTRA_INSTALLER_NAME == $EXTRA_INSTALLER_LIST ${|} ${Break} ${|}
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST " " "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
         ${EndIf}
         Call InstallExtraInstaller
       ${EndWhile}
@@ -655,12 +658,12 @@ SectionEnd
 Function "InstallExtraInstaller"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
-      LogText "*** InstallExtraInstaller: install $EXTRA_INSTALLER_NAME"
+      LogText "*** InstallExtraInstaller: install $ITEM_NAME"
     !endif
-    ReadINIStr $EXTRA_INSTALLER_OPTIONS "${INIPATH}" "$EXTRA_INSTALLER_NAME" "Options"
-    ExecWait '"$EXEDIR\resources\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
+    ReadINIStr $EXTRA_INSTALLER_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
+    ExecWait '"$EXEDIR\resources\$ITEM_NAME" $EXTRA_INSTALLER_OPTIONS'
     !ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallExtraInstaller: $EXTRA_INSTALLER_NAME successfully installed"
+      LogText "*** InstallExtraInstaller: $ITEM_NAME successfully installed"
     !endif
 FunctionEnd
 
@@ -669,7 +672,7 @@ Section "Install Additional Files" InstallAdditionalFiles
       LogSet on
     !endif
 
-    StrCpy $INSTALLED_FILE_INDEX 0
+    StrCpy $ITEM_INDEX 0
 
     StrCpy $DIST_DIR "$APP_DIR"
     ${If} ${FileExists} "$EXEDIR\resources\*.cfg"
@@ -771,11 +774,11 @@ Function "InstallNormalFile"
         LogText "*** InstallNormalFile: backup old file as $BACKUP_PATH"
       !endif
       Rename "$DIST_PATH" "$BACKUP_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEXBackup" "$BACKUP_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup" "$BACKUP_PATH"
     ${EndIf}
     CopyFiles /SILENT "$EXEDIR\resources\$PROCESSING_FILE" "$DIST_PATH"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEX" "$DIST_PATH"
-    IntOp $INSTALLED_FILE_INDEX $INSTALLED_FILE_INDEX + 1
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
+    IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallNormalFile: $PROCESSING_FILE is successfully installed"
@@ -799,7 +802,7 @@ FunctionEnd
           StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
         ${EndWhile}
         CopyFiles /SILENT "$DIST_PATH" "$BACKUP_PATH"
-        WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEXBackup" "$BACKUP_PATH"
+        WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup" "$BACKUP_PATH"
       ${EndIf}
 
       ClearErrors
@@ -818,8 +821,8 @@ FunctionEnd
       FileClose $DIST_FILE
       FileClose $PROCESSING_FILE
 
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEX" "$DIST_PATH"
-      IntOp $INSTALLED_FILE_INDEX $INSTALLED_FILE_INDEX + 1
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
       Push $R0
   FunctionEnd
@@ -956,10 +959,10 @@ SectionEnd
 Section Uninstall
     StrCpy $UNINSTALL_FAILED 0
 
-    StrCpy $INSTALLED_FILE_INDEX 0
+    StrCpy $ITEM_INDEX 0
     ${While} "0" == "0"
-      ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEX"
-      ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEXBackup"
+      ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX"
+      ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup"
       ${IfThen} $INSTALLED_FILE == "" ${|} GoTo ConfigUninstallDone ${|}
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
@@ -971,13 +974,13 @@ Section Uninstall
       ${AndIf} ${FileExists} "$BACKUP_PATH"
         Rename "$BACKUP_PATH" "$INSTALLED_FILE"
       ${EndIf}
-      IntOp $INSTALLED_FILE_INDEX $INSTALLED_FILE_INDEX + 1
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
     ConfigUninstallDone:
 
-    StrCpy $ADDON_INDEX 0
+    StrCpy $ITEM_INDEX 0
     ${While} "0" == "0"
-      ReadRegStr $ADDON_DIR HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ADDON_INDEX"
+      ReadRegStr $ADDON_DIR HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
       ${IfThen} $ADDON_DIR == "" ${|} GoTo AddonUninstallDone ${|}
       RMDir /r "$ADDON_DIR"
       ${If} ${Errors}
@@ -985,7 +988,7 @@ Section Uninstall
         StrCpy $UNINSTALL_FAILED 1
         GoTo AddonUninstallDone
       ${EndIf}
-      IntOp $ADDON_INDEX $ADDON_INDEX + 1
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
     AddonUninstallDone:
 
