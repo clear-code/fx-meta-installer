@@ -287,6 +287,8 @@ BrandingText " "
         MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_INSTALLED_ERROR)" /SD IDOK
         Abort
       ${EndIf}
+      StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
+      SetOutPath $INSTDIR
   SectionEnd
 !endif
 
