@@ -616,6 +616,9 @@ Function "InstallAddon"
     ${Else}
       StrCpy $ITEM_LOCATION "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
     ${EndUnless}
+
+    SetOutPath $ITEM_LOCATION
+
     ZipDLL::extractall "$EXEDIR\resources\$ITEM_NAME" "$ITEM_LOCATION"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ITEM_LOCATION"
 
@@ -653,15 +656,22 @@ Function "InstallShortcut"
     ReadINIStr $SHORTCUT_NAME "${INIPATH}" "$ITEM_NAME" "Name"
     ReadINIStr $SHORTCUT_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
     ReadINIStr $SHORTCUT_ICON_INDEX "${INIPATH}" "$ITEM_NAME" "IconIndex"
+;    ReadINIStr $SHORTCUT_DESCRIPTION "${INIPATH}" "$ITEM_NAME" "Description"
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "Path"
     Call ResolveItemLocation
     StrCpy $SHORTCUT_PATH "$ITEM_LOCATION"
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
+    ${If} $ITEM_LOCATION == ""
+      StrCpy $ITEM_LOCATION "%Desktop%"
+    ${EndIf}
     Call ResolveItemLocation
     StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
 
+    SetOutPath $SHORTCUT_PATH
+
     ${If} $SHORTCUT_ICON_INDEX == ""
-      CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH"
+    ${OrIf} $SHORTCUT_ICON_INDEX == "0"
+      CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 0
     ${ElseIf} $SHORTCUT_ICON_INDEX == "1"
       CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 1
     ${ElseIf} $SHORTCUT_ICON_INDEX == "2"
@@ -818,6 +828,9 @@ Function "InstallNormalFile"
       Rename "$DIST_PATH" "$BACKUP_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup" "$BACKUP_PATH"
     ${EndIf}
+
+    SetOutPath $DIST_PATH
+
     CopyFiles /SILENT "$EXEDIR\resources\$PROCESSING_FILE" "$DIST_PATH"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
