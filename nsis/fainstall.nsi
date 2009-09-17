@@ -279,18 +279,24 @@ BrandingText " "
   !endif
 !endif
 
-!ifdef APP_SKIP_INSTALL
-  Section "Initialize Variables" InitializeVariables
+Section "Initialize Variables" InitializeVariables
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
+    !ifdef APP_SKIP_INSTALL
       Call GetAppPath
       Call CheckAppVersion
       ${If} $APP_EXISTS != "1"
         MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_INSTALLED_ERROR)" /SD IDOK
         Abort
       ${EndIf}
-      StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
-      SetOutPath $INSTDIR
-  SectionEnd
-!endif
+    !endif
+    StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
+    SetOutPath $INSTDIR
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InitializeVariables: install to $INSTDIR"
+    !endif
+SectionEnd
 
 !ifndef APP_SKIP_INSTALL
   Section "Download Application" DownloadApp
@@ -435,12 +441,6 @@ BrandingText " "
         ; overwrite subtitle
         SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_PRODUCT_INSTALLING)"
       ${EndIf}
-
-      StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
-      SetOutPath $INSTDIR
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** InstallApp: install to $INSTDIR"
-      !endif
   SectionEnd
 !endif
 
