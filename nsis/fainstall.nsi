@@ -1030,7 +1030,9 @@ FunctionEnd
 
 ;=== Callback functions
 Function .onInit
+!ifndef APP_SKIP_INSTALL
     Call CheckAppProc
+!endif
     Call CheckInstalled
     Call LoadINI
 !ifdef PRODUCT_SILENT_INSTALL
