@@ -107,24 +107,24 @@ Var APP_EULA_FINAL_PATH
 Var APP_INSTALLER_FINAL_PATH
 Var APP_DIR
 !if ${APP_NAME} == "Netscape"
-Var SHORTCUT_DEFAULT_NAME
-Var SHORTCUT_NAME
-Var PROGRAM_FOLDER_DEFAULT_NAME
-Var PROGRAM_FOLDER_NAME
-Var EXISTS_SHORTCUT_DESKTOP
-Var EXISTS_SHORTCUT_DESKTOP_IM
-Var EXISTS_SHORTCUT_DESKTOP_MAIL
-Var EXISTS_SHORTCUT_QUICKLAUNCH
-Var EXISTS_SHORTCUT_QUICKLAUNCH_MAIL
-Var EXISTS_SHORTCUT_STARTMENU
-Var EXISTS_SHORTCUT_STARTMENU_PROGRAM
-Var SHORTCUT_PATH_DESKTOP
-Var SHORTCUT_PATH_DESKTOP_IM
-Var SHORTCUT_PATH_DESKTOP_MAIL
-Var SHORTCUT_PATH_QUICKLAUNCH
-Var SHORTCUT_PATH_QUICKLAUNCH_MAIL
-Var SHORTCUT_PATH_STARTMENU
-Var SHORTCUT_PATH_STARTMENU_PROGRAM
+  Var SHORTCUT_DEFAULT_NAME
+  Var SHORTCUT_NAME
+  Var PROGRAM_FOLDER_DEFAULT_NAME
+  Var PROGRAM_FOLDER_NAME
+  Var EXISTS_SHORTCUT_DESKTOP
+  Var EXISTS_SHORTCUT_DESKTOP_IM
+  Var EXISTS_SHORTCUT_DESKTOP_MAIL
+  Var EXISTS_SHORTCUT_QUICKLAUNCH
+  Var EXISTS_SHORTCUT_QUICKLAUNCH_MAIL
+  Var EXISTS_SHORTCUT_STARTMENU
+  Var EXISTS_SHORTCUT_STARTMENU_PROGRAM
+  Var SHORTCUT_PATH_DESKTOP
+  Var SHORTCUT_PATH_DESKTOP_IM
+  Var SHORTCUT_PATH_DESKTOP_MAIL
+  Var SHORTCUT_PATH_QUICKLAUNCH
+  Var SHORTCUT_PATH_QUICKLAUNCH_MAIL
+  Var SHORTCUT_PATH_STARTMENU
+  Var SHORTCUT_PATH_STARTMENU_PROGRAM
 !endif
 Var APP_EXISTS
 Var APP_INSTALLED
@@ -132,7 +132,7 @@ Var NORMALIZED_VERSION
 Var APP_MAX_VERSION
 Var APP_MIN_VERSION
 !ifdef APP_SILENT_INSTALL
-Var APP_EULA_DL_FAILED
+  Var APP_EULA_DL_FAILED
 !endif
 Var APP_WRONG_VERSION
 
@@ -196,17 +196,17 @@ BrandingText " "
 !insertmacro MUI_PAGE_WELCOME
 
 !ifndef PRODUCT_SILENT_INSTALL
-;!define MUI_LICENSEPAGE_RADIOBUTTONS
-!insertmacro MUI_PAGE_LICENSE "..\resources\COPYING.txt"
+  ;!define MUI_LICENSEPAGE_RADIOBUTTONS
+  !insertmacro MUI_PAGE_LICENSE "..\resources\COPYING.txt"
 !endif
 
 !ifdef APP_SILENT_INSTALL
-!define MUI_LICENSEPAGE_RADIOBUTTONS
-!ifndef APP_SKIP_INSTALL
-!define MUI_PAGE_CUSTOMFUNCTION_PRE "AppEULAPageCheck"
-!define MUI_PAGE_CUSTOMFUNCTION_SHOW "AppEULAPageSetup"
-!insertmacro MUI_PAGE_LICENSE "dummy.txt"
-!endif
+  !define MUI_LICENSEPAGE_RADIOBUTTONS
+  !ifndef APP_SKIP_INSTALL
+    !define MUI_PAGE_CUSTOMFUNCTION_PRE "AppEULAPageCheck"
+    !define MUI_PAGE_CUSTOMFUNCTION_SHOW "AppEULAPageSetup"
+    !insertmacro MUI_PAGE_LICENSE "dummy.txt"
+  !endif
 !endif
 
 !insertmacro MUI_PAGE_INSTFILES
@@ -222,348 +222,349 @@ BrandingText " "
 
 ;=== MUI sections
 !ifdef APP_SILENT_INSTALL
-!ifndef APP_SKIP_INSTALL
-Function AppEULAPageCheck
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+  !ifndef APP_SKIP_INSTALL
+    Function AppEULAPageCheck
+        !ifdef NSIS_CONFIG_LOG
+          LogSet on
+        !endif
 
-    StrCpy $APP_EULA_DL_FAILED "0"
+        StrCpy $APP_EULA_DL_FAILED "0"
 
-    Call GetAppPath
-    Call CheckAppVersionWithMessage
+        Call GetAppPath
+        Call CheckAppVersionWithMessage
 
-    ${If} $APP_EXISTS != "1"
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** AppEULAPageCheck: Application does not exist so show EULA"
-!endif
-      StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
-      ${If} ${FileExists} "$APP_EULA_PATH"
-        StrCpy $APP_EULA_FINAL_PATH "$APP_EULA_PATH"
-        GoTo EULADownloadDone
-      ${EndIf}
-      ${Unless} ${FileExists} "$EXEDIR\EULA"
-        FindWindow $0 "#32770" "" $HWNDPARENT
-        EnableWindow $HWNDPARENT 0
-        InetLoad::load /SILENT " " /NOCANCEL \
-            "$APP_EULA_URL" "$APP_EULA_FINAL_PATH"
-        Pop $R0
-        EnableWindow $HWNDPARENT 1
-        ${If} $R0 != "OK"
-          StrCpy $APP_EULA_DL_FAILED "1"
+        ${If} $APP_EXISTS != "1"
+          !ifdef NSIS_CONFIG_LOG
+            LogText "*** AppEULAPageCheck: Application does not exist so show EULA"
+          !endif
+          StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
+          ${If} ${FileExists} "$APP_EULA_PATH"
+            StrCpy $APP_EULA_FINAL_PATH "$APP_EULA_PATH"
+            GoTo EULADownloadDone
+          ${EndIf}
+          ${Unless} ${FileExists} "$EXEDIR\EULA"
+            FindWindow $0 "#32770" "" $HWNDPARENT
+            EnableWindow $HWNDPARENT 0
+            InetLoad::load /SILENT " " /NOCANCEL \
+                "$APP_EULA_URL" "$APP_EULA_FINAL_PATH"
+            Pop $R0
+            EnableWindow $HWNDPARENT 1
+            ${If} $R0 != "OK"
+              StrCpy $APP_EULA_DL_FAILED "1"
+              Abort
+            ${EndIf}
+          ${EndUnless}
+          EULADownloadDone:
+          !ifdef NSIS_CONFIG_LOG
+            LogText "*** AppEULAPageCheck: EULA = &APP_EULA_FINAL_PATH"
+          !endif
+        ${Else}
+          !ifdef NSIS_CONFIG_LOG
+            LogText "*** AppEULAPageCheck: EULA does not exist"
+          !endif
           Abort
         ${EndIf}
-      ${EndUnless}
-      EULADownloadDone:
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** AppEULAPageCheck: EULA = &APP_EULA_FINAL_PATH"
-!endif
-    ${Else}
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** AppEULAPageCheck: EULA does not exist"
-!endif
-      Abort
-    ${EndIf}
-FunctionEnd
+    FunctionEnd
 
-Function AppEULAPageSetup
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    Function AppEULAPageSetup
+        !ifdef NSIS_CONFIG_LOG
+          LogSet on
+        !endif
 
-!insertmacro MUI_HEADER_TEXT $(MSG_APP_EULA_TITLE) $(MSG_APP_EULA_SUBTITLE)
-    FindWindow $0 "#32770" "" $HWNDPARENT
-    GetDlgItem $0 $0 1000
-    CustomLicense::LoadFile "$APP_EULA_FINAL_PATH" $0
-FunctionEnd
-!endif
+        !insertmacro MUI_HEADER_TEXT $(MSG_APP_EULA_TITLE) $(MSG_APP_EULA_SUBTITLE)
+        FindWindow $0 "#32770" "" $HWNDPARENT
+        GetDlgItem $0 $0 1000
+        CustomLicense::LoadFile "$APP_EULA_FINAL_PATH" $0
+    FunctionEnd
+  !endif
 !endif
 
 !ifdef APP_SKIP_INSTALL
-Section "Initialize Variables" InitializeVariables
-    Call GetAppPath
-    Call CheckAppVersion
-    ${If} $APP_EXISTS != "1"
-      MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_INSTALLED_ERROR)" /SD IDOK
-      Abort
-    ${EndIf}
-SectionEnd
-!endif
-!ifndef APP_SKIP_INSTALL
-Section "Download Application" DownloadApp
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
-
-!ifdef APP_SILENT_INSTALL
-    ${If} $APP_EULA_DL_FAILED == "1"
-      MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** DownloadApp: Application's EULA does not exist"
-!endif
-      Abort
-    ${EndIf}
-!endif
-
-    Call GetAppPath
-!ifdef APP_SILENT_INSTALL
-    Call CheckAppVersion
-!else
-    Call CheckAppVersionWithMessage
-!endif
-
-    ${If} $APP_EXISTS != "1"
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** DownloadApp: Application dest not exist so do installation"
-!endif
-      StrCpy $APP_INSTALLER_FINAL_PATH "${APP_INSTALLER_PATH}"
-
-      ${IfThen} ${FileExists} "$APP_INSTALLER_FINAL_PATH" ${|} GoTo AppDownloadDone ${|}
-
-      ${If} "$APP_DOWNLOAD_PATH" != ""
-      ${AndIf} ${FileExists} "$APP_DOWNLOAD_PATH"
-        StrCpy $APP_INSTALLER_FINAL_PATH "$APP_DOWNLOAD_PATH"
-        GoTo AppDownloadDone
-      ${EndIf}
-
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** DownloadApp: Let's download from the Internet"
-!endif
-
-      ; overwrite subtitle
-      SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_APP_DOWNLOAD_START)"
-      InetLoad::load \
-          /TRANSLATE $(MSG_DL_DOWNLOADING)    \
-                     $(MSG_DL_CONNECTIING)    \
-                     $(MSG_DL_SECOND)         \
-                     $(MSG_DL_MINUTE)         \
-                     $(MSG_DL_HOUR)           \
-                     $(MSG_DL_PLURAL)         \
-                     $(MSG_DL_PROGRESS)       \
-                     $(MSG_DL_REMAINING)      \
-          "$APP_DOWNLOAD_URL" "$APP_INSTALLER_FINAL_PATH"
-      Pop $R0
-
-      ${If} $R0 != "OK"
-        MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
-!ifdef NSIS_CONFIG_LOG
-        LogText "*** DownloadApp: Download failed"
-!endif
+  Section "Initialize Variables" InitializeVariables
+      Call GetAppPath
+      Call CheckAppVersion
+      ${If} $APP_EXISTS != "1"
+        MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_INSTALLED_ERROR)" /SD IDOK
         Abort
       ${EndIf}
-
-      ;; Crypto plug-in 1.1 doesn't work on Windows XP...
-      ; Crypto::HashFile "SHA1" "$APP_INSTALLER_FINAL_PATH"
-      md5dll::GetMD5File "$APP_INSTALLER_FINAL_PATH"
-      Pop $0
-
-      ${If} "$APP_HASH" != ""
-        ${If} $0 != "$APP_HASH"
-          MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_HASH_ERROR)" /SD IDOK
-!ifdef NSIS_CONFIG_LOG
-          LogText "*** DownloadApp: Downloaded file is broken"
+  SectionEnd
 !endif
+
+!ifndef APP_SKIP_INSTALL
+  Section "Download Application" DownloadApp
+      !ifdef NSIS_CONFIG_LOG
+        LogSet on
+      !endif
+
+      !ifdef APP_SILENT_INSTALL
+        ${If} $APP_EULA_DL_FAILED == "1"
+          MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
+          !ifdef NSIS_CONFIG_LOG
+            LogText "*** DownloadApp: Application's EULA does not exist"
+          !endif
           Abort
         ${EndIf}
+      !endif
+
+      Call GetAppPath
+      !ifdef APP_SILENT_INSTALL
+        Call CheckAppVersion
+      !else
+        Call CheckAppVersionWithMessage
+      !endif
+
+      ${If} $APP_EXISTS != "1"
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** DownloadApp: Application dest not exist so do installation"
+        !endif
+        StrCpy $APP_INSTALLER_FINAL_PATH "${APP_INSTALLER_PATH}"
+
+        ${IfThen} ${FileExists} "$APP_INSTALLER_FINAL_PATH" ${|} GoTo AppDownloadDone ${|}
+
+        ${If} "$APP_DOWNLOAD_PATH" != ""
+        ${AndIf} ${FileExists} "$APP_DOWNLOAD_PATH"
+          StrCpy $APP_INSTALLER_FINAL_PATH "$APP_DOWNLOAD_PATH"
+          GoTo AppDownloadDone
+        ${EndIf}
+
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** DownloadApp: Let's download from the Internet"
+        !endif
+
+        ; overwrite subtitle
+        SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_APP_DOWNLOAD_START)"
+        InetLoad::load \
+            /TRANSLATE $(MSG_DL_DOWNLOADING)    \
+                       $(MSG_DL_CONNECTIING)    \
+                       $(MSG_DL_SECOND)         \
+                       $(MSG_DL_MINUTE)         \
+                       $(MSG_DL_HOUR)           \
+                       $(MSG_DL_PLURAL)         \
+                       $(MSG_DL_PROGRESS)       \
+                       $(MSG_DL_REMAINING)      \
+            "$APP_DOWNLOAD_URL" "$APP_INSTALLER_FINAL_PATH"
+        Pop $R0
+
+        ${If} $R0 != "OK"
+          MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
+          !ifdef NSIS_CONFIG_LOG
+            LogText "*** DownloadApp: Download failed"
+          !endif
+          Abort
+        ${EndIf}
+
+        ;; Crypto plug-in 1.1 doesn't work on Windows XP...
+        ; Crypto::HashFile "SHA1" "$APP_INSTALLER_FINAL_PATH"
+        md5dll::GetMD5File "$APP_INSTALLER_FINAL_PATH"
+        Pop $0
+
+        ${If} "$APP_HASH" != ""
+          ${If} $0 != "$APP_HASH"
+            MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_HASH_ERROR)" /SD IDOK
+            !ifdef NSIS_CONFIG_LOG
+              LogText "*** DownloadApp: Downloaded file is broken"
+            !endif
+            Abort
+          ${EndIf}
+        ${EndIf}
+
+        AppDownloadDone:
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** DownloadApp: installer is $APP_INSTALLER_FINAL_PATH"
+        !endif
       ${EndIf}
+  SectionEnd
 
-      AppDownloadDone:
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** DownloadApp: installer is $APP_INSTALLER_FINAL_PATH"
-!endif
-    ${EndIf}
-SectionEnd
-
-Section "Install Application" InstallApp
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
-
-    Call GetAppPath
-    Call CheckAppVersion
-
-!if ${APP_NAME} == "Netscape"
-    Call CheckShortcutsExistence
-!endif
-
-    ${If} $APP_EXISTS != "1"
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallApp: Let's run installer"
-!endif
-      ${If} ${FileExists} "${APP_INSTALLER_INI}"
-!if ${APP_NAME} == "Netscape"
-        ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
-!else
-        ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="${APP_INSTALLER_INI}"'
-!endif
-      ${Else}
-!ifdef APP_SILENT_INSTALL
-        ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
-!else
-        ExecWait '$APP_INSTALLER_FINAL_PATH'
-!endif
-      ${EndIf}
+  Section "Install Application" InstallApp
+      !ifdef NSIS_CONFIG_LOG
+        LogSet on
+      !endif
 
       Call GetAppPath
       Call CheckAppVersion
 
-!if ${APP_NAME} == "Netscape"
-      Call UpdateShortcutsExistence
-!endif
+      !if ${APP_NAME} == "Netscape"
+        Call CheckShortcutsExistence
+      !endif
 
       ${If} $APP_EXISTS != "1"
-        ${If} $APP_WRONG_VERSION == "1"
-          MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_ERROR)" /SD IDOK
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** InstallApp: Let's run installer"
+        !endif
+        ${If} ${FileExists} "${APP_INSTALLER_INI}"
+          !if ${APP_NAME} == "Netscape"
+            ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
+          !else
+            ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="${APP_INSTALLER_INI}"'
+          !endif
         ${Else}
-          MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_INSTALL_ERROR)" /SD IDOK
+          !ifdef APP_SILENT_INSTALL
+            ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
+          !else
+            ExecWait '$APP_INSTALLER_FINAL_PATH'
+          !endif
         ${EndIf}
-!ifdef NSIS_CONFIG_LOG
-        LogText "*** InstallApp: Version check failed"
-!endif
-        Abort
+
+        Call GetAppPath
+        Call CheckAppVersion
+
+        !if ${APP_NAME} == "Netscape"
+          Call UpdateShortcutsExistence
+        !endif
+
+        ${If} $APP_EXISTS != "1"
+          ${If} $APP_WRONG_VERSION == "1"
+            MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_ERROR)" /SD IDOK
+          ${Else}
+            MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_INSTALL_ERROR)" /SD IDOK
+          ${EndIf}
+          !ifdef NSIS_CONFIG_LOG
+            LogText "*** InstallApp: Version check failed"
+          !endif
+          Abort
+        ${EndIf}
+
+        StrCpy $APP_INSTALLED "1"
+
+        ${If} $APP_INSTALL_TALKBACK == "false"
+          RMDir /r "${APP_EXTENSIONS_DIR}\talkback@mozilla.org"
+        ${EndIf}
+
+        ; overwrite subtitle
+        SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_PRODUCT_INSTALLING)"
       ${EndIf}
 
-      StrCpy $APP_INSTALLED "1"
-
-      ${If} $APP_INSTALL_TALKBACK == "false"
-        RMDir /r "${APP_EXTENSIONS_DIR}\talkback@mozilla.org"
-      ${EndIf}
-
-      ; overwrite subtitle
-      SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_PRODUCT_INSTALLING)"
-    ${EndIf}
-
-    StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
-    SetOutPath $INSTDIR
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** InstallApp: install to $INSTDIR"
-!endif
-SectionEnd
+      StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
+      SetOutPath $INSTDIR
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** InstallApp: install to $INSTDIR"
+      !endif
+  SectionEnd
 !endif
 
 !if ${APP_NAME} == "Netscape"
-Function "CheckShortcutsExistence"
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+  Function "CheckShortcutsExistence"
+      !ifdef NSIS_CONFIG_LOG
+        LogSet on
+      !endif
 
-    StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
-    StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
-    ${If} ${FileExists} "${APP_INSTALLER_INI}"
-      ReadINIStr $SHORTCUT_NAME "${APP_INSTALLER_INI}" "Install" "ShortcutName"
-      ReadINIStr $PROGRAM_FOLDER_NAME "${APP_INSTALLER_INI}" "Install" "StartMenuDirectoryName"
-    ${EndIf}
-    ${IfThen} $SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "$SHORTCUT_DEFAULT_NAME" ${|}
-    ${IfThen} $PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "$PROGRAM_FOLDER_DEFAULT_NAME" ${|}
+      StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
+      StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
+      ${If} ${FileExists} "${APP_INSTALLER_INI}"
+        ReadINIStr $SHORTCUT_NAME "${APP_INSTALLER_INI}" "Install" "ShortcutName"
+        ReadINIStr $PROGRAM_FOLDER_NAME "${APP_INSTALLER_INI}" "Install" "StartMenuDirectoryName"
+      ${EndIf}
+      ${IfThen} $SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "$SHORTCUT_DEFAULT_NAME" ${|}
+      ${IfThen} $PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "$PROGRAM_FOLDER_DEFAULT_NAME" ${|}
 
-    SetShellVarContext all
+      SetShellVarContext all
 
-    StrCpy $SHORTCUT_PATH_DESKTOP "$DESKTOP\$SHORTCUT_NAME.lnk"
-    ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP "1" ${|}
-    StrCpy $SHORTCUT_PATH_DESKTOP_IM "$DESKTOP\Instant Messenger.lnk"
-    ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_IM "1" ${|}
-    StrCpy $SHORTCUT_PATH_DESKTOP_MAIL "$DESKTOP\Netscape Mail & Newsgroups.lnk"
-    ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_MAIL "1" ${|}
+      StrCpy $SHORTCUT_PATH_DESKTOP "$DESKTOP\$SHORTCUT_NAME.lnk"
+      ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP "1" ${|}
+      StrCpy $SHORTCUT_PATH_DESKTOP_IM "$DESKTOP\Instant Messenger.lnk"
+      ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_IM "1" ${|}
+      StrCpy $SHORTCUT_PATH_DESKTOP_MAIL "$DESKTOP\Netscape Mail & Newsgroups.lnk"
+      ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_MAIL "1" ${|}
 
-    StrCpy $SHORTCUT_PATH_STARTMENU "$STARTMENU\$SHORTCUT_NAME.lnk"
-    ${IfThen} ${FileExists} "$SHORTCUT_PATH_STARTMENU" ${|} StrCpy $EXISTS_SHORTCUT_STARTMENU "1" ${|}
+      StrCpy $SHORTCUT_PATH_STARTMENU "$STARTMENU\$SHORTCUT_NAME.lnk"
+      ${IfThen} ${FileExists} "$SHORTCUT_PATH_STARTMENU" ${|} StrCpy $EXISTS_SHORTCUT_STARTMENU "1" ${|}
 
-    StrCpy $SHORTCUT_PATH_STARTMENU_PROGRAM "$SMPROGRAMS\$PROGRAM_FOLDER_NAME"
-    ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
-    ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
-      StrCpy $EXISTS_SHORTCUT_STARTMENU_PROGRAM "1"
-    ${EndIf}
-
-    SetShellVarContext current
-
-    StrCpy $SHORTCUT_PATH_QUICKLAUNCH "$QUICKLAUNCH\$SHORTCUT_NAME.lnk"
-    ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH "1" ${|}
-    StrCpy $SHORTCUT_PATH_QUICKLAUNCH_MAIL "$QUICKLAUNCH\Netscape Mail & Newsgroups.lnk"
-    ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL "1" ${|}
-FunctionEnd
-
-Function "UpdateShortcutsExistence"
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
-
-    StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
-    StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
-
-    ${If} ${FileExists} "${APP_INSTALLER_INI}"
-      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "DesktopShortcut"
-      ${If} "$1" == "false"
-        ${If} "$EXISTS_SHORTCUT_DESKTOP" == ""
-        ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP"
-          Delete "$SHORTCUT_PATH_DESKTOP"
-        ${EndIf}
-        ${If} "$EXISTS_SHORTCUT_DESKTOP_IM" == ""
-        ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM"
-          Delete "$SHORTCUT_PATH_DESKTOP_IM"
-        ${EndIf}
-        ${If} "$EXISTS_SHORTCUT_DESKTOP_MAIL" == ""
-        ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL"
-          Delete "$SHORTCUT_PATH_DESKTOP_MAIL"
-        ${EndIf}
-      ${Else}
-        SetShellVarContext all
-        ${If} ${FileExists} "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk"
-          Rename "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_DESKTOP"
-        ${EndIf}
-        SetShellVarContext current
+      StrCpy $SHORTCUT_PATH_STARTMENU_PROGRAM "$SMPROGRAMS\$PROGRAM_FOLDER_NAME"
+      ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+      ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
+        StrCpy $EXISTS_SHORTCUT_STARTMENU_PROGRAM "1"
       ${EndIf}
 
-      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
-      ${If} "$1" == "false"
-        ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH" == ""
-        ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH"
-          Delete "$SHORTCUT_PATH_QUICKLAUNCH"
-        ${EndIf}
-        ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH_MAIL" == ""
-        ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
-          Delete "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
-        ${EndIf}
-      ${Else}
-        ${If} ${FileExists} "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk"
-          Rename "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_QUICKLAUNCH"
-        ${EndIf}
-      ${EndIf}
+      SetShellVarContext current
 
-      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "StartMenuShortcuts"
-      ${If} "$1" == "false"
-        ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
-        ${AndIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
-          Delete "$SHORTCUT_PATH_STARTMENU"
+      StrCpy $SHORTCUT_PATH_QUICKLAUNCH "$QUICKLAUNCH\$SHORTCUT_NAME.lnk"
+      ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH "1" ${|}
+      StrCpy $SHORTCUT_PATH_QUICKLAUNCH_MAIL "$QUICKLAUNCH\Netscape Mail & Newsgroups.lnk"
+      ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL "1" ${|}
+  FunctionEnd
+
+  Function "UpdateShortcutsExistence"
+      !ifdef NSIS_CONFIG_LOG
+        LogSet on
+      !endif
+
+      StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
+      StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
+
+      ${If} ${FileExists} "${APP_INSTALLER_INI}"
+        ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "DesktopShortcut"
+        ${If} "$1" == "false"
+          ${If} "$EXISTS_SHORTCUT_DESKTOP" == ""
+          ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP"
+            Delete "$SHORTCUT_PATH_DESKTOP"
+          ${EndIf}
+          ${If} "$EXISTS_SHORTCUT_DESKTOP_IM" == ""
+          ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM"
+            Delete "$SHORTCUT_PATH_DESKTOP_IM"
+          ${EndIf}
+          ${If} "$EXISTS_SHORTCUT_DESKTOP_MAIL" == ""
+          ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL"
+            Delete "$SHORTCUT_PATH_DESKTOP_MAIL"
+          ${EndIf}
+        ${Else}
+          SetShellVarContext all
+          ${If} ${FileExists} "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk"
+            Rename "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_DESKTOP"
+          ${EndIf}
+          SetShellVarContext current
         ${EndIf}
-        ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
-        ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
-          ${IfThen} "$EXISTS_SHORTCUT_STARTMENU_PROGRAM" == "" ${|} RMDir /r "$SHORTCUT_PATH_STARTMENU_PROGRAM" ${|}
+
+        ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
+        ${If} "$1" == "false"
+          ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH" == ""
+          ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH"
+            Delete "$SHORTCUT_PATH_QUICKLAUNCH"
+          ${EndIf}
+          ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH_MAIL" == ""
+          ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
+            Delete "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
+          ${EndIf}
+        ${Else}
+          ${If} ${FileExists} "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk"
+            Rename "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_QUICKLAUNCH"
+          ${EndIf}
         ${EndIf}
-      ${Else}
-        SetShellVarContext all
-        ${If} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME"
-        ${OrIf} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME\*.*"
-          Rename "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME" "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+
+        ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "StartMenuShortcuts"
+        ${If} "$1" == "false"
+          ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
+          ${AndIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
+            Delete "$SHORTCUT_PATH_STARTMENU"
+          ${EndIf}
+          ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+          ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
+            ${IfThen} "$EXISTS_SHORTCUT_STARTMENU_PROGRAM" == "" ${|} RMDir /r "$SHORTCUT_PATH_STARTMENU_PROGRAM" ${|}
+          ${EndIf}
+        ${Else}
+          SetShellVarContext all
+          ${If} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME"
+          ${OrIf} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME\*.*"
+            Rename "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME" "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+          ${EndIf}
+          SetShellVarContext current
         ${EndIf}
-        SetShellVarContext current
       ${EndIf}
-    ${EndIf}
-FunctionEnd
+  FunctionEnd
 !endif
 
 Section "Install Add-ons" InstallAddons
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
     StrCpy $ADDON_INDEX 0
     ReadINIStr $ADDON_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons"
     ${If} $ADDON_LIST == ""
       ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
     ${EndIf}
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-    LogText "*** ADDONS: $ADDON_LIST"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+      LogText "*** ADDONS: $ADDON_LIST"
+    !endif
     ${Unless} $ADDON_LIST == ""
       StrCpy $ADDON_LIST_INDEX 0
       ${While} 1 == 1
@@ -578,10 +579,10 @@ Section "Install Add-ons" InstallAddons
 SectionEnd
 
 Function "CollectAddonFiles"
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-    LogText "*** CollectAddonFiles: $R7"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+      LogText "*** CollectAddonFiles: $R7"
+    !endif
     ${If} $ADDON_LIST == ""
       StrCpy $ADDON_LIST "$R7"
     ${Else}
@@ -591,10 +592,10 @@ Function "CollectAddonFiles"
 FunctionEnd
 
 Function "InstallAddon"
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-    LogText "*** InstallAddon: install $ADDON_FILE"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+      LogText "*** InstallAddon: install $ADDON_FILE"
+    !endif
 
     ReadINIStr $ADDON_NAME "${INIPATH}" "$ADDON_FILE" "AddonId"
     ${If} $ADDON_NAME == ""
@@ -602,9 +603,9 @@ Function "InstallAddon"
       StrCpy $ADDON_NAME "$ADDON_NAME@${PRODUCT_DOMAIN}"
     ${EndIf}
 
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** InstallAddon: ADDON_NAME = $ADDON_NAME"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InstallAddon: ADDON_NAME = $ADDON_NAME"
+    !endif
 
     ReadINIStr $ADDON_TARGET_LOCATION "${INIPATH}" "$ADDON_FILE" "TargetLocation"
     ${Unless} $ADDON_TARGET_LOCATION == ""
@@ -629,11 +630,11 @@ Function "InstallAddon"
 
     IntOp $ADDON_INDEX $ADDON_INDEX + 1
 
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** InstallAddon: $ADDON_NAME successfully installed"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InstallAddon: $ADDON_NAME successfully installed"
+    !endif
 
-;    Push $R0
+    ;Push $R0
 FunctionEnd
 
 Section "Install Extra Installers" InstallExtraInstallers
@@ -652,21 +653,21 @@ Section "Install Extra Installers" InstallExtraInstallers
 SectionEnd
 
 Function "InstallExtraInstaller"
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-    LogText "*** InstallExtraInstaller: install $EXTRA_INSTALLER_NAME"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+      LogText "*** InstallExtraInstaller: install $EXTRA_INSTALLER_NAME"
+    !endif
     ReadINIStr $EXTRA_INSTALLER_OPTIONS "${INIPATH}" "$EXTRA_INSTALLER_NAME" "Options"
     ExecWait '"$EXEDIR\resources\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** InstallExtraInstaller: $EXTRA_INSTALLER_NAME successfully installed"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InstallExtraInstaller: $EXTRA_INSTALLER_NAME successfully installed"
+    !endif
 FunctionEnd
 
 Section "Install Additional Files" InstallAdditionalFiles
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
     StrCpy $INSTALLED_FILE_INDEX 0
 
@@ -733,32 +734,32 @@ Section "Install Additional Files" InstallAdditionalFiles
       ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
     ${EndIf}
 
-!if ${APP_NAME} == "Netscape"
-    ${If} ${FileExists} "$EXEDIR\resources\installed-chrome.txt"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=installed-chrome.txt" "AppendTextFile"
-    ${EndIf}
-!endif
+    !if ${APP_NAME} == "Netscape"
+      ${If} ${FileExists} "$EXEDIR\resources\installed-chrome.txt"
+        ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=installed-chrome.txt" "AppendTextFile"
+      ${EndIf}
+    !endif
 
     ${If} ${FileExists} "$EXEDIR\resources\*.lnk"
       StrCpy $DIST_DIR "$DESKTOP"
       ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
-;      StrCpy $DIST_DIR "$QUICKLAUNCH"
-;      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
-;      StrCpy $DIST_DIR "$SMPROGRAMS"
-;      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+  ;    StrCpy $DIST_DIR "$QUICKLAUNCH"
+  ;    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+  ;    StrCpy $DIST_DIR "$SMPROGRAMS"
+  ;    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
     ${EndIf}
 SectionEnd
 
 Function "InstallNormalFile"
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
     StrCpy $PROCESSING_FILE "$R7"
     StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** InstallNormalFile: install $PROCESSING_FILE to $DIST_PATH"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InstallNormalFile: install $PROCESSING_FILE to $DIST_PATH"
+    !endif
     ${If} ${FileExists} "$DIST_PATH"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
       StrCpy $BACKUP_COUNT 0
@@ -766,9 +767,9 @@ Function "InstallNormalFile"
         IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
         StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
       ${EndWhile}
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallNormalFile: backup old file as $BACKUP_PATH"
-!endif
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** InstallNormalFile: backup old file as $BACKUP_PATH"
+      !endif
       Rename "$DIST_PATH" "$BACKUP_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEXBackup" "$BACKUP_PATH"
     ${EndIf}
@@ -776,74 +777,74 @@ Function "InstallNormalFile"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEX" "$DIST_PATH"
     IntOp $INSTALLED_FILE_INDEX $INSTALLED_FILE_INDEX + 1
 
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** InstallNormalFile: $PROCESSING_FILE is successfully installed"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InstallNormalFile: $PROCESSING_FILE is successfully installed"
+    !endif
     Push $R0
 FunctionEnd
 
 !if ${APP_NAME} == "Netscape"
-Function "AppendTextFile"
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+  Function "AppendTextFile"
+      !ifdef NSIS_CONFIG_LOG
+        LogSet on
+      !endif
 
-    StrCpy $PROCESSING_FILE "$R7"
-    StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
-    ${If} ${FileExists} "$DIST_PATH"
-      StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
-      StrCpy $BACKUP_COUNT 0
-      ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
-        IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
-        StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
-      ${EndWhile}
-      CopyFiles /SILENT "$DIST_PATH" "$BACKUP_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEXBackup" "$BACKUP_PATH"
-    ${EndIf}
+      StrCpy $PROCESSING_FILE "$R7"
+      StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
+      ${If} ${FileExists} "$DIST_PATH"
+        StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
+        StrCpy $BACKUP_COUNT 0
+        ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
+          IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
+          StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
+        ${EndWhile}
+        CopyFiles /SILENT "$DIST_PATH" "$BACKUP_PATH"
+        WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEXBackup" "$BACKUP_PATH"
+      ${EndIf}
 
-    ClearErrors
-    FileOpen $DIST_FILE "$DIST_PATH" a
-    FileOpen $PROCESSING_FILE "$EXEDIR\resources\$PROCESSING_FILE" r
-    MOVE_TO_END:
-      FileRead $DIST_FILE $1
-      IfErrors READ_AND_WRITE
-      GoTo MOVE_TO_END
-    READ_AND_WRITE:
-      FileRead $PROCESSING_FILE $1
-      FileWrite $DIST_FILE "$1$\n"
-      IfErrors END_WRITE
-      GoTo READ_AND_WRITE
-    END_WRITE:
-    FileClose $DIST_FILE
-    FileClose $PROCESSING_FILE
+      ClearErrors
+      FileOpen $DIST_FILE "$DIST_PATH" a
+      FileOpen $PROCESSING_FILE "$EXEDIR\resources\$PROCESSING_FILE" r
+      MOVE_TO_END:
+        FileRead $DIST_FILE $1
+        IfErrors READ_AND_WRITE
+        GoTo MOVE_TO_END
+      READ_AND_WRITE:
+        FileRead $PROCESSING_FILE $1
+        FileWrite $DIST_FILE "$1$\n"
+        IfErrors END_WRITE
+        GoTo READ_AND_WRITE
+      END_WRITE:
+      FileClose $DIST_FILE
+      FileClose $PROCESSING_FILE
 
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEX" "$DIST_PATH"
-    IntOp $INSTALLED_FILE_INDEX $INSTALLED_FILE_INDEX + 1
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$INSTALLED_FILE_INDEX" "$DIST_PATH"
+      IntOp $INSTALLED_FILE_INDEX $INSTALLED_FILE_INDEX + 1
 
-    Push $R0
-FunctionEnd
+      Push $R0
+  FunctionEnd
 !endif
 
 Section "Initialize Search Plugins" InitSearchPlugins
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
     StrCpy $DIST_PATH   "$APP_DIR\searchplugins"
     StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
     StrCpy $BACKUP_COUNT 0
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** InitSearchPlugins: install to $DIST_PATH"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InitSearchPlugins: install to $DIST_PATH"
+    !endif
     ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
       IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
     ${EndWhile}
 
     CreateDirectory "$BACKUP_PATH"
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** InitSearchPlugins: BACKUP_PATH = $BACKUP_PATH"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InitSearchPlugins: BACKUP_PATH = $BACKUP_PATH"
+    !endif
 
     ${If} "$FX_ENABLED_SEARCH_PLUGINS" != ""
     ${AndIf} "$FX_ENABLED_SEARCH_PLUGINS" != "*"
@@ -869,9 +870,9 @@ Section "Initialize Search Plugins" InitSearchPlugins
 SectionEnd
 
 Function "CheckDisableSearchPlugin"
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
     StrCpy $PROCESSING_FILE "$R7"
 
@@ -908,16 +909,16 @@ Function "CheckDisableSearchPlugin"
 FunctionEnd
 
 Section "Initialize Distribution Customizer" InitDistributonCustomizer
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
     StrCpy $DIST_PATH   "$APP_DIR\distribution"
     StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
     StrCpy $BACKUP_COUNT 0
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** InitDistributonCustomizer: install to $DIST_PATH"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InitDistributonCustomizer: install to $DIST_PATH"
+    !endif
     ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
       IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
@@ -928,9 +929,9 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       ${If} ${FileExists} "$DIST_PATH"
         WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup" "$BACKUP_PATH"
         Rename "$DIST_PATH" "$BACKUP_PATH"
-!ifdef NSIS_CONFIG_LOG
-        LogText "*** InitDistributonCustomizer: BACKUP_PATH = $BACKUP_PATH"
-!endif
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** InitDistributonCustomizer: BACKUP_PATH = $BACKUP_PATH"
+        !endif
       ${EndIf}
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
       CreateDirectory "$DIST_PATH"
@@ -1030,33 +1031,33 @@ FunctionEnd
 
 ;=== Callback functions
 Function .onInit
-!ifndef APP_SKIP_INSTALL
-    Call CheckAppProc
-!endif
+    !ifndef APP_SKIP_INSTALL
+      Call CheckAppProc
+    !endif
     Call CheckInstalled
     Call LoadINI
-!ifdef PRODUCT_SILENT_INSTALL
-    SetSilent silent
-!endif
+    !ifdef PRODUCT_SILENT_INSTALL
+      SetSilent silent
+    !endif
 FunctionEnd
 
 Function un.onInit
     Call un.CheckAppProc
-!ifdef PRODUCT_SILENT_INSTALL
-    SetSilent silent
-!endif
-!ifndef PRODUCT_SILENT_INSTALL
-    MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_CONFIRM)" IDYES +2
-    Abort
-!endif
+    !ifdef PRODUCT_SILENT_INSTALL
+      SetSilent silent
+    !endif
+    !ifndef PRODUCT_SILENT_INSTALL
+      MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_CONFIRM)" IDYES +2
+      Abort
+    !endif
     ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
 FunctionEnd
 
 Function un.onUninstSuccess
     HideWindow
-!ifndef PRODUCT_SILENT_INSTALL
-    MessageBox MB_ICONINFORMATION|MB_OK "$(MSG_UNINST_SUCCESS)"
-!endif
+    !ifndef PRODUCT_SILENT_INSTALL
+      MessageBox MB_ICONINFORMATION|MB_OK "$(MSG_UNINST_SUCCESS)"
+    !endif
 
     ${un.GetParameters} $0
     ${un.GetOptions} "$0" "/AddonOnly" $1
@@ -1068,28 +1069,28 @@ Function un.onUninstSuccess
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
       StrCmp $APP_DIR "" RETURN
 
-!if ${APP_NAME} == "Netscape"
+    !if ${APP_NAME} == "Netscape"
       ${If} ${FileExists} "$APP_DIR\uninstall\install_wizard*.log"
-!else
+    !else
       ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
-!endif
-!ifndef APP_SILENT_INSTALL
-        MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES +2
-        GoTo SKIP_APP_UNINSTALLATION
-!endif
-!ifdef APP_SILENT_INSTALL
-  !if ${APP_NAME} == "Netscape"
-        ExecWait `"$APP_DIR\uninstall\NSUninst.exe" -ms`
-  !else
-        ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
-  !endif
-!else
-  !if ${APP_NAME} == "Netscape"
-        ExecWait "$APP_DIR\uninstall\NSUninst.exe"
-  !else
-        ExecWait "$APP_DIR\uninstall\helper.exe"
-  !endif
-!endif
+    !endif
+        !ifndef APP_SILENT_INSTALL
+          MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES +2
+          GoTo SKIP_APP_UNINSTALLATION
+        !endif
+        !ifdef APP_SILENT_INSTALL
+          !if ${APP_NAME} == "Netscape"
+            ExecWait `"$APP_DIR\uninstall\NSUninst.exe" -ms`
+          !else
+            ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
+          !endif
+        !else
+          !if ${APP_NAME} == "Netscape"
+            ExecWait "$APP_DIR\uninstall\NSUninst.exe"
+          !else
+            ExecWait "$APP_DIR\uninstall\helper.exe"
+          !endif
+        !endif
         SKIP_APP_UNINSTALLATION:
       ${EndIf}
 
@@ -1099,38 +1100,37 @@ FunctionEnd
 
 ;=== Utility functions
 Function CheckInstalled
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
     ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
     ${If} $R0 != ""
-!ifndef APP_SKIP_INSTALL
-!ifndef PRODUCT_SILENT_INSTALL
-      MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_ALREADY_INSTALLED)" IDOK UNINST
-      Abort
-!endif
+      !ifndef APP_SKIP_INSTALL
+        !ifndef PRODUCT_SILENT_INSTALL
+          MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_ALREADY_INSTALLED)" IDOK UNINST
+          Abort
+        !endif
 
-    UNINST:
-!ifdef NSIS_CONFIG_LOG
-      LogText "CheckInstalled: Application is installed by meta installer"
-!endif
-      ; アプリケーションがこのアドオンの旧バージョンによって
-      ; 自動インストールされたものである場合、状態を引き継ぐ
-      ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
-      ${IfThen} $APP_VERSION != "" ${|} StrCpy $APP_INSTALLED "1" ${|}
-      ; アンインストーラを一時ファイルにコピーしないでそのまま実行
-      ; こうしないと，すぐに終了して戻ってきてしまうみたい
-      ExecWait '$R0 /AddonOnly _?=$INSTDIR'
-
-!endif
+      UNINST:
+        !ifdef NSIS_CONFIG_LOG
+          LogText "CheckInstalled: Application is installed by meta installer"
+        !endif
+        ; アプリケーションがこのアドオンの旧バージョンによって
+        ; 自動インストールされたものである場合、状態を引き継ぐ
+        ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
+        ${IfThen} $APP_VERSION != "" ${|} StrCpy $APP_INSTALLED "1" ${|}
+        ; アンインストーラを一時ファイルにコピーしないでそのまま実行
+        ; こうしないと，すぐに終了して戻ってきてしまうみたい
+        ExecWait '$R0 /AddonOnly _?=$INSTDIR'
+      !endif
     ${EndIf}
 FunctionEnd
 
 Function LoadINI
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
     StrCpy $APP_DOWNLOAD_PATH "${APP_DOWNLOAD_PATH}"
     StrCpy $APP_EULA_PATH "${APP_EULA_PATH}"
@@ -1142,49 +1142,49 @@ Function LoadINI
 
     IfFileExists "${INIPATH}" "" NO_INI
 
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** LoadINI: INI file exists"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** LoadINI: INI file exists"
+    !endif
 
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadPath"
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** LoadINI: AppDownloadPath = $INI_TEMP"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** LoadINI: AppDownloadPath = $INI_TEMP"
+    !endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_DOWNLOAD_PATH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaPath"
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** LoadINI: AppEulaPath = $INI_TEMP"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** LoadINI: AppEulaPath = $INI_TEMP"
+    !endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_EULA_PATH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadUrl"
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** LoadINI: AppDownloadUrl = $INI_TEMP"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** LoadINI: AppDownloadUrl = $INI_TEMP"
+    !endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_DOWNLOAD_URL "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaUrl"
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** LoadINI: AppEulaUrl = $INI_TEMP"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** LoadINI: AppEulaUrl = $INI_TEMP"
+    !endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_EULA_URL "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppHash"
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** LoadINI: AppHash = $INI_TEMP"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** LoadINI: AppHash = $INI_TEMP"
+    !endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_HASH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppInstallTalkback"
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** LoadINI: AppInstallTalkback = $INI_TEMP"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** LoadINI: AppInstallTalkback = $INI_TEMP"
+    !endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_INSTALL_TALKBACK "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxEnabledSearchPlugins"
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** LoadINI: FxEnabledSearchPlugins = $INI_TEMP"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** LoadINI: FxEnabledSearchPlugins = $INI_TEMP"
+    !endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $FX_ENABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxDisabledSearchPlugins"
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** LoadINI: FxDisabledSearchPlugins = $INI_TEMP"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** LoadINI: FxDisabledSearchPlugins = $INI_TEMP"
+    !endif
     ${IfThen} $INI_TEMP != "" ${|} StrCpy $FX_DISABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
 
   NO_INI:
@@ -1207,15 +1207,15 @@ Function un.CheckAppProc
 FunctionEnd
 
 Function GetAppPath
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
     ${IfThen} $APP_INSTALLED != "1" ${|} StrCpy $APP_INSTALLED "0" ${|}
 
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** GetAppPath: Application installed"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** GetAppPath: Application installed"
+    !endif
 
     ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY}" "CurrentVersion"
     StrCmp $APP_VERSION "" ERR
@@ -1225,24 +1225,24 @@ Function GetAppPath
     ReadRegStr $APP_EXE_PATH HKLM $0 "PathToExe"
     StrCmp $APP_EXE_PATH "" ERR
 
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** GetAppPath: APP_EXE_PATH = $APP_EXE_PATH"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** GetAppPath: APP_EXE_PATH = $APP_EXE_PATH"
+    !endif
 
     ; Application directory
     ReadRegStr $APP_DIR HKLM $0 "Install Directory"
     StrCmp $APP_DIR "" ERR
 
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** GetAppPath: APP_DIR = $APP_DIR"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** GetAppPath: APP_DIR = $APP_DIR"
+    !endif
 
     ${If} ${FileExists} "$APP_EXE_PATH"
       ${If} ${FileExists} "$APP_DIR"
       ${OrIf} ${FileExists} "$APP_DIR\*.*"
-!ifdef NSIS_CONFIG_LOG
-        LogText "*** GetAppPath: Application exists"
-!endif
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** GetAppPath: Application exists"
+        !endif
         StrCpy $APP_EXISTS "1"
       ${EndIf}
     ${EndIf}
@@ -1271,29 +1271,29 @@ Function GetFirstStrPart
 FunctionEnd
 
 Function CheckAppVersion
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
     Push $APP_VERSION
     Call GetFirstStrPart
     Pop $NORMALIZED_APP_VERSION
 
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** CheckAppVersion: APP_VERSION = $APP_VERSION"
-    LogText "*** CheckAppVersion: NORMALIZED_APP_VERSION = $NORMALIZED_APP_VERSION"
-    LogText "*** CheckAppVersion: APP_MIN_VERSION = $APP_MIN_VERSION"
-    LogText "*** CheckAppVersion: APP_MAX_VERSION = $APP_MAX_VERSION"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** CheckAppVersion: APP_VERSION = $APP_VERSION"
+      LogText "*** CheckAppVersion: NORMALIZED_APP_VERSION = $NORMALIZED_APP_VERSION"
+      LogText "*** CheckAppVersion: APP_MIN_VERSION = $APP_MIN_VERSION"
+      LogText "*** CheckAppVersion: APP_MAX_VERSION = $APP_MAX_VERSION"
+    !endif
 
     ${VersionConvert} "$NORMALIZED_APP_VERSION" "abcdefghijklmnopqrstuvwxyz" $APP_VERSION_NUM
     StrCpy $APP_WRONG_VERSION "0"
 
     ${IfThen} $APP_EXISTS != "1" ${|} GoTo RETURN ${|}
 
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** CheckAppVersion: Application exists"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** CheckAppVersion: Application exists"
+    !endif
 
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppMaxVersion"
     ${IfThen} $INI_TEMP == "" ${|} StrCpy $INI_TEMP "${APP_MAX_VERSION}" ${|}
@@ -1302,9 +1302,9 @@ Function CheckAppVersion
 
     ${If} $0 == 1
       StrCpy $APP_WRONG_VERSION "2"
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** CheckAppVersion: Installed version is too new"
-!endif
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** CheckAppVersion: Installed version is too new"
+      !endif
       GoTo RETURN
     ${EndIf}
 
@@ -1315,26 +1315,26 @@ Function CheckAppVersion
     ${If} $0 == 2
       StrCpy $APP_WRONG_VERSION "1"
       StrCpy $APP_EXISTS "0"
-!ifdef NSIS_CONFIG_LOG
-      LogText "*** CheckAppVersion: Installed version is too old"
-!endif
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** CheckAppVersion: Installed version is too old"
+      !endif
       GoTo RETURN
     ${EndIf}
   RETURN:
 FunctionEnd
 
 Function CheckAppVersionWithMessage
-!ifdef NSIS_CONFIG_LOG
-    LogSet on
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
     ${IfThen} $APP_EXISTS != "1" ${|} GoTo RETURN ${|}
 
     Call CheckAppVersion
 
-!ifdef NSIS_CONFIG_LOG
-    LogText "*** CheckAppVersionWithMessage: APP_WRONG_VERSION = $APP_WRONG_VERSION"
-!endif
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** CheckAppVersionWithMessage: APP_WRONG_VERSION = $APP_WRONG_VERSION"
+    !endif
     ${Switch} $APP_WRONG_VERSION
 
       ${Case} 1
