@@ -108,7 +108,6 @@ Var APP_INSTALLER_FINAL_PATH
 Var APP_DIR
 !if ${APP_NAME} == "Netscape"
   Var SHORTCUT_DEFAULT_NAME
-  Var SHORTCUT_NAME
   Var PROGRAM_FOLDER_DEFAULT_NAME
   Var PROGRAM_FOLDER_NAME
   Var EXISTS_SHORTCUT_DESKTOP
@@ -148,10 +147,14 @@ Var ITEMS_LIST
 Var ITEMS_LIST_INDEX
 Var ITEM_NAME
 Var ITEM_INDEX
+Var ITEM_LOCATION
 
 Var ADDON_NAME
-Var ADDON_TARGET_LOCATION
-Var ADDON_DIR
+
+Var SHORTCUT_NAME
+Var SHORTCUT_PATH
+Var SHORTCUT_OPTIONS
+Var SHORTCUT_ICON_INDEX
 
 Var EXTRA_INSTALLER_OPTIONS
 
@@ -604,26 +607,15 @@ Function "InstallAddon"
       LogText "*** InstallAddon: ADDON_NAME = $ADDON_NAME"
     !endif
 
-    ReadINIStr $ADDON_TARGET_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
-    ${Unless} $ADDON_TARGET_LOCATION == ""
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%appdir%" "$APP_DIR" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%AppData%" "$APPDATA" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%appdata%" "$APPDATA" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%APPDATA%" "$APPDATA" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%Home%" "$HOME" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%home%" "$HOME" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%HOME%" "$HOME" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%Desktop%" "$DESKTOP" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%desktop%" "$DESKTOP" "+*" $ADDON_TARGET_LOCATION
-      ${WordReplace} "$ADDON_TARGET_LOCATION" "%DESKTOP%" "$DESKTOP" "+*" $ADDON_TARGET_LOCATION
-      StrCpy $ADDON_DIR "$ADDON_TARGET_LOCATION\$ADDON_NAME"
+    ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
+    ${Unless} $ITEM_LOCATION == ""
+      Call ResolveItemLocation
+      StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME"
     ${Else}
-      StrCpy $ADDON_DIR "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
+      StrCpy $ITEM_LOCATION "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
     ${EndUnless}
-    ZipDLL::extractall "$EXEDIR\resources\$ITEM_NAME" "$ADDON_DIR"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ADDON_DIR"
+    ZipDLL::extractall "$EXEDIR\resources\$ITEM_NAME" "$ITEM_LOCATION"
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ITEM_LOCATION"
 
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
@@ -635,9 +627,57 @@ Function "InstallAddon"
 FunctionEnd
 
 Section "Install Shortcuts" InstallShortcuts
+    ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Shortcuts"
+    StrCpy $ITEM_INDEX 0
+    ${Unless} $ITEMS_LIST == ""
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST " " "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
+        ${EndIf}
+        Call InstallShortcut
+      ${EndWhile}
+    ${EndUnless}
 SectionEnd
 
 Function "InstallShortcut"
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+      LogText "*** InstallShortcut: install $ITEM_NAME"
+    !endif
+
+    ReadINIStr $SHORTCUT_NAME "${INIPATH}" "$ITEM_NAME" "Name"
+    ReadINIStr $SHORTCUT_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
+    ReadINIStr $SHORTCUT_ICON_INDEX "${INIPATH}" "$ITEM_NAME" "IconIndex"
+    ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "Path"
+    Call ResolveItemLocation
+    StrCpy $SHORTCUT_PATH "$ITEM_LOCATION"
+    ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
+    Call ResolveItemLocation
+    StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
+
+    ${If} $SHORTCUT_ICON_INDEX == ""
+      CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH"
+    ${ElseIf} $SHORTCUT_ICON_INDEX == "1"
+      CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 1
+    ${ElseIf} $SHORTCUT_ICON_INDEX == "2"
+      CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 2
+    ${ElseIf} $SHORTCUT_ICON_INDEX == "3"
+      CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 3
+    ${ElseIf} $SHORTCUT_ICON_INDEX == "4"
+      CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 4
+    ${ElseIf} $SHORTCUT_ICON_INDEX == "5"
+      CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 5
+    ${EndIf}
+
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
+    IntOp $ITEM_INDEX $ITEM_INDEX + 1
+
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InstallShortcut: $ITEM_NAME successfully installed"
+    !endif
 FunctionEnd
 
 Section "Install Extra Installers" InstallExtraInstallers
@@ -963,12 +1003,12 @@ Section Uninstall
     ${While} "0" == "0"
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX"
       ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup"
-      ${IfThen} $INSTALLED_FILE == "" ${|} GoTo ConfigUninstallDone ${|}
+      ${IfThen} $INSTALLED_FILE == "" ${|} ${Break} ${|}
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
         StrCpy $UNINSTALL_FAILED 1
-        GoTo ConfigUninstallDone
+        ${Break}
       ${EndIf}
       ${If} $BACKUP_PATH != ""
       ${AndIf} ${FileExists} "$BACKUP_PATH"
@@ -976,21 +1016,31 @@ Section Uninstall
       ${EndIf}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
-    ConfigUninstallDone:
 
     StrCpy $ITEM_INDEX 0
     ${While} "0" == "0"
-      ReadRegStr $ADDON_DIR HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
-      ${IfThen} $ADDON_DIR == "" ${|} GoTo AddonUninstallDone ${|}
-      RMDir /r "$ADDON_DIR"
+      ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
+      Delete "$INSTALLED_FILE"
       ${If} ${Errors}
-      ${AndIf} ${FileExists} "$PROCESSING_FILE"
+      ${AndIf} ${FileExists} "$INSTALLED_FILE"
         StrCpy $UNINSTALL_FAILED 1
-        GoTo AddonUninstallDone
+        ${Break}
       ${EndIf}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
-    AddonUninstallDone:
+
+    StrCpy $ITEM_INDEX 0
+    ${While} "0" == "0"
+      ReadRegStr $ITEM_LOCATION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
+      ${IfThen} $ITEM_LOCATION == "" ${|} ${Break} ${|}
+      RMDir /r "$ITEM_LOCATION"
+      ${If} ${Errors}
+      ${AndIf} ${FileExists} "$PROCESSING_FILE"
+        StrCpy $UNINSTALL_FAILED 1
+        ${Break}
+      ${EndIf}
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ${EndWhile}
 
     ; search plugins
     ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DisabledSearchPlugins"
@@ -1354,4 +1404,19 @@ Function CheckAppVersionWithMessage
     ${EndSwitch}
 
   RETURN:
+FunctionEnd
+
+Function "ResolveItemLocation"
+    ${WordReplace} "$ITEM_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%AppData%" "$APPDATA" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%appdata%" "$APPDATA" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%APPDATA%" "$APPDATA" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Home%" "$HOME" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%home%" "$HOME" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%HOME%" "$HOME" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%DESKTOP%" "$DESKTOP" "+*" $ITEM_LOCATION
 FunctionEnd
