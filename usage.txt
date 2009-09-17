@@ -222,6 +222,9 @@ Installers：（省略可能）
 	resourcesフォルダ内に置いたインストーラのEXEファイル名の半角スペース区切りの
 	リスト。詳細は「その他の同梱アプリケーションのインストール」を参照。
 	省略時は、何も行わない。
+Shortcuts：（省略可能）
+	任意の内容のショートカットを定義できる。詳細は「ショートカットの作成」を
+	参照。
 
 以下の設定については、無指定の場合はビルド時の指定が有効となる。
 
@@ -330,6 +333,48 @@ Options：（省略可能）
 
   [myplugin2.exe]
   Options=-S
+
+■ショートカットの作成
+
+[fainstall]セクションのShortcutsに半角スペース区切りで記述された各ショート
+カット名に対応するセクションを使用することで、任意の内容のショートカットを
+自動的に生成することができる。
+
+[ショートカット名]セクションに設定できる情報：
+
+Name：ショートカット名
+Path：
+	ショートカットのリンク先実行ファイルのパス。以下のプレースホルダを使用可能。
+	  %AppDir%  : Firefoxのインストール先フォルダ
+	  %AppData% : Windowsのアプリケーション情報保存先フォルダ
+	              （C:\Users\<username>\AppData\Roaming など）
+	  %Home%    : ユーザのホーム（C:\Users\<username> など）
+	  %Desktop% : デスクトップ（C:\Users\<username>\Desktop など）
+Options：（省略可能）
+	追加の起動オプション。
+IconIndex：（省略可能）
+	Pathで示されたファイルにアイコンが複数含まれている場合に、ショートカットの
+	アイコンとして使うアイコンの番号を示す。
+TargetLocation：（省略可能）
+	ショートカットの作成先フォルダのパス。以下のプレースホルダを使用可能。
+	  %AppDir%  : Firefoxのインストール先フォルダ
+	  %AppData% : Windowsのアプリケーション情報保存先フォルダ
+	              （C:\Users\<username>\AppData\Roaming など）
+	  %Home%    : ユーザのホーム（C:\Users\<username> など）
+	  %Desktop% : デスクトップ（C:\Users\<username>\Desktop など）
+	省略時は「%Desktop%」として扱われる。
+
+例えば、デスクトップ上にFirefoxのプロファイルマネージャを起動するショート
+カットを作成する場合は、以下の通り。
+
+  [fainstall]
+  Shortcuts=profile-manager
+
+  [profile-manager]
+  Name=プロファイルマネージャ
+  Path=%AppDir%\firefox.exe
+  Options=-p
+  TargetLocation=%Desktop%
 
 
 ■■Mozillaアプリケーションのサイレントインストールの挙動の変更
