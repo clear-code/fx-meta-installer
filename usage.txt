@@ -320,18 +320,22 @@ TargetLocation：（省略可能）
 [インストーラ名]セクションに設定できる情報：
 
 Options：（省略可能）
+	インストーラのファイル名。省略時はセクション名をそのままファイル名と見なす。
+Options：（省略可能）
 	インストーラの起動オプション。
 
 例えば「-S」オプションによってサイレントインストールを行うプラグイン
 「myplugin1.exe」と「myplugin2.exe」をインストールする場合は、以下の通り。
 
   [fainstall]
-  Installers=myplugin1.exe myplugin2.exe
+  Installers=myplugin1 myplugin2
 
-  [myplugin1.exe]
+  [myplugin1]
+  Name=myplugin1.exe
   Options=-S
 
-  [myplugin2.exe]
+  [myplugin2]
+  Name=myplugin2.exe
   Options=-S
 
 ■ショートカットの作成
@@ -351,7 +355,10 @@ Path：
 	  %Home%    : ユーザのホーム（C:\Users\<username> など）
 	  %Desktop% : デスクトップ（C:\Users\<username>\Desktop など）
 Options：（省略可能）
-	追加の起動オプション。
+	追加の起動オプション。以下のプレースホルダを使用可能。
+	  %AppDir%  : Firefoxのインストール先フォルダ
+	  %Home%    : ユーザのホーム（C:\Users\<username> など）
+	  %Desktop% : デスクトップ（C:\Users\<username>\Desktop など）
 IconIndex：（省略可能）
 	Pathで示されたファイルにアイコンが複数含まれている場合に、ショートカットの
 	アイコンとして使うアイコンの番号を示す。

@@ -655,12 +655,17 @@ Function "InstallShortcut"
     !endif
 
     ReadINIStr $SHORTCUT_NAME "${INIPATH}" "$ITEM_NAME" "Name"
-    ReadINIStr $SHORTCUT_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
+
+    ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "Options"
+    Call ResolveItemLocationBasic
+    StrCpy $SHORTCUT_OPTIONS "$ITEM_LOCATION"
+
     ReadINIStr $SHORTCUT_ICON_INDEX "${INIPATH}" "$ITEM_NAME" "IconIndex"
 ;    ReadINIStr $SHORTCUT_DESCRIPTION "${INIPATH}" "$ITEM_NAME" "Description"
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "Path"
     Call ResolveItemLocation
     StrCpy $SHORTCUT_PATH "$ITEM_LOCATION"
+
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
     ${If} $ITEM_LOCATION == ""
       StrCpy $ITEM_LOCATION "%Desktop%"
@@ -1428,12 +1433,16 @@ Function CheckAppVersionWithMessage
 FunctionEnd
 
 Function "ResolveItemLocation"
-    ${WordReplace} "$ITEM_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ITEM_LOCATION
+    Call ResolveItemLocationBasic
     ${WordReplace} "$ITEM_LOCATION" "%AppData%" "$APPDATA" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%appdata%" "$APPDATA" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%APPDATA%" "$APPDATA" "+*" $ITEM_LOCATION
+FunctionEnd
+
+Function "ResolveItemLocationBasic"
+    ${WordReplace} "$ITEM_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%Home%" "$HOME" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%home%" "$HOME" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%HOME%" "$HOME" "+*" $ITEM_LOCATION
