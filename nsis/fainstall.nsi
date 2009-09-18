@@ -156,6 +156,7 @@ Var SHORTCUT_PATH
 Var SHORTCUT_OPTIONS
 Var SHORTCUT_ICON_INDEX
 
+Var EXTRA_INSTALLER_NAME
 Var EXTRA_INSTALLER_OPTIONS
 
 Var UNINSTALL_FAILED
@@ -712,8 +713,15 @@ Function "InstallExtraInstaller"
       LogSet on
       LogText "*** InstallExtraInstaller: install $ITEM_NAME"
     !endif
+
+    ReadINIStr $EXTRA_INSTALLER_NAME "${INIPATH}" "$ITEM_NAME" "Name"
+    ${If} $EXTRA_INSTALLER_NAME == ""
+      StrCpy $EXTRA_INSTALLER_NAME "$ITEM_NAME"
+    ${EndIf}
     ReadINIStr $EXTRA_INSTALLER_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
+
     ExecWait '"$EXEDIR\resources\$ITEM_NAME" $EXTRA_INSTALLER_OPTIONS'
+
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallExtraInstaller: $ITEM_NAME successfully installed"
     !endif
