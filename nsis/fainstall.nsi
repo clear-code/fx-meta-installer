@@ -1028,7 +1028,7 @@ Section Uninstall
     StrCpy $UNINSTALL_FAILED 0
 
     StrCpy $ITEM_INDEX 0
-    ${While} "0" == "0"
+    ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX"
       ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup"
       ${IfThen} $INSTALLED_FILE == "" ${|} ${Break} ${|}
@@ -1046,8 +1046,9 @@ Section Uninstall
     ${EndWhile}
 
     StrCpy $ITEM_INDEX 0
-    ${While} "0" == "0"
+    ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
+      ${IfThen} $INSTALLED_FILE == "" ${|} ${Break} ${|}
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
@@ -1058,7 +1059,7 @@ Section Uninstall
     ${EndWhile}
 
     StrCpy $ITEM_INDEX 0
-    ${While} "0" == "0"
+    ${While} 1 == 1
       ReadRegStr $ITEM_LOCATION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
       ${IfThen} $ITEM_LOCATION == "" ${|} ${Break} ${|}
       RMDir /r "$ITEM_LOCATION"
