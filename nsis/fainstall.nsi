@@ -88,7 +88,7 @@
   !define APP_INSTALL_MODE "QUIET"
 !endif
 
-ifndef PRODUCT_LANGUAGE
+!ifndef PRODUCT_LANGUAGE
   !define PRODUCT_LANGUAGE "English"
 !else
   !if PRODUCT_LANGUAGE != "English"
