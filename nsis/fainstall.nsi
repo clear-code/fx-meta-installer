@@ -187,6 +187,7 @@ BrandingText " "
 !define MUI_ICON                     "${INSTALLER_NAME}.ico"
 !define MUI_UNICON                   "${INSTALLER_NAME}.ico"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "..\icon\welcome.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP_NOSTRETCH
 !define MUI_FINISHPAGE_RUN           "$APP_EXE_PATH"
 !define MUI_FINISHPAGE_RUN_TEXT      $(MSG_APP_RUN_TEXT)
 !define MUI_FINISHPAGE_LINK          "${PRODUCT_WEB_LABEL}"
