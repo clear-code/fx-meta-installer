@@ -109,6 +109,8 @@
 ; -ira  : インストール完了後のアプリケーションの自動起動を無効（Netscape用）
 ; -ispf : インストール完了後のスタートメニュー内フォルダを開く処理を無効（Netscape用）
 
+!define SEPARATOR "|"
+
 ;=== Program Details
 Name    "${PRODUCT_FULL_NAME}"
 OutFile "..\${INSTALLER_NAME}.exe"
@@ -609,7 +611,7 @@ Section "Install Add-ons" InstallAddons
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
-        ${WordFind} $ITEMS_LIST "|" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
         ${EndIf}
@@ -677,7 +679,7 @@ Section "Install Shortcuts" InstallShortcuts
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
-        ${WordFind} $ITEMS_LIST "|" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
         ${EndIf}
@@ -743,7 +745,7 @@ Section "Install Extra Installers" InstallExtraInstallers
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
-        ${WordFind} $ITEMS_LIST "|" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
         ${EndIf}
