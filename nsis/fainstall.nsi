@@ -711,7 +711,7 @@ Function "CollectAddonFiles"
     ${If} $ITEMS_LIST == ""
       StrCpy $ITEMS_LIST "$R7"
     ${Else}
-      StrCpy $ITEMS_LIST "$ITEMS_LIST $R7"
+      StrCpy $ITEMS_LIST "$ITEMS_LIST${SEPARATOR}$R7"
     ${EndIf}
     Push $ITEMS_LIST
 FunctionEnd
