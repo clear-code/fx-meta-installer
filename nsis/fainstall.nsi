@@ -1292,6 +1292,7 @@ Function .onInit
     !if ${PRODUCT_INSTALL_MODE} == "QUIET"
       SetSilent silent
     !endif
+    Call CheckAdminPrivilege
 FunctionEnd
 
 Function un.onInit
@@ -1353,6 +1354,28 @@ Function un.onUninstSuccess
 FunctionEnd
 
 ;=== Utility functions
+Var PRIVilEGE_TEST_FILE
+Function CheckAdminPrivilege
+    Call GetAppPath
+    StrCpy $PRIVilEGE_TEST_FILE "$WINDIR\_${INSTALLER_NAME}.lock"
+    ${If} ${FileExists} "$PRIVilEGE_TEST_FILE"
+      Delete "$PRIVilEGE_TEST_FILE"
+      ${Unless} ${FileExists} "$PRIVilEGE_TEST_FILE"
+        GoTo PRIVILEGE_TEST_DONE
+      ${EndUnless}
+    ${Else}
+      WriteINIStr "$PRIVilEGE_TEST_FILE" "${INSTALLER_NAME}" "test" "true"
+      FlushINI "$PRIVilEGE_TEST_FILE"
+      ${If} ${FileExists} "$PRIVilEGE_TEST_FILE"
+        Delete "$PRIVilEGE_TEST_FILE"
+        GoTo PRIVILEGE_TEST_DONE
+      ${EndIf}
+    ${EndIf}
+    MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_ADMIN_ERROR)" /SD IDOK
+    Abort
+  PRIVILEGE_TEST_DONE:
+FunctionEnd
+
 Function CheckInstalled
     !ifdef NSIS_CONFIG_LOG
       LogSet on

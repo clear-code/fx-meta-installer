@@ -18,6 +18,7 @@ LangString MSG_UNINST_ERROR        ${LANG_ENGLISH} "Uninstallation of ${PRODUCT_
 LangString MSG_ALREADY_INSTALLED   ${LANG_ENGLISH} "${PRODUCT_FULL_NAME} is already installed.$\n$\n\
 If you want the existing version to be uninstalled, click OK.$\n\
 If not, click Cancel."
+LangString MSG_APP_NOT_ADMIN_ERROR ${LANG_ENGLISH} "You must have administrator privilege to install ${PRODUCT_FULL_NAME}."
 
 ; progress download
 LangString MSG_DL_DOWNLOADING    ${LANG_ENGLISH} "Downloading %s"
