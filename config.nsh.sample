@@ -1,16 +1,20 @@
-;Copyright (C) 2008 ClearCode Inc.
+;Copyright (C) 2008-2009 ClearCode Inc.
 
 ;====================== CUSTOMIZABLE SECTION =======================
 
-!define PRODUCT_FULL_NAME   "Fx Add-on Installer"
-!define PRODUCT_NAME        "FxAddonInstaller"
-!define PRODUCT_VERSION     "0.0.0.0"
-!define PRODUCT_YEAR        "2008"
-!define PRODUCT_PUBLISHER   "ClearCode Inc."
-!define PRODUCT_DOMAIN      "clear-code.com"
-!define PRODUCT_WEB_SITE    "http://www.clear-code.com/"
-!define PRODUCT_WEB_LABEL   "クリアコードのホームページを表示"
-;!define PRODUCT_SILENT_INSTALL
+!define PRODUCT_FULL_NAME    "Fx Add-on Installer"
+!define PRODUCT_NAME         "FxAddonInstaller"
+!define PRODUCT_VERSION      "0.0.0.0"
+!define PRODUCT_YEAR         "2009"
+!define PRODUCT_PUBLISHER    "ClearCode Inc."
+!define PRODUCT_DOMAIN       "clear-code.com"
+!define PRODUCT_WEB_SITE     "http://www.clear-code.com/"
+!define PRODUCT_WEB_LABEL    "クリアコードのホームページを表示"
+
+; NORMAL  : 通常のウィザード
+; PASSIVE : 確認をすべてスキップする準サイレントインストール
+; QUIET   : 完全なサイレントインストール
+!define PRODUCT_INSTALL_MODE "NORMAL"
 
 !define APP_NAME            "Firefox"
 !define APP_MIN_VERSION     "2.0"
@@ -20,13 +24,17 @@
 !define APP_HASH            "8d017402de51a144d0e0fe4d3e2132cb"
 ;!define APP_EULA_PATH       "\\Kuro-box\share\\Firefox Setup 2.0.0.14.txt"
 !define APP_EULA_URL        "http://www.mozilla.com/en-US/legal/eula/firefox2-en.txt"
-!define APP_SILENT_INSTALL
+
+; NORMAL : 通常のウィザード
+; QUIET  : 完全なサイレントインストール
+; SKIP   : インストールしない
+!define APP_INSTALL_MODE    "QUIET"
+
 ;!define APP_EXE             "something.exe"
 ;!define APP_KEY             "Vendor\Something"
 
 !define FX_ENABLED_SEARCH_PLUGINS  "*"
 !define FX_DISABLED_SEARCH_PLUGINS ""
 
-;!define APP_SKIP_INSTALL
 
 ;===================================================================

@@ -68,6 +68,27 @@
   !define FX_DISABLED_SEARCH_PLUGINS ""
 !endif
 
+; for backward compatibility
+!ifdef PRODUCT_SILENT_INSTALL
+  !ifndef PRODUCT_INSTALL_MODE
+    !define PRODUCT_INSTALL_MODE "QUIET"
+  !endif
+!endif
+!ifdef APP_SILENT_INSTALL
+  !ifndef APP_INSTALL_MODE
+    !define APP_INSTALL_MODE "QUIET"
+  !endif
+!endif
+
+; fallback to default value
+!ifndef PRODUCT_INSTALL_MODE
+  !define PRODUCT_INSTALL_MODE "NORMAL"
+!endif
+!ifndef APP_INSTALL_MODE
+  !define APP_INSTALL_MODE "QUIET"
+!endif
+
+
 !define INIPATH             "$EXEDIR\${INSTALLER_NAME}.ini"
 
 !define SILENT_INSTALL_OPTIONS "-ms -ira -ispf"
@@ -130,9 +151,7 @@ Var APP_INSTALLED
 Var NORMALIZED_VERSION
 Var APP_MAX_VERSION
 Var APP_MIN_VERSION
-!ifdef APP_SILENT_INSTALL
-  Var APP_EULA_DL_FAILED
-!endif
+Var APP_EULA_DL_FAILED
 Var APP_WRONG_VERSION
 
 Var PROCESSING_FILE
@@ -174,57 +193,60 @@ Var FX_ENABLED_SEARCH_PLUGINS
 Var FX_DISABLED_SEARCH_PLUGINS
 Var SEARCH_PLUGINS_PATH
 
-;=== MUI
-!include "MUI2.nsh"
-!include "Sections.nsh"
-!include "Japanese.nsh"
+!if PRODUCT_INSTALL_MODE != "QUIET"
+  ;=== MUI: Modern UI
+  !include "MUI2.nsh"
+  !include "Sections.nsh"
+  !include "Japanese.nsh"
 
-; hide the footer "Nullsoft Install System v*.*"
-BrandingText " "
+  ; hide the footer "Nullsoft Install System v*.*"
+  BrandingText " "
 
-; MUI Settings
-!define MUI_ABORTWARNING
-!define MUI_ICON                     "${INSTALLER_NAME}.ico"
-!define MUI_UNICON                   "${INSTALLER_NAME}.ico"
-!define MUI_WELCOMEFINISHPAGE_BITMAP "..\icon\welcome.bmp"
-!define MUI_WELCOMEFINISHPAGE_BITMAP_NOSTRETCH
-!define MUI_FINISHPAGE_RUN           "$APP_EXE_PATH"
-!define MUI_FINISHPAGE_RUN_TEXT      $(MSG_APP_RUN_TEXT)
-!define MUI_FINISHPAGE_LINK          "${PRODUCT_WEB_LABEL}"
-!define MUI_FINISHPAGE_LINK_LOCATION "${PRODUCT_WEB_SITE}"
+  ; MUI Settings
+  !define MUI_ABORTWARNING
+  !define MUI_ICON                     "${INSTALLER_NAME}.ico"
+  !define MUI_UNICON                   "${INSTALLER_NAME}.ico"
+  !define MUI_WELCOMEFINISHPAGE_BITMAP "..\icon\welcome.bmp"
+  !define MUI_WELCOMEFINISHPAGE_BITMAP_NOSTRETCH
+  !define MUI_FINISHPAGE_RUN           "$APP_EXE_PATH"
+  !define MUI_FINISHPAGE_RUN_TEXT      $(MSG_APP_RUN_TEXT)
+  !define MUI_FINISHPAGE_LINK          "${PRODUCT_WEB_LABEL}"
+  !define MUI_FINISHPAGE_LINK_LOCATION "${PRODUCT_WEB_SITE}"
 
-; MUI Pages
+  ; MUI Pages
 
-!insertmacro MUI_PAGE_WELCOME
-
-!ifndef PRODUCT_SILENT_INSTALL
-  ;!define MUI_LICENSEPAGE_RADIOBUTTONS
-  !insertmacro MUI_PAGE_LICENSE "..\resources\COPYING.txt"
-!endif
-
-!ifdef APP_SILENT_INSTALL
-  !define MUI_LICENSEPAGE_RADIOBUTTONS
-  !ifndef APP_SKIP_INSTALL
-    !define MUI_PAGE_CUSTOMFUNCTION_PRE "AppEULAPageCheck"
-    !define MUI_PAGE_CUSTOMFUNCTION_SHOW "AppEULAPageSetup"
-    !insertmacro MUI_PAGE_LICENSE "dummy.txt"
+  !if PRODUCT_INSTALL_MODE == "NORMAL"
+    !insertmacro MUI_PAGE_WELCOME
+    ;!define MUI_LICENSEPAGE_RADIOBUTTONS
+    !insertmacro MUI_PAGE_LICENSE "..\resources\COPYING.txt"
   !endif
+
+  !if APP_INSTALL_MODE != "NORMAL"
+    !define MUI_LICENSEPAGE_RADIOBUTTONS
+    !if APP_INSTALL_MODE == "QUIET"
+      !define MUI_PAGE_CUSTOMFUNCTION_PRE "AppEULAPageCheck"
+      !define MUI_PAGE_CUSTOMFUNCTION_SHOW "AppEULAPageSetup"
+      !insertmacro MUI_PAGE_LICENSE "dummy.txt"
+    !endif
+  !endif
+
+  !insertmacro MUI_PAGE_INSTFILES
+
+  !if PRODUCT_INSTALL_MODE == "NORMAL"
+    !insertmacro MUI_PAGE_FINISH
+
+    ; Uninstaller pages
+    !insertmacro MUI_UNPAGE_INSTFILES
+  !endif
+
+  !insertmacro MUI_LANGUAGE "Japanese" #  ${LANG_JAPANESE}
+
+  ;=== MUI end
 !endif
-
-!insertmacro MUI_PAGE_INSTFILES
-
-!insertmacro MUI_PAGE_FINISH
-
-
-; Uninstaller pages
-!insertmacro MUI_UNPAGE_INSTFILES
-
-!insertmacro MUI_LANGUAGE "Japanese" #  ${LANG_JAPANESE}
-;=== MUI end
 
 ;=== MUI sections
-!ifdef APP_SILENT_INSTALL
-  !ifndef APP_SKIP_INSTALL
+!if PRODUCT_INSTALL_MODE != "QUIET"
+  !if APP_INSTALL_MODE == "QUIET"
     Function AppEULAPageCheck
         !ifdef NSIS_CONFIG_LOG
           LogSet on
@@ -285,7 +307,7 @@ Section "Initialize Variables" InitializeVariables
     !ifdef NSIS_CONFIG_LOG
       LogSet on
     !endif
-    !ifdef APP_SKIP_INSTALL
+    !if APP_INSTALL_MODE == "SKIP"
       Call GetAppPath
       Call CheckAppVersion
       ${If} $APP_EXISTS != "1"
@@ -300,13 +322,13 @@ Section "Initialize Variables" InitializeVariables
     !endif
 SectionEnd
 
-!ifndef APP_SKIP_INSTALL
+!if APP_INSTALL_MODE != "SKIP"
   Section "Download Application" DownloadApp
       !ifdef NSIS_CONFIG_LOG
         LogSet on
       !endif
 
-      !ifdef APP_SILENT_INSTALL
+      !if APP_INSTALL_MODE == "QUIET"
         ${If} $APP_EULA_DL_FAILED == "1"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
           !ifdef NSIS_CONFIG_LOG
@@ -317,7 +339,7 @@ SectionEnd
       !endif
 
       Call GetAppPath
-      !ifdef APP_SILENT_INSTALL
+      !if APP_INSTALL_MODE == "QUIET"
         Call CheckAppVersion
       !else
         Call CheckAppVersionWithMessage
@@ -408,7 +430,7 @@ SectionEnd
             ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="${APP_INSTALLER_INI}"'
           !endif
         ${Else}
-          !ifdef APP_SILENT_INSTALL
+          !if APP_INSTALL_MODE == "QUIET"
             ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
           !else
             ExecWait '$APP_INSTALLER_FINAL_PATH'
@@ -1117,26 +1139,25 @@ Function .onInit
     Call CheckAppProc
     Call CheckInstalled
     Call LoadINI
-    !ifdef PRODUCT_SILENT_INSTALL
+    !if PRODUCT_INSTALL_MODE == "QUIET"
       SetSilent silent
     !endif
 FunctionEnd
 
 Function un.onInit
     Call un.CheckAppProc
-    !ifdef PRODUCT_SILENT_INSTALL
-      SetSilent silent
-    !endif
-    !ifndef PRODUCT_SILENT_INSTALL
+    !if PRODUCT_INSTALL_MODE == "NORMAL"
       MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_CONFIRM)" IDYES +2
       Abort
+    !else
+      SetSilent silent
     !endif
     ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
 FunctionEnd
 
 Function un.onUninstSuccess
     HideWindow
-    !ifndef PRODUCT_SILENT_INSTALL
+    !if PRODUCT_INSTALL_MODE == "NORMAL"
       MessageBox MB_ICONINFORMATION|MB_OK "$(MSG_UNINST_SUCCESS)"
     !endif
 
@@ -1155,21 +1176,23 @@ Function un.onUninstSuccess
     !else
       ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
     !endif
-        !ifndef APP_SILENT_INSTALL
+        !if PRODUCT_INSTALL_MODE == "NORMAL"
           MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES +2
           GoTo SKIP_APP_UNINSTALLATION
         !endif
-        !ifdef APP_SILENT_INSTALL
-          !if ${APP_NAME} == "Netscape"
-            ExecWait `"$APP_DIR\uninstall\NSUninst.exe" -ms`
+        !if APP_INSTALL_MODE != "SKIP"
+          !if APP_INSTALL_MODE == "QUIET"
+            !if ${APP_NAME} == "Netscape"
+              ExecWait `"$APP_DIR\uninstall\NSUninst.exe" -ms`
+            !else
+              ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
+            !endif
           !else
-            ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
-          !endif
-        !else
-          !if ${APP_NAME} == "Netscape"
-            ExecWait "$APP_DIR\uninstall\NSUninst.exe"
-          !else
-            ExecWait "$APP_DIR\uninstall\helper.exe"
+            !if ${APP_NAME} == "Netscape"
+              ExecWait "$APP_DIR\uninstall\NSUninst.exe"
+            !else
+              ExecWait "$APP_DIR\uninstall\helper.exe"
+            !endif
           !endif
         !endif
         SKIP_APP_UNINSTALLATION:
@@ -1187,8 +1210,8 @@ Function CheckInstalled
 
     ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
     ${If} $R0 != ""
-      !ifndef APP_SKIP_INSTALL
-        !ifndef PRODUCT_SILENT_INSTALL
+      !if APP_INSTALL_MODE != "SKIP"
+        !if PRODUCT_INSTALL_MODE == "NORMAL"
           MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_ALREADY_INSTALLED)" IDOK UNINST
           Abort
         !endif
