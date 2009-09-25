@@ -84,10 +84,35 @@
 !endif
 
 ; fallback to default value
-!ifndef PRODUCT_INSTALL_MODE
+!ifdef PRODUCT_INSTALL_MODE
+  !if ${PRODUCT_INSTALL_MODE} == "SILENT"
+    !undef PRODUCT_INSTALL_MODE
+    !define PRODUCT_INSTALL_MODE "QUIET"
+  !else if ${PRODUCT_INSTALL_MODE} != "QUIET"
+    !if ${PRODUCT_INSTALL_MODE} != "PASSIVE"
+      !if ${PRODUCT_INSTALL_MODE} != "NORMAL"
+        !undef PRODUCT_INSTALL_MODE
+        !define PRODUCT_INSTALL_MODE "NORMAL"
+      !endif
+    !endif
+  !endif
+!else
   !define PRODUCT_INSTALL_MODE "NORMAL"
 !endif
-!ifndef APP_INSTALL_MODE
+
+!ifdef APP_INSTALL_MODE
+  !if ${APP_INSTALL_MODE} == "SILENT"
+    !undef APP_INSTALL_MODE
+    !define APP_INSTALL_MODE "QUIET"
+  !else if ${APP_INSTALL_MODE} != "SKIP"
+    !if ${APP_INSTALL_MODE} != "QUIET"
+      !if ${APP_INSTALL_MODE} != "NORMAL"
+        !undef APP_INSTALL_MODE
+        !define APP_INSTALL_MODE "QUIET"
+      !endif
+    !endif
+  !endif
+!else
   !define APP_INSTALL_MODE "QUIET"
 !endif
 
