@@ -89,7 +89,14 @@
   !define APP_INSTALL_MODE "QUIET"
 !endif
 
-!ifndef PRODUCT_LANGUAGE
+!ifdef PRODUCT_LANGUAGE
+  !if ${PRODUCT_LANGUAGE} != "English"
+    !if ${PRODUCT_LANGUAGE} != "Japanese"
+      !undef PRODUCT_LANGUAGE
+      !define PRODUCT_LANGUAGE "English"
+    !endif
+  !endif
+!else
   !define PRODUCT_LANGUAGE "English"
 !endif
 
@@ -198,7 +205,7 @@ Var FX_ENABLED_SEARCH_PLUGINS
 Var FX_DISABLED_SEARCH_PLUGINS
 Var SEARCH_PLUGINS_PATH
 
-!if PRODUCT_INSTALL_MODE != "QUIET"
+!if ${PRODUCT_INSTALL_MODE} != "QUIET"
   ;=== MUI: Modern UI
   !include "MUI2.nsh"
   !include "Sections.nsh"
@@ -220,15 +227,15 @@ Var SEARCH_PLUGINS_PATH
 
   ; MUI Pages
 
-  !if PRODUCT_INSTALL_MODE == "NORMAL"
+  !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
     !insertmacro MUI_PAGE_WELCOME
     ;!define MUI_LICENSEPAGE_RADIOBUTTONS
     !insertmacro MUI_PAGE_LICENSE "..\resources\COPYING.txt"
   !endif
 
-  !if APP_INSTALL_MODE != "NORMAL"
+  !if ${APP_INSTALL_MODE} != "NORMAL"
     !define MUI_LICENSEPAGE_RADIOBUTTONS
-    !if APP_INSTALL_MODE == "QUIET"
+    !if ${APP_INSTALL_MODE} == "QUIET"
       !define MUI_PAGE_CUSTOMFUNCTION_PRE "AppEULAPageCheck"
       !define MUI_PAGE_CUSTOMFUNCTION_SHOW "AppEULAPageSetup"
       !insertmacro MUI_PAGE_LICENSE "dummy.txt"
@@ -237,7 +244,7 @@ Var SEARCH_PLUGINS_PATH
 
   !insertmacro MUI_PAGE_INSTFILES
 
-  !if PRODUCT_INSTALL_MODE == "NORMAL"
+  !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
     !insertmacro MUI_PAGE_FINISH
 
     ; Uninstaller pages
@@ -250,8 +257,8 @@ Var SEARCH_PLUGINS_PATH
 !endif
 
 ;=== MUI sections
-!if PRODUCT_INSTALL_MODE != "QUIET"
-  !if APP_INSTALL_MODE == "QUIET"
+!if ${PRODUCT_INSTALL_MODE} != "QUIET"
+  !if ${APP_INSTALL_MODE} == "QUIET"
     Function AppEULAPageCheck
         !ifdef NSIS_CONFIG_LOG
           LogSet on
@@ -312,7 +319,7 @@ Section "Initialize Variables" InitializeVariables
     !ifdef NSIS_CONFIG_LOG
       LogSet on
     !endif
-    !if APP_INSTALL_MODE == "SKIP"
+    !if ${APP_INSTALL_MODE} == "SKIP"
       Call GetAppPath
       Call CheckAppVersion
       ${If} $APP_EXISTS != "1"
@@ -327,24 +334,14 @@ Section "Initialize Variables" InitializeVariables
     !endif
 SectionEnd
 
-!if APP_INSTALL_MODE != "SKIP"
+!if ${APP_INSTALL_MODE} != "SKIP"
   Section "Download Application" DownloadApp
       !ifdef NSIS_CONFIG_LOG
         LogSet on
       !endif
 
-      !if APP_INSTALL_MODE == "QUIET"
-        ${If} $APP_EULA_DL_FAILED == "1"
-          MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
-          !ifdef NSIS_CONFIG_LOG
-            LogText "*** DownloadApp: Application's EULA does not exist"
-          !endif
-          Abort
-        ${EndIf}
-      !endif
-
       Call GetAppPath
-      !if APP_INSTALL_MODE == "QUIET"
+      !if ${APP_INSTALL_MODE} == "QUIET"
         Call CheckAppVersion
       !else
         Call CheckAppVersionWithMessage
@@ -357,6 +354,18 @@ SectionEnd
         StrCpy $APP_INSTALLER_FINAL_PATH "${APP_INSTALLER_PATH}"
 
         ${IfThen} ${FileExists} "$APP_INSTALLER_FINAL_PATH" ${|} GoTo AppDownloadDone ${|}
+
+        !if ${APP_INSTALL_MODE} == "QUIET"
+          !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
+            ${If} $APP_EULA_DL_FAILED == "1"
+              MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
+              !ifdef NSIS_CONFIG_LOG
+                LogText "*** DownloadApp: Application's EULA does not exist"
+              !endif
+              Abort
+            ${EndIf}
+          !endif
+        !endif
 
         ${If} "$APP_DOWNLOAD_PATH" != ""
         ${AndIf} ${FileExists} "$APP_DOWNLOAD_PATH"
@@ -435,7 +444,7 @@ SectionEnd
             ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="${APP_INSTALLER_INI}"'
           !endif
         ${Else}
-          !if APP_INSTALL_MODE == "QUIET"
+          !if ${APP_INSTALL_MODE} == "QUIET"
             ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
           !else
             ExecWait '$APP_INSTALLER_FINAL_PATH'
@@ -1148,14 +1157,14 @@ Function .onInit
     Call CheckAppProc
     Call CheckInstalled
     Call LoadINI
-    !if PRODUCT_INSTALL_MODE == "QUIET"
+    !if ${PRODUCT_INSTALL_MODE} == "QUIET"
       SetSilent silent
     !endif
 FunctionEnd
 
 Function un.onInit
     Call un.CheckAppProc
-    !if PRODUCT_INSTALL_MODE == "NORMAL"
+    !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
       MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_CONFIRM)" IDYES +2
       Abort
     !else
@@ -1166,7 +1175,7 @@ FunctionEnd
 
 Function un.onUninstSuccess
     HideWindow
-    !if PRODUCT_INSTALL_MODE == "NORMAL"
+    !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
       MessageBox MB_ICONINFORMATION|MB_OK "$(MSG_UNINST_SUCCESS)"
     !endif
 
@@ -1185,12 +1194,12 @@ Function un.onUninstSuccess
     !else
       ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
     !endif
-        !if APP_INSTALL_MODE != "SKIP"
-          !if PRODUCT_INSTALL_MODE == "NORMAL"
+        !if ${APP_INSTALL_MODE} != "SKIP"
+          !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
             MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES +2
             GoTo SKIP_APP_UNINSTALLATION
           !endif
-          !if APP_INSTALL_MODE == "QUIET"
+          !if ${APP_INSTALL_MODE} == "QUIET"
             !if ${APP_NAME} == "Netscape"
               ExecWait `"$APP_DIR\uninstall\NSUninst.exe" -ms`
             !else
@@ -1219,8 +1228,8 @@ Function CheckInstalled
 
     ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
     ${If} $R0 != ""
-      !if APP_INSTALL_MODE != "SKIP"
-        !if PRODUCT_INSTALL_MODE == "NORMAL"
+      !if ${APP_INSTALL_MODE} != "SKIP"
+        !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
           MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_ALREADY_INSTALLED)" IDOK UNINST
           Abort
         !endif
