@@ -609,7 +609,7 @@ Section "Install Add-ons" InstallAddons
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
-        ${WordFind} $ITEMS_LIST " " "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${WordFind} $ITEMS_LIST "|" "+$ITEMS_LIST_INDEX" $ITEM_NAME
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
         ${EndIf}
@@ -677,7 +677,7 @@ Section "Install Shortcuts" InstallShortcuts
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
-        ${WordFind} $ITEMS_LIST " " "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${WordFind} $ITEMS_LIST "|" "+$ITEMS_LIST_INDEX" $ITEM_NAME
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
         ${EndIf}
@@ -743,7 +743,7 @@ Section "Install Extra Installers" InstallExtraInstallers
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
-        ${WordFind} $ITEMS_LIST " " "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${WordFind} $ITEMS_LIST "|" "+$ITEMS_LIST_INDEX" $ITEM_NAME
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
         ${EndIf}
