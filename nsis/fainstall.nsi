@@ -1354,25 +1354,31 @@ Function un.onUninstSuccess
 FunctionEnd
 
 ;=== Utility functions
-Var PRIVilEGE_TEST_FILE
+Var PRIVILEGE_TEST_FILE
 Function CheckAdminPrivilege
-    Call GetAppPath
-    StrCpy $PRIVilEGE_TEST_FILE "$WINDIR\_${INSTALLER_NAME}.lock"
-    ${If} ${FileExists} "$PRIVilEGE_TEST_FILE"
-      Delete "$PRIVilEGE_TEST_FILE"
-      ${Unless} ${FileExists} "$PRIVilEGE_TEST_FILE"
+    ReadINIStr $PRIVILEGE_TEST_FILE "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege"
+    ${If} $PRIVILEGE_TEST_FILE == "false"
+      GoTo PRIVILEGE_TEST_DONE
+    ${EndIf}
+
+    StrCpy $PRIVILEGE_TEST_FILE "$WINDIR\_${INSTALLER_NAME}.lock"
+    ${If} ${FileExists} "$PRIVILEGE_TEST_FILE"
+      Delete "$PRIVILEGE_TEST_FILE"
+      ${Unless} ${FileExists} "$PRIVILEGE_TEST_FILE"
         GoTo PRIVILEGE_TEST_DONE
       ${EndUnless}
     ${Else}
-      WriteINIStr "$PRIVilEGE_TEST_FILE" "${INSTALLER_NAME}" "test" "true"
-      FlushINI "$PRIVilEGE_TEST_FILE"
-      ${If} ${FileExists} "$PRIVilEGE_TEST_FILE"
-        Delete "$PRIVilEGE_TEST_FILE"
+      WriteINIStr "$PRIVILEGE_TEST_FILE" "${INSTALLER_NAME}" "test" "true"
+      FlushINI "$PRIVILEGE_TEST_FILE"
+      ${If} ${FileExists} "$PRIVILEGE_TEST_FILE"
+        Delete "$PRIVILEGE_TEST_FILE"
         GoTo PRIVILEGE_TEST_DONE
       ${EndIf}
     ${EndIf}
+
     MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_ADMIN_ERROR)" /SD IDOK
     Abort
+
   PRIVILEGE_TEST_DONE:
 FunctionEnd
 
