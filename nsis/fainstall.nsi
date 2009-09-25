@@ -40,6 +40,7 @@
 !define PRODUCT_DIR_REGKEY  "${PRODUCT_UNINST_KEY}\InstalledPath"
 !define PRODUCT_UNINST_PATH "$INSTDIR\uninst.exe"
 
+!define LANG_ENGLISH        "1033"
 !define LANG_JAPANESE       "1041"
 
 !define APP_INSTALLER_PATH  "$EXEDIR\resources\${APP_NAME}-setup.exe"
@@ -90,12 +91,6 @@
 
 !ifndef PRODUCT_LANGUAGE
   !define PRODUCT_LANGUAGE "English"
-!else
-  !if PRODUCT_LANGUAGE != "English"
-    !if PRODUCT_LANGUAGE != "Japanese"
-      !define PRODUCT_LANGUAGE "English"
-    !endif
-  !endif
 !endif
 
 
@@ -654,6 +649,7 @@ Function "InstallAddon"
     SetOutPath $ITEM_LOCATION
 
     ZipDLL::extractall "$EXEDIR\resources\$ITEM_NAME" "$ITEM_LOCATION"
+    AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ITEM_LOCATION"
 
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
@@ -723,6 +719,7 @@ Function "InstallShortcut"
       CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 5
     ${EndIf}
 
+    AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
@@ -878,6 +875,7 @@ Function "InstallNormalFile"
     SetOutPath $DIST_DIR
 
     CopyFiles /SILENT "$EXEDIR\resources\$PROCESSING_FILE" "$DIST_PATH"
+    AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
@@ -1039,6 +1037,7 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       ${EndIf}
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
       CreateDirectory "$DIST_PATH"
+      AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
       ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=distribution.*" "InstallNormalFile"
     ${EndIf}
 SectionEnd
@@ -1186,11 +1185,11 @@ Function un.onUninstSuccess
     !else
       ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
     !endif
-        !if PRODUCT_INSTALL_MODE == "NORMAL"
-          MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES +2
-          GoTo SKIP_APP_UNINSTALLATION
-        !endif
         !if APP_INSTALL_MODE != "SKIP"
+          !if PRODUCT_INSTALL_MODE == "NORMAL"
+            MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES +2
+            GoTo SKIP_APP_UNINSTALLATION
+          !endif
           !if APP_INSTALL_MODE == "QUIET"
             !if ${APP_NAME} == "Netscape"
               ExecWait `"$APP_DIR\uninstall\NSUninst.exe" -ms`

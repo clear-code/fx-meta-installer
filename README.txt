@@ -42,6 +42,10 @@
   Release/U/*.dllをNSISインストール先のPluginsフォルダに移動
   UAC.nshをNSISインストール先のIncludeフォルダに移動
 
+* AccessControlプラグインをインストール．
+  http://nsis.sourceforge.net/AccessControl_plug-in
+  Plugins/*.dllをNSISインストール先のPluginsフォルダに移動
+
 * 7-Zipをインストール．
   http://www.7-zip.org/ja/
 
