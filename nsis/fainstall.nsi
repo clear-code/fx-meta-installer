@@ -40,6 +40,8 @@
 !define PRODUCT_DIR_REGKEY  "${PRODUCT_UNINST_KEY}\InstalledPath"
 !define PRODUCT_UNINST_PATH "$INSTDIR\uninst.exe"
 
+!define CLIENTS_KEY  "Software\Clients"
+
 !define LANG_ENGLISH        "1033"
 !define LANG_JAPANESE       "1041"
 
@@ -181,6 +183,8 @@ Var ITEMS_LIST_INDEX
 Var ITEM_NAME
 Var ITEM_INDEX
 Var ITEM_LOCATION
+
+Var COMMAND_STRING
 
 Var ADDON_NAME
 
@@ -594,6 +598,86 @@ SectionEnd
   FunctionEnd
 !endif
 
+Section "Set Default Client" SetDefaultClient
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
+    ReadINIStr $ITEM_NAME "${INIPATH}" "${INSTALLER_NAME}" "DefaultClient"
+    ${If} $ITEM_NAME != ""
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** SetDefaultClient: $ITEM_NAME"
+      !endif
+
+      ReadRegDWORD $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible"
+      ${If} $COMMAND_STRING < 1
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** Hidden => Visible: $ITEM_NAME"
+        !endif
+        ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** Command: $COMMAND_STRING"
+        !endif
+        ${If} $COMMAND_STRING != ""
+          ExecWait "$COMMAND_STRING"
+          WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
+          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient" "$ITEM_NAME"
+          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultClientShown" "true"
+        ${EndIf}
+      ${EndIf}
+
+      ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ReinstallCommand"
+      ${IfThen} $COMMAND_STRING != "" ${|} ExecWait "$COMMAND_STRING" ${|}
+
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** Complete: $ITEM_NAME"
+      !endif
+    ${EndIf}
+SectionEnd
+
+Section "Disable Clients" DisableClients
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
+    StrCpy $ITEM_INDEX 0
+    ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "DisabledClients"
+    ${Unless} $ITEMS_LIST == ""
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
+        ${EndIf}
+        Call DisableClient
+      ${EndWhile}
+    ${EndUnless}
+SectionEnd
+
+Function "DisableClient"
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+      LogText "*** DisableClient: $ITEM_NAME"
+    !endif
+
+    ReadRegDWORD $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible"
+    ${If} $COMMAND_STRING > 0
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** Visible => Hidden: $ITEM_NAME"
+      !endif
+      ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** Command: $COMMAND_STRING"
+      !endif
+      ${If} $COMMAND_STRING != ""
+        ExecWait "$COMMAND_STRING"
+        WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
+        WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX" "$ITEM_NAME"
+      ${EndIf}
+    ${EndIf}
+
+    ;Push $R0
+FunctionEnd
+
 Section "Install Add-ons" InstallAddons
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -604,7 +688,6 @@ Section "Install Add-ons" InstallAddons
       ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
     ${EndIf}
     !ifdef NSIS_CONFIG_LOG
-      LogSet on
       LogText "*** ADDONS: $ITEMS_LIST"
     !endif
     ${Unless} $ITEMS_LIST == ""
@@ -1069,6 +1152,28 @@ SectionEnd
 
 Section Uninstall
     StrCpy $UNINSTALL_FAILED 0
+
+    ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClientShown"
+    ${If} $ITEM_NAME == "true"
+      ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient"
+      ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
+      ${If} $COMMAND_STRING != ""
+        ExecWait "$COMMAND_STRING"
+        WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
+      ${EndIf}
+    ${EndIf}
+
+    StrCpy $ITEM_INDEX 0
+    ${While} 1 == 1
+      ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX"
+      ${IfThen} $ITEM_NAME == "" ${|} ${Break} ${|}
+      ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
+      ${If} $COMMAND_STRING != ""
+        ExecWait "$COMMAND_STRING"
+        WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
+      ${EndIf}
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ${EndWhile}
 
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
