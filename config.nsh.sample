@@ -10,6 +10,7 @@
 !define PRODUCT_DOMAIN       "clear-code.com"
 !define PRODUCT_WEB_SITE     "http://www.clear-code.com/"
 !define PRODUCT_WEB_LABEL    "クリアコードのホームページを表示"
+!define PRODUCT_LANGUAGE     "Japanese"
 
 ; NORMAL  : 通常のウィザード
 ; PASSIVE : 確認をすべてスキップする準サイレントインストール

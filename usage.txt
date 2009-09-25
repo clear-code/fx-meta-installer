@@ -95,6 +95,10 @@ PRODUCT_WEB_SITE：
 	製品の製造・配布元のWebサイトのURI。
 PRODUCT_WEB_LABEL：
 	対話モードのインストールウィザードに表示されるリンク文字列。
+PRODUCT_LANGUAGE：
+	インストールウィザードの言語。デフォルト値は英語。
+	Japanese：日本語
+	English ：英語
 
 APP_INSTALL_MODE：
 	Mozillaアプリケーションのインストールを自動的に行うかどうか。

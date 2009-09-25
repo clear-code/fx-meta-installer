@@ -88,6 +88,16 @@
   !define APP_INSTALL_MODE "QUIET"
 !endif
 
+ifndef PRODUCT_LANGUAGE
+  !define PRODUCT_LANGUAGE "English"
+!else
+  !if PRODUCT_LANGUAGE != "English"
+    !if PRODUCT_LANGUAGE != "Japanese"
+      !define PRODUCT_LANGUAGE "English"
+    !endif
+  !endif
+!endif
+
 
 !define INIPATH             "$EXEDIR\${INSTALLER_NAME}.ini"
 
@@ -197,7 +207,7 @@ Var SEARCH_PLUGINS_PATH
   ;=== MUI: Modern UI
   !include "MUI2.nsh"
   !include "Sections.nsh"
-  !include "Japanese.nsh"
+  !include "${PRODUCT_LANGUAGE}.nsh"
 
   ; hide the footer "Nullsoft Install System v*.*"
   BrandingText " "
@@ -239,7 +249,7 @@ Var SEARCH_PLUGINS_PATH
     !insertmacro MUI_UNPAGE_INSTFILES
   !endif
 
-  !insertmacro MUI_LANGUAGE "Japanese" #  ${LANG_JAPANESE}
+  !insertmacro MUI_LANGUAGE "${PRODUCT_LANGUAGE}" #  ${LANG_JAPANESE}
 
   ;=== MUI end
 !endif
