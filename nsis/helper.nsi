@@ -14,6 +14,8 @@
 Name    "${PRODUCT_FULL_NAME}"
 OutFile "${PRODUCT_NAME}.exe"
 
+RequestExecutionLevel user
+
 VIProductVersion                 "${PRODUCT_VERSION}"
 VIAddVersionKey FileDescription  "${PRODUCT_FULL_NAME}"
 VIAddVersionKey LegalCopyright   "${PRODUCT_YEAR} ${PRODUCT_PUBLISHER}"
