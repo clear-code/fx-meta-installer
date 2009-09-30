@@ -1354,27 +1354,46 @@ Function un.onUninstSuccess
 FunctionEnd
 
 ;=== Utility functions
-Var PRIVILEGE_TEST_FILE
+Var REQUIRE_ADMIN_PRIVILEGE
 Function CheckAdminPrivilege
-    ReadINIStr $PRIVILEGE_TEST_FILE "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege"
-    ${If} $PRIVILEGE_TEST_FILE == "false"
+    ReadINIStr $REQUIRE_ADMIN_PRIVILEGE "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege"
+    ${If} $REQUIRE_ADMIN_PRIVILEGE == "false"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
-    StrCpy $PRIVILEGE_TEST_FILE "$WINDIR\_${INSTALLER_NAME}.lock"
-    ${If} ${FileExists} "$PRIVILEGE_TEST_FILE"
-      Delete "$PRIVILEGE_TEST_FILE"
-      ${Unless} ${FileExists} "$PRIVILEGE_TEST_FILE"
-        GoTo PRIVILEGE_TEST_DONE
-      ${EndUnless}
-    ${Else}
-      WriteINIStr "$PRIVILEGE_TEST_FILE" "${INSTALLER_NAME}" "test" "true"
-      FlushINI "$PRIVILEGE_TEST_FILE"
-      ${If} ${FileExists} "$PRIVILEGE_TEST_FILE"
-        Delete "$PRIVILEGE_TEST_FILE"
-        GoTo PRIVILEGE_TEST_DONE
-      ${EndIf}
+    AccessControl::GetCurrentUserName
+    Pop $0
+    AccessControl::IsUserTheAdministrator $0
+    Pop $0
+    Pop $1
+    ${If} $1 == "yes"
+      GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
+
+    ; check by local group
+    UserMgr::GetCurrentUserName
+    Pop $0
+    UserMgr::IsMemberOfGroup "$0" "Administrators"
+    Pop $0
+    ${If} $0 == "TRUE"
+      GoTo PRIVILEGE_TEST_DONE
+    ${EndIf}
+
+;    ; check by file writing
+;    StrCpy $PRIVILEGE_TEST_FILE "$WINDIR\_${INSTALLER_NAME}.lock"
+;    ${If} ${FileExists} "$PRIVILEGE_TEST_FILE"
+;      Delete "$PRIVILEGE_TEST_FILE"
+;      ${Unless} ${FileExists} "$PRIVILEGE_TEST_FILE"
+;        GoTo PRIVILEGE_TEST_DONE
+;      ${EndUnless}
+;    ${Else}
+;      WriteINIStr "$PRIVILEGE_TEST_FILE" "${INSTALLER_NAME}" "test" "true"
+;      FlushINI "$PRIVILEGE_TEST_FILE"
+;      ${If} ${FileExists} "$PRIVILEGE_TEST_FILE"
+;        Delete "$PRIVILEGE_TEST_FILE"
+;        GoTo PRIVILEGE_TEST_DONE
+;      ${EndIf}
+;    ${EndIf}
 
     MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_ADMIN_ERROR)" /SD IDOK
     Abort
