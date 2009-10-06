@@ -300,7 +300,12 @@ Var SEARCH_PLUGINS_PATH
         Call GetAppPath
         Call CheckAppVersionWithMessage
 
-        ${If} $APP_EXISTS != "1"
+        ${If} $APP_EXISTS == "1"
+          !ifdef NSIS_CONFIG_LOG
+            LogText "*** AppEULAPageCheck: EULA does not exist"
+          !endif
+          Abort
+        ${Else}
           !ifdef NSIS_CONFIG_LOG
             LogText "*** AppEULAPageCheck: Application does not exist so show EULA"
           !endif
@@ -316,20 +321,15 @@ Var SEARCH_PLUGINS_PATH
                 "$APP_EULA_URL" "$APP_EULA_FINAL_PATH"
             Pop $R0
             EnableWindow $HWNDPARENT 1
-            ${If} $R0 != "OK"
+            ${Unless} $R0 == "OK"
               StrCpy $APP_EULA_DL_FAILED "1"
               Abort
-            ${EndIf}
+            ${EndUnless}
           ${EndUnless}
           EULADownloadDone:
           !ifdef NSIS_CONFIG_LOG
             LogText "*** AppEULAPageCheck: EULA = &APP_EULA_FINAL_PATH"
           !endif
-        ${Else}
-          !ifdef NSIS_CONFIG_LOG
-            LogText "*** AppEULAPageCheck: EULA does not exist"
-          !endif
-          Abort
         ${EndIf}
     FunctionEnd
 
@@ -353,10 +353,10 @@ Section "Initialize Variables" InitializeVariables
     !if ${APP_INSTALL_MODE} == "SKIP"
       Call GetAppPath
       Call CheckAppVersion
-      ${If} $APP_EXISTS != "1"
+      ${Unless} $APP_EXISTS == "1"
         MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_INSTALLED_ERROR)" /SD IDOK
         Abort
-      ${EndIf}
+      ${EndUnless}
     !endif
     StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
     SetOutPath $INSTDIR
@@ -378,7 +378,7 @@ SectionEnd
         Call CheckAppVersionWithMessage
       !endif
 
-      ${If} $APP_EXISTS != "1"
+      ${Unless} $APP_EXISTS == "1"
         !ifdef NSIS_CONFIG_LOG
           LogText "*** DownloadApp: Application dest not exist so do installation"
         !endif
@@ -436,20 +436,19 @@ SectionEnd
         Pop $0
 
         ${If} "$APP_HASH" != ""
-          ${If} $0 != "$APP_HASH"
-            MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_HASH_ERROR)" /SD IDOK
-            !ifdef NSIS_CONFIG_LOG
-              LogText "*** DownloadApp: Downloaded file is broken"
-            !endif
-            Abort
-          ${EndIf}
+        ${AndIf} $0 != "$APP_HASH"
+          MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_HASH_ERROR)" /SD IDOK
+          !ifdef NSIS_CONFIG_LOG
+            LogText "*** DownloadApp: Downloaded file is broken"
+          !endif
+          Abort
         ${EndIf}
 
         AppDownloadDone:
         !ifdef NSIS_CONFIG_LOG
           LogText "*** DownloadApp: installer is $APP_INSTALLER_FINAL_PATH"
         !endif
-      ${EndIf}
+      ${EndUnless}
   SectionEnd
 
   Section "Install Application" InstallApp
@@ -464,7 +463,7 @@ SectionEnd
         Call CheckShortcutsExistence
       !endif
 
-      ${If} $APP_EXISTS != "1"
+      ${Unless} $APP_EXISTS == "1"
         !ifdef NSIS_CONFIG_LOG
           LogText "*** InstallApp: Let's run installer"
         !endif
@@ -489,7 +488,7 @@ SectionEnd
           Call UpdateShortcutsExistence
         !endif
 
-        ${If} $APP_EXISTS != "1"
+        ${Unless} $APP_EXISTS == "1"
           ${If} $APP_WRONG_VERSION == "1"
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_ERROR)" /SD IDOK
           ${Else}
@@ -499,7 +498,7 @@ SectionEnd
             LogText "*** InstallApp: Version check failed"
           !endif
           Abort
-        ${EndIf}
+        ${EndUnless}
 
         StrCpy $APP_INSTALLED "1"
 
@@ -509,7 +508,7 @@ SectionEnd
 
         ; overwrite subtitle
         SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_PRODUCT_INSTALLING)"
-      ${EndIf}
+      ${EndUnless}
   SectionEnd
 !endif
 
@@ -628,7 +627,7 @@ Section "Set Default Client" SetDefaultClient
       LogSet on
     !endif
     ReadINIStr $ITEM_NAME "${INIPATH}" "${INSTALLER_NAME}" "DefaultClient"
-    ${If} $ITEM_NAME != ""
+    ${Unless} $ITEM_NAME == ""
       !ifdef NSIS_CONFIG_LOG
         LogText "*** SetDefaultClient: $ITEM_NAME"
       !endif
@@ -642,12 +641,12 @@ Section "Set Default Client" SetDefaultClient
         !ifdef NSIS_CONFIG_LOG
           LogText "*** Command: $COMMAND_STRING"
         !endif
-        ${If} $COMMAND_STRING != ""
+        ${Unless} $COMMAND_STRING == ""
           ExecWait "$COMMAND_STRING"
           WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
           WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient" "$ITEM_NAME"
           WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultClientShown" "true"
-        ${EndIf}
+        ${EndUnless}
       ${EndIf}
 
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ReinstallCommand"
@@ -656,7 +655,7 @@ Section "Set Default Client" SetDefaultClient
       !ifdef NSIS_CONFIG_LOG
         LogText "*** Complete: $ITEM_NAME"
       !endif
-    ${EndIf}
+    ${EndUnless}
 SectionEnd
 
 Section "Disable Clients" DisableClients
@@ -693,11 +692,11 @@ Function "DisableClient"
       !ifdef NSIS_CONFIG_LOG
         LogText "*** Command: $COMMAND_STRING"
       !endif
-      ${If} $COMMAND_STRING != ""
+      ${Unless} $COMMAND_STRING == ""
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
         WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX" "$ITEM_NAME"
-      ${EndIf}
+      ${EndUnless}
     ${EndIf}
 
     ;Push $R0
@@ -1097,14 +1096,14 @@ Function "CheckDisableSearchPlugin"
 
     StrCpy $PROCESSING_FILE "$R7"
 
-    ${If} "$FX_ENABLED_SEARCH_PLUGINS" != "*"
+    ${Unless} "$FX_ENABLED_SEARCH_PLUGINS" == "*"
       ${WordFind} "$FX_ENABLED_SEARCH_PLUGINS" "$PROCESSING_FILE" "E+1{" $R0
       IfErrors NOTFOUND_IN_ENABLED FOUND_IN_ENABLED
       FOUND_IN_ENABLED:
         GoTo RETURN
       NOTFOUND_IN_ENABLED:
         GoTo DISABLE_SEARCH_PLUGIN
-    ${EndIf}
+    ${EndUnless}
 
     ${Switch} "$FX_DISABLED_SEARCH_PLUGINS"
       ${Case} "*"
@@ -1182,10 +1181,10 @@ Section Uninstall
     ${If} $ITEM_NAME == "true"
       ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient"
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
-      ${If} $COMMAND_STRING != ""
+      ${Unless} $COMMAND_STRING == ""
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
-      ${EndIf}
+      ${EndUnless}
     ${EndIf}
 
     StrCpy $ITEM_INDEX 0
@@ -1193,10 +1192,10 @@ Section Uninstall
       ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX"
       ${IfThen} $ITEM_NAME == "" ${|} ${Break} ${|}
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
-      ${If} $COMMAND_STRING != ""
+      ${Unless} $COMMAND_STRING == ""
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
-      ${EndIf}
+      ${EndUnless}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
 
@@ -1379,21 +1378,25 @@ Function CheckAdminPrivilege
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
-;    ; check by file writing
-;    StrCpy $PRIVILEGE_TEST_FILE "$WINDIR\_${INSTALLER_NAME}.lock"
-;    ${If} ${FileExists} "$PRIVILEGE_TEST_FILE"
-;      Delete "$PRIVILEGE_TEST_FILE"
-;      ${Unless} ${FileExists} "$PRIVILEGE_TEST_FILE"
-;        GoTo PRIVILEGE_TEST_DONE
-;      ${EndUnless}
-;    ${Else}
-;      WriteINIStr "$PRIVILEGE_TEST_FILE" "${INSTALLER_NAME}" "test" "true"
-;      FlushINI "$PRIVILEGE_TEST_FILE"
-;      ${If} ${FileExists} "$PRIVILEGE_TEST_FILE"
-;        Delete "$PRIVILEGE_TEST_FILE"
-;        GoTo PRIVILEGE_TEST_DONE
-;      ${EndIf}
-;    ${EndIf}
+    ; check by file writing
+    ReadINIStr $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory"
+    Call ResolveItemLocationBasic
+    ${Unless} $ITEM_LOCATION == ""
+      StrCpy $ITEM_LOCATION "$ITEM_LOCATION\_${INSTALLER_NAME}.lock"
+      ${If} ${FileExists} "$ITEM_LOCATION"
+        Delete "$ITEM_LOCATION"
+        ${Unless} ${FileExists} "$ITEM_LOCATION"
+          GoTo PRIVILEGE_TEST_DONE
+        ${EndUnless}
+      ${Else}
+        WriteINIStr "$ITEM_LOCATION" "${INSTALLER_NAME}" "test" "true"
+        FlushINI "$ITEM_LOCATION"
+        ${If} ${FileExists} "$ITEM_LOCATION"
+          Delete "$ITEM_LOCATION"
+          GoTo PRIVILEGE_TEST_DONE
+        ${EndIf}
+      ${EndIf}
+    ${EndUnless}
 
     MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_ADMIN_ERROR)" /SD IDOK
     Abort
@@ -1407,7 +1410,7 @@ Function CheckInstalled
     !endif
 
     ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
-    ${If} $R0 != ""
+    ${Unless} $R0 == ""
       !if ${APP_INSTALL_MODE} != "SKIP"
         !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
           MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_ALREADY_INSTALLED)" IDOK UNINST
@@ -1426,7 +1429,7 @@ Function CheckInstalled
         ; Ç±Ç§ÇµÇ»Ç¢Ç∆ÅCÇ∑ÇÆÇ…èIóπÇµÇƒñﬂÇ¡ÇƒÇ´ÇƒÇµÇ‹Ç§Ç›ÇΩÇ¢
         ExecWait '$R0 /AddonOnly _?=$INSTDIR'
       !endif
-    ${EndIf}
+    ${EndUnless}
 FunctionEnd
 
 Function LoadINI
@@ -1672,4 +1675,34 @@ Function "ResolveItemLocationBasic"
     ${WordReplace} "$ITEM_LOCATION" "%Desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%DESKTOP%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%SystemRoot%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%systemroot%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%SYSTEMROOT%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%WinDir%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%windir%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%WINDIR%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%SysDir%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%sysdir%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%SYSDIR%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%ProgramFiles%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%programfiles%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%ProgramFiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%programfiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%ProgramFiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%programfiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%CommonFiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%commonfiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%COMMONFILES%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%CommonFiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%commonfiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%COMMONFILES32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%CommonFiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%COMMONFILES64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Temp%" "$TEMP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%temp%" "$TEMP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%TEMP%" "$TEMP" "+*" $ITEM_LOCATION
 FunctionEnd
