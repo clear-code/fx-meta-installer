@@ -640,7 +640,7 @@ Function "UpdateQuickLaunchShortcutForOneUser"
     ${If} "$INI_TEMP" == "false"
       Delete "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
     ${Else}
-      ${Unless} ${FileExists} "$ITEM_LOCATION"
+      ${Unless} ${FileExists} "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
         SetOutPath "$ITEM_LOCATION"
         CreateShortCut "$ITEM_LOCATION\$SHORTCUT_NAME.lnk" "$APP_EXE_PATH" "" "$APP_EXE_PATH" 0
       ${EndUnless}
