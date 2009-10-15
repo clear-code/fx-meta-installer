@@ -405,35 +405,42 @@ Mozillaアプリケーションをサイレントインストールする際の挙動は、resources
 フォルダ内に置いた <Mozillaアプリケーション名>-setup.ini において、
 [Install]セクションで以下の指定を行うことにより変更可能。
 
-InstallDirectoryPath：
+InstallDirectoryPath（省略可）：
 	インストール先フォルダのフルパス。値を指定すると、そのフォルダに
 	Mozillaアプリケーションをインストールする。
 	無指定の場合はC:\Program Files\へのインストールと見なし、
 	InstallDirectoryNameの指定を使用する。
-InstallDirectoryName：
+InstallDirectoryName（省略可）：
 	インストール先フォルダの名称。値を指定すると
 	C:\Program Files\<InstallDirectoryName>\
 	にMozillaアプリケーションをインストールする。
-DesktopShortcut：
+ShortcutName：
+	生成あるいは削除の対象とするショートカットの名称。
+DesktopShortcut（省略可）：
 	デスクトップのショートカット作成の可否。
 	true：デスクトップにショートカットを作成する。
 	false：デスクトップにショートカットを作成しない。
-ShortcutName：
-	DesktopShortcutがfalseである場合に、削除対象とするショートカットの
-	名称。
-StartMenuShortcuts：
+	省略時はtrueとして扱う。
+StartMenuShortcuts（省略可）：
 	スタートメニューの項目追加の可否。
 	true：スタートメニューに項目を追加する。
 	false：スタートメニューに項目を追加しない。
+	省略時はtrueとして扱う。
 StartMenuDirectoryName：
 	StartMenuShortcutsがtrueである場合に、スタートメニュー内に作成する
 	サブメニューの名称。
 	StartMenuShortcutsがfalseである場合は、削除対象とするサブメニューの
 	名称として解釈する。
-QuickLaunchShortcut：
+QuickLaunchShortcut（省略可）：
 	クイックランチへの登録の可否。
 	true：クイックランチにショートカットを作成する。
 	false：クイックランチにショートカットを作成しない。
+	省略時はtrueとして扱う。
+QuickLaunchShortcutAllUsers（省略可）：
+	クイックランチへのショートカットの変更をすべてのユーザに適用するかどうか。
+	true：全ユーザのクイックランチに適用する。
+	false：現在のユーザのクイックランチにのみ適用する。
+	省略時はfalseとして扱う。
 
 Talkbackのインストールの可否、特定の検索プラグインのみの有効化・特定の
 検索プラグインのみの無効化は、fainstall.iniにて設定する。
