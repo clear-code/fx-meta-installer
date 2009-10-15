@@ -6,6 +6,7 @@
 !insertmacro Locate
 !insertmacro un.Locate
 !insertmacro GetBaseName
+!insertmacro GetParent
 !insertmacro un.GetParameters
 !insertmacro un.GetOptions
 !include "WordFunc.nsh"
@@ -168,10 +169,10 @@ Var APP_EXE_PATH
 Var APP_EULA_FINAL_PATH
 Var APP_INSTALLER_FINAL_PATH
 Var APP_DIR
+Var SHORTCUT_DEFAULT_NAME
+Var PROGRAM_FOLDER_DEFAULT_NAME
+Var PROGRAM_FOLDER_NAME
 !if ${APP_NAME} == "Netscape"
-  Var SHORTCUT_DEFAULT_NAME
-  Var PROGRAM_FOLDER_DEFAULT_NAME
-  Var PROGRAM_FOLDER_NAME
   Var EXISTS_SHORTCUT_DESKTOP
   Var EXISTS_SHORTCUT_DESKTOP_IM
   Var EXISTS_SHORTCUT_DESKTOP_MAIL
@@ -208,20 +209,12 @@ Var ITEMS_LIST_INDEX
 Var ITEM_NAME
 Var ITEM_INDEX
 Var ITEM_LOCATION
+Var ITEM_LOCATION_BASE
 
 Var COMMAND_STRING
 
-Var ADDON_NAME
-
 Var SHORTCUT_NAME
 Var SHORTCUT_PATH
-Var SHORTCUT_OPTIONS
-Var SHORTCUT_ICON_INDEX
-
-Var EXTRA_INSTALLER_NAME
-Var EXTRA_INSTALLER_OPTIONS
-
-Var UNINSTALL_FAILED
 
 Var INI_TEMP
 
@@ -459,9 +452,7 @@ SectionEnd
       Call GetAppPath
       Call CheckAppVersion
 
-      !if ${APP_NAME} == "Netscape"
-        Call CheckShortcutsExistence
-      !endif
+      Call CheckShortcutsExistence
 
       ${Unless} $APP_EXISTS == "1"
         !ifdef NSIS_CONFIG_LOG
@@ -484,10 +475,6 @@ SectionEnd
         Call GetAppPath
         Call CheckAppVersion
 
-        !if ${APP_NAME} == "Netscape"
-          Call UpdateShortcutsExistence
-        !endif
-
         ${Unless} $APP_EXISTS == "1"
           ${If} $APP_WRONG_VERSION == "1"
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_ERROR)" /SD IDOK
@@ -499,6 +486,8 @@ SectionEnd
           !endif
           Abort
         ${EndUnless}
+
+        Call UpdateShortcutsExistence
 
         StrCpy $APP_INSTALLED "1"
 
@@ -512,12 +501,12 @@ SectionEnd
   SectionEnd
 !endif
 
-!if ${APP_NAME} == "Netscape"
-  Function "CheckShortcutsExistence"
-      !ifdef NSIS_CONFIG_LOG
-        LogSet on
-      !endif
+Function "CheckShortcutsExistence"
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
+    !if ${APP_NAME} == "Netscape"
       StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
       StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
       ${If} ${FileExists} "${APP_INSTALLER_INI}"
@@ -528,7 +517,6 @@ SectionEnd
       ${IfThen} $PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "$PROGRAM_FOLDER_DEFAULT_NAME" ${|}
 
       SetShellVarContext all
-
       StrCpy $SHORTCUT_PATH_DESKTOP "$DESKTOP\$SHORTCUT_NAME.lnk"
       ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP "1" ${|}
       StrCpy $SHORTCUT_PATH_DESKTOP_IM "$DESKTOP\Instant Messenger.lnk"
@@ -546,22 +534,23 @@ SectionEnd
       ${EndIf}
 
       SetShellVarContext current
-
       StrCpy $SHORTCUT_PATH_QUICKLAUNCH "$QUICKLAUNCH\$SHORTCUT_NAME.lnk"
       ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH "1" ${|}
       StrCpy $SHORTCUT_PATH_QUICKLAUNCH_MAIL "$QUICKLAUNCH\Netscape Mail & Newsgroups.lnk"
       ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL "1" ${|}
-  FunctionEnd
+    !endif
+FunctionEnd
 
-  Function "UpdateShortcutsExistence"
-      !ifdef NSIS_CONFIG_LOG
-        LogSet on
-      !endif
+Function "UpdateShortcutsExistence"
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
 
-      StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
-      StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
+    StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
+    StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
 
-      ${If} ${FileExists} "${APP_INSTALLER_INI}"
+    ${If} ${FileExists} "${APP_INSTALLER_INI}"
+      !if ${APP_NAME} == "Netscape"
         ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "DesktopShortcut"
         ${If} "$1" == "false"
           ${If} "$EXISTS_SHORTCUT_DESKTOP" == ""
@@ -584,22 +573,6 @@ SectionEnd
           SetShellVarContext current
         ${EndIf}
 
-        ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
-        ${If} "$1" == "false"
-          ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH" == ""
-          ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH"
-            Delete "$SHORTCUT_PATH_QUICKLAUNCH"
-          ${EndIf}
-          ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH_MAIL" == ""
-          ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
-            Delete "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
-          ${EndIf}
-        ${Else}
-          ${If} ${FileExists} "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk"
-            Rename "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_QUICKLAUNCH"
-          ${EndIf}
-        ${EndIf}
-
         ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "StartMenuShortcuts"
         ${If} "$1" == "false"
           ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
@@ -618,9 +591,65 @@ SectionEnd
           ${EndIf}
           SetShellVarContext current
         ${EndIf}
+      !endif
+
+      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcutAllUsers"
+      ${If} "$1" == "true"
+        SetShellVarContext current
+        ${GetParent} "$DESKTOP" $1 ; $1 IS "HOME"
+        StrCpy $ITEM_LOCATION_BASE "$APPDATA\Microsoft\Internet Explorer\Quick Launch"
+        ${WordReplace} "$ITEM_LOCATION_BASE" "$1" "" "+*" $ITEM_LOCATION_BASE
+        ${GetParent} "$1" $1 ; $1 is parent of "HOME"
+        StrCpy $ITEM_LOCATION_BASE "$1\%USERNAME%$ITEM_LOCATION_BASE"
+        StrCpy $ITEM_INDEX 0
+        ReadINIStr $INI_TEMP "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
+        ${Locate} "$1" "/L=D /G=0 /M=*" "UpdateQuickLaunchShortcutForOneUser"
+        SetShellVarContext current
+    !if ${APP_NAME} == "Netscape"
+      ${Else}
+        ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
+        ${If} "$1" == "false"
+          ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH" == ""
+          ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH"
+            Delete "$SHORTCUT_PATH_QUICKLAUNCH"
+          ${EndIf}
+          ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH_MAIL" == ""
+          ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
+            Delete "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
+          ${EndIf}
+        ${Else}
+          SetShellVarContext current
+          ${If} ${FileExists} "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk"
+            Rename "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_QUICKLAUNCH"
+          ${EndIf}
+        ${EndIf}
+    !endif
       ${EndIf}
-  FunctionEnd
-!endif
+    ${EndIf}
+FunctionEnd
+
+Var USER_NAME
+Function "UpdateQuickLaunchShortcutForOneUser"
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+    !endif
+
+    StrCpy $USER_NAME "$R7"
+    ${WordReplace} "$ITEM_LOCATION_BASE" "%USERNAME%" "$USER_NAME" "+*" $ITEM_LOCATION
+
+    ${If} "$INI_TEMP" == "false"
+      Delete "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
+    ${Else}
+      ${Unless} ${FileExists} "$ITEM_LOCATION"
+        SetOutPath "$ITEM_LOCATION"
+        CreateShortCut "$ITEM_LOCATION\$SHORTCUT_NAME.lnk" "$APP_EXE_PATH" "" "$APP_EXE_PATH" 0
+      ${EndUnless}
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledQuickLaunchShortcut$ITEM_INDEX" "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ${EndIf}
+
+    Push $R0
+FunctionEnd
 
 Section "Set Default Client" SetDefaultClient
     !ifdef NSIS_CONFIG_LOG
@@ -740,6 +769,7 @@ Function "CollectAddonFiles"
     Push $ITEMS_LIST
 FunctionEnd
 
+Var ADDON_NAME
 Function "InstallAddon"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -795,6 +825,8 @@ Section "Install Shortcuts" InstallShortcuts
     ${EndUnless}
 SectionEnd
 
+Var SHORTCUT_OPTIONS
+Var SHORTCUT_ICON_INDEX
 Function "InstallShortcut"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -818,6 +850,7 @@ Function "InstallShortcut"
       StrCpy $ITEM_LOCATION "%Desktop%"
     ${EndIf}
     Call ResolveItemLocation
+;    SetOutPath $ITEM_LOCATION
     StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
 
     SetOutPath $SHORTCUT_PATH
@@ -861,6 +894,8 @@ Section "Install Extra Installers" InstallExtraInstallers
     ${EndUnless}
 SectionEnd
 
+Var EXTRA_INSTALLER_NAME
+Var EXTRA_INSTALLER_OPTIONS
 Function "InstallExtraInstaller"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1174,6 +1209,7 @@ Section -Post
     ${EndIf}
 SectionEnd
 
+Var UNINSTALL_FAILED
 Section Uninstall
     StrCpy $UNINSTALL_FAILED 0
 
@@ -1220,6 +1256,19 @@ Section Uninstall
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
+      ${IfThen} $INSTALLED_FILE == "" ${|} ${Break} ${|}
+      Delete "$INSTALLED_FILE"
+      ${If} ${Errors}
+      ${AndIf} ${FileExists} "$INSTALLED_FILE"
+        StrCpy $UNINSTALL_FAILED 1
+        ${Break}
+      ${EndIf}
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ${EndWhile}
+
+    StrCpy $ITEM_INDEX 0
+    ${While} 1 == 1
+      ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledQuickLaunchShortcut$ITEM_INDEX"
       ${IfThen} $INSTALLED_FILE == "" ${|} ${Break} ${|}
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
