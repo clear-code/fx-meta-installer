@@ -293,7 +293,7 @@ Var SEARCH_PLUGINS_PATH
         Call GetAppPath
         Call CheckAppVersionWithMessage
 
-        ${If} $APP_EXISTS == "1"
+        ${If} "$APP_EXISTS" == "1"
           !ifdef NSIS_CONFIG_LOG
             LogText "*** AppEULAPageCheck: EULA does not exist"
           !endif
@@ -314,7 +314,7 @@ Var SEARCH_PLUGINS_PATH
                 "$APP_EULA_URL" "$APP_EULA_FINAL_PATH"
             Pop $R0
             EnableWindow $HWNDPARENT 1
-            ${Unless} $R0 == "OK"
+            ${Unless} "$R0" == "OK"
               StrCpy $APP_EULA_DL_FAILED "1"
               Abort
             ${EndUnless}
@@ -346,7 +346,7 @@ Section "Initialize Variables" InitializeVariables
     !if ${APP_INSTALL_MODE} == "SKIP"
       Call GetAppPath
       Call CheckAppVersion
-      ${Unless} $APP_EXISTS == "1"
+      ${Unless} "$APP_EXISTS" == "1"
         MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_INSTALLED_ERROR)" /SD IDOK
         Abort
       ${EndUnless}
@@ -371,7 +371,7 @@ SectionEnd
         Call CheckAppVersionWithMessage
       !endif
 
-      ${Unless} $APP_EXISTS == "1"
+      ${Unless} "$APP_EXISTS" == "1"
         !ifdef NSIS_CONFIG_LOG
           LogText "*** DownloadApp: Application dest not exist so do installation"
         !endif
@@ -381,7 +381,7 @@ SectionEnd
 
         !if ${APP_INSTALL_MODE} == "QUIET"
           !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
-            ${If} $APP_EULA_DL_FAILED == "1"
+            ${If} "$APP_EULA_DL_FAILED" == "1"
               MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
               !ifdef NSIS_CONFIG_LOG
                 LogText "*** DownloadApp: Application's EULA does not exist"
@@ -415,7 +415,7 @@ SectionEnd
             "$APP_DOWNLOAD_URL" "$APP_INSTALLER_FINAL_PATH"
         Pop $R0
 
-        ${If} $R0 != "OK"
+        ${If} "$R0" != "OK"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
           !ifdef NSIS_CONFIG_LOG
             LogText "*** DownloadApp: Download failed"
@@ -429,7 +429,7 @@ SectionEnd
         Pop $0
 
         ${If} "$APP_HASH" != ""
-        ${AndIf} $0 != "$APP_HASH"
+        ${AndIf} "$0" != "$APP_HASH"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_HASH_ERROR)" /SD IDOK
           !ifdef NSIS_CONFIG_LOG
             LogText "*** DownloadApp: Downloaded file is broken"
@@ -454,7 +454,7 @@ SectionEnd
 
       Call CheckShortcutsExistence
 
-      ${Unless} $APP_EXISTS == "1"
+      ${Unless} "$APP_EXISTS" == "1"
         !ifdef NSIS_CONFIG_LOG
           LogText "*** InstallApp: Let's run installer"
         !endif
@@ -475,8 +475,8 @@ SectionEnd
         Call GetAppPath
         Call CheckAppVersion
 
-        ${Unless} $APP_EXISTS == "1"
-          ${If} $APP_WRONG_VERSION == "1"
+        ${Unless} "$APP_EXISTS" == "1"
+          ${If} "$APP_WRONG_VERSION" == "1"
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_ERROR)" /SD IDOK
           ${Else}
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_INSTALL_ERROR)" /SD IDOK
@@ -491,7 +491,7 @@ SectionEnd
 
         StrCpy $APP_INSTALLED "1"
 
-        ${If} $APP_INSTALL_TALKBACK == "false"
+        ${If} "$APP_INSTALL_TALKBACK" == "false"
           RMDir /r "${APP_EXTENSIONS_DIR}\talkback@mozilla.org"
         ${EndIf}
 
@@ -504,6 +504,7 @@ SectionEnd
 Function "CheckShortcutsExistence"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
+      LogText "*** CheckShortcutsExistence"
     !endif
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
@@ -512,8 +513,13 @@ Function "CheckShortcutsExistence"
       ReadINIStr $SHORTCUT_NAME "${APP_INSTALLER_INI}" "Install" "ShortcutName"
       ReadINIStr $PROGRAM_FOLDER_NAME "${APP_INSTALLER_INI}" "Install" "StartMenuDirectoryName"
     ${EndIf}
-    ${IfThen} $SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "$SHORTCUT_DEFAULT_NAME" ${|}
-    ${IfThen} $PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "$PROGRAM_FOLDER_DEFAULT_NAME" ${|}
+    ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "$SHORTCUT_DEFAULT_NAME" ${|}
+    ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "$PROGRAM_FOLDER_DEFAULT_NAME" ${|}
+
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** SHORTCUT_NAME : $SHORTCUT_NAME"
+      LogText "*** PROGRAM_FOLDER_NAME : $PROGRAM_FOLDER_NAME"
+    !endif
 
     !if ${APP_NAME} == "Netscape"
       SetShellVarContext all
@@ -538,12 +544,23 @@ Function "CheckShortcutsExistence"
       ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH "1" ${|}
       StrCpy $SHORTCUT_PATH_QUICKLAUNCH_MAIL "$QUICKLAUNCH\Netscape Mail & Newsgroups.lnk"
       ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL "1" ${|}
+
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** EXISTS_SHORTCUT_DESKTOP           : $EXISTS_SHORTCUT_DESKTOP"
+        LogText "*** EXISTS_SHORTCUT_DESKTOP_IM        : $EXISTS_SHORTCUT_DESKTOP_IM"
+        LogText "*** EXISTS_SHORTCUT_DESKTOP_MAIL      : $EXISTS_SHORTCUT_DESKTOP_MAIL"
+        LogText "*** EXISTS_SHORTCUT_STARTMENU         : $EXISTS_SHORTCUT_STARTMENU"
+        LogText "*** EXISTS_SHORTCUT_STARTMENU_PROGRAM : $EXISTS_SHORTCUT_STARTMENU_PROGRAM"
+        LogText "*** EXISTS_SHORTCUT_QUICKLAUNCH       : $EXISTS_SHORTCUT_QUICKLAUNCH"
+        LogText "*** EXISTS_SHORTCUT_QUICKLAUNCH_MAIL  : $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL"
+      !endif
     !endif
 FunctionEnd
 
 Function "UpdateShortcutsExistence"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
+      LogText "*** UpdateShortcutsExistence"
     !endif
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
@@ -552,6 +569,9 @@ Function "UpdateShortcutsExistence"
     ${If} ${FileExists} "${APP_INSTALLER_INI}"
       !if ${APP_NAME} == "Netscape"
         ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "DesktopShortcut"
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** DesktopShortcut: $1"
+        !endif
         ${If} "$1" == "false"
           ${If} "$EXISTS_SHORTCUT_DESKTOP" == ""
           ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP"
@@ -574,6 +594,9 @@ Function "UpdateShortcutsExistence"
         ${EndIf}
 
         ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "StartMenuShortcuts"
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** StartMenuShortcuts: $1"
+        !endif
         ${If} "$1" == "false"
           ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
           ${AndIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
@@ -594,6 +617,9 @@ Function "UpdateShortcutsExistence"
       !endif
 
       ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcutAllUsers"
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** QuickLaunchShortcutAllUsers: $1"
+      !endif
       ${If} "$1" == "true"
         SetShellVarContext current
         ${GetParent} "$DESKTOP" $1 ; $1 IS "HOME"
@@ -601,6 +627,10 @@ Function "UpdateShortcutsExistence"
         ${WordReplace} "$ITEM_LOCATION_BASE" "$1" "" "+*" $ITEM_LOCATION_BASE
         ${GetParent} "$1" $1 ; $1 is parent of "HOME"
         StrCpy $ITEM_LOCATION_BASE "$1\%USERNAME%$ITEM_LOCATION_BASE"
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** parent of HOME: $1"
+          LogText "*** ITEM_LOCATION_BASE: $ITEM_LOCATION_BASE"
+        !endif
         StrCpy $ITEM_INDEX 0
         ReadINIStr $INI_TEMP "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
         ${Locate} "$1" "/L=D /G=0 /M=*" "UpdateQuickLaunchShortcutForOneUser"
@@ -632,10 +662,17 @@ Var USER_NAME
 Function "UpdateQuickLaunchShortcutForOneUser"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
+      LogText "*** UpdateQuickLaunchShortcutForOneUser"
     !endif
 
     StrCpy $USER_NAME "$R7"
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** USER_NAME: $USER_NAME"
+    !endif
     ${WordReplace} "$ITEM_LOCATION_BASE" "%USERNAME%" "$USER_NAME" "+*" $ITEM_LOCATION
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** ITEM_LOCATION: $ITEM_LOCATION"
+    !endif
 
     ${If} "$INI_TEMP" == "false"
       Delete "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
@@ -656,7 +693,7 @@ Section "Set Default Client" SetDefaultClient
       LogSet on
     !endif
     ReadINIStr $ITEM_NAME "${INIPATH}" "${INSTALLER_NAME}" "DefaultClient"
-    ${Unless} $ITEM_NAME == ""
+    ${Unless} "$ITEM_NAME" == ""
       !ifdef NSIS_CONFIG_LOG
         LogText "*** SetDefaultClient: $ITEM_NAME"
       !endif
@@ -670,7 +707,7 @@ Section "Set Default Client" SetDefaultClient
         !ifdef NSIS_CONFIG_LOG
           LogText "*** Command: $COMMAND_STRING"
         !endif
-        ${Unless} $COMMAND_STRING == ""
+        ${Unless} "$COMMAND_STRING" == ""
           ExecWait "$COMMAND_STRING"
           WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
           WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient" "$ITEM_NAME"
@@ -679,7 +716,7 @@ Section "Set Default Client" SetDefaultClient
       ${EndIf}
 
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ReinstallCommand"
-      ${IfThen} $COMMAND_STRING != "" ${|} ExecWait "$COMMAND_STRING" ${|}
+      ${IfThen} "$COMMAND_STRING" != "" ${|} ExecWait "$COMMAND_STRING" ${|}
 
       !ifdef NSIS_CONFIG_LOG
         LogText "*** Complete: $ITEM_NAME"
@@ -693,13 +730,13 @@ Section "Disable Clients" DisableClients
     !endif
     StrCpy $ITEM_INDEX 0
     ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "DisabledClients"
-    ${Unless} $ITEMS_LIST == ""
+    ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
         ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
         ${If} $ITEMS_LIST_INDEX > 1
-          ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
+          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
         Call DisableClient
       ${EndWhile}
@@ -721,7 +758,7 @@ Function "DisableClient"
       !ifdef NSIS_CONFIG_LOG
         LogText "*** Command: $COMMAND_STRING"
       !endif
-      ${Unless} $COMMAND_STRING == ""
+      ${Unless} "$COMMAND_STRING" == ""
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
         WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX" "$ITEM_NAME"
@@ -737,19 +774,19 @@ Section "Install Add-ons" InstallAddons
     !endif
     StrCpy $ITEM_INDEX 0
     ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons"
-    ${If} $ITEMS_LIST == ""
+    ${If} "$ITEMS_LIST" == ""
       ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
     ${EndIf}
     !ifdef NSIS_CONFIG_LOG
       LogText "*** ADDONS: $ITEMS_LIST"
     !endif
-    ${Unless} $ITEMS_LIST == ""
+    ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
         ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
         ${If} $ITEMS_LIST_INDEX > 1
-          ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
+          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
         Call InstallAddon
       ${EndWhile}
@@ -761,7 +798,7 @@ Function "CollectAddonFiles"
       LogSet on
       LogText "*** CollectAddonFiles: $R7"
     !endif
-    ${If} $ITEMS_LIST == ""
+    ${If} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST "$R7"
     ${Else}
       StrCpy $ITEMS_LIST "$ITEMS_LIST${SEPARATOR}$R7"
@@ -777,7 +814,7 @@ Function "InstallAddon"
     !endif
 
     ReadINIStr $ADDON_NAME "${INIPATH}" "$ITEM_NAME" "AddonId"
-    ${If} $ADDON_NAME == ""
+    ${If} "$ADDON_NAME" == ""
       ${GetBaseName} $ITEM_NAME $ADDON_NAME
       StrCpy $ADDON_NAME "$ADDON_NAME@${PRODUCT_DOMAIN}"
     ${EndIf}
@@ -787,7 +824,7 @@ Function "InstallAddon"
     !endif
 
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
-    ${Unless} $ITEM_LOCATION == ""
+    ${Unless} "$ITEM_LOCATION" == ""
       Call ResolveItemLocation
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME"
     ${Else}
@@ -812,13 +849,13 @@ FunctionEnd
 Section "Install Shortcuts" InstallShortcuts
     ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Shortcuts"
     StrCpy $ITEM_INDEX 0
-    ${Unless} $ITEMS_LIST == ""
+    ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
         ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
         ${If} $ITEMS_LIST_INDEX > 1
-          ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
+          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
         Call InstallShortcut
       ${EndWhile}
@@ -846,7 +883,7 @@ Function "InstallShortcut"
     StrCpy $SHORTCUT_PATH "$ITEM_LOCATION"
 
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
-    ${If} $ITEM_LOCATION == ""
+    ${If} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "%Desktop%"
     ${EndIf}
     Call ResolveItemLocation
@@ -855,18 +892,18 @@ Function "InstallShortcut"
 
     SetOutPath $SHORTCUT_PATH
 
-    ${If} $SHORTCUT_ICON_INDEX == ""
-    ${OrIf} $SHORTCUT_ICON_INDEX == "0"
+    ${If} "$SHORTCUT_ICON_INDEX" == ""
+    ${OrIf} "$SHORTCUT_ICON_INDEX" == "0"
       CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 0
-    ${ElseIf} $SHORTCUT_ICON_INDEX == "1"
+    ${ElseIf} "$SHORTCUT_ICON_INDEX" == "1"
       CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 1
-    ${ElseIf} $SHORTCUT_ICON_INDEX == "2"
+    ${ElseIf} "$SHORTCUT_ICON_INDEX" == "2"
       CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 2
-    ${ElseIf} $SHORTCUT_ICON_INDEX == "3"
+    ${ElseIf} "$SHORTCUT_ICON_INDEX" == "3"
       CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 3
-    ${ElseIf} $SHORTCUT_ICON_INDEX == "4"
+    ${ElseIf} "$SHORTCUT_ICON_INDEX" == "4"
       CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 4
-    ${ElseIf} $SHORTCUT_ICON_INDEX == "5"
+    ${ElseIf} "$SHORTCUT_ICON_INDEX" == "5"
       CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 5
     ${EndIf}
 
@@ -880,14 +917,18 @@ Function "InstallShortcut"
 FunctionEnd
 
 Section "Install Extra Installers" InstallExtraInstallers
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+      LogText "*** InstallExtraInstallers"
+    !endif
     ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Installers"
-    ${Unless} $ITEMS_LIST == ""
+    ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
         ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
         ${If} $ITEMS_LIST_INDEX > 1
-          ${IfThen} $ITEM_NAME == $ITEMS_LIST ${|} ${Break} ${|}
+          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
         Call InstallExtraInstaller
       ${EndWhile}
@@ -903,12 +944,19 @@ Function "InstallExtraInstaller"
     !endif
 
     ReadINIStr $EXTRA_INSTALLER_NAME "${INIPATH}" "$ITEM_NAME" "Name"
-    ${If} $EXTRA_INSTALLER_NAME == ""
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** EXTRA_INSTALLER_NAME from INI: $EXTRA_INSTALLER_NAME"
+    !endif
+    ${If} "$EXTRA_INSTALLER_NAME" == ""
       StrCpy $EXTRA_INSTALLER_NAME "$ITEM_NAME"
     ${EndIf}
-    ReadINIStr $EXTRA_INSTALLER_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
 
-    ExecWait '"$EXEDIR\resources\$ITEM_NAME" $EXTRA_INSTALLER_OPTIONS'
+    ReadINIStr $EXTRA_INSTALLER_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** EXTRA_INSTALLER_OPTIONS from INI: $EXTRA_INSTALLER_OPTIONS"
+    !endif
+
+    ExecWait '"$EXEDIR\resources\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallExtraInstaller: $ITEM_NAME successfully installed"
@@ -1204,7 +1252,7 @@ Section -Post
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayVersion"  "${PRODUCT_VERSION}"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "URLInfoAbout"    "${PRODUCT_WEB_SITE}"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "Publisher"       "${PRODUCT_PUBLISHER}"
-    ${If} $APP_INSTALLED == "1"
+    ${If} "$APP_INSTALLED" == "1"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion" "$APP_VERSION"
     ${EndIf}
 SectionEnd
@@ -1214,10 +1262,10 @@ Section Uninstall
     StrCpy $UNINSTALL_FAILED 0
 
     ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClientShown"
-    ${If} $ITEM_NAME == "true"
+    ${If} "$ITEM_NAME" == "true"
       ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient"
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
-      ${Unless} $COMMAND_STRING == ""
+      ${Unless} "$COMMAND_STRING" == ""
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
       ${EndUnless}
@@ -1226,9 +1274,9 @@ Section Uninstall
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
       ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX"
-      ${IfThen} $ITEM_NAME == "" ${|} ${Break} ${|}
+      ${IfThen} "$ITEM_NAME" == "" ${|} ${Break} ${|}
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
-      ${Unless} $COMMAND_STRING == ""
+      ${Unless} "$COMMAND_STRING" == ""
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
       ${EndUnless}
@@ -1239,14 +1287,14 @@ Section Uninstall
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX"
       ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup"
-      ${IfThen} $INSTALLED_FILE == "" ${|} ${Break} ${|}
+      ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
         StrCpy $UNINSTALL_FAILED 1
         ${Break}
       ${EndIf}
-      ${If} $BACKUP_PATH != ""
+      ${If} "$BACKUP_PATH" != ""
       ${AndIf} ${FileExists} "$BACKUP_PATH"
         Rename "$BACKUP_PATH" "$INSTALLED_FILE"
       ${EndIf}
@@ -1256,7 +1304,7 @@ Section Uninstall
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
-      ${IfThen} $INSTALLED_FILE == "" ${|} ${Break} ${|}
+      ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
@@ -1269,7 +1317,7 @@ Section Uninstall
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledQuickLaunchShortcut$ITEM_INDEX"
-      ${IfThen} $INSTALLED_FILE == "" ${|} ${Break} ${|}
+      ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
@@ -1282,7 +1330,7 @@ Section Uninstall
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
       ReadRegStr $ITEM_LOCATION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
-      ${IfThen} $ITEM_LOCATION == "" ${|} ${Break} ${|}
+      ${IfThen} "$ITEM_LOCATION" == "" ${|} ${Break} ${|}
       RMDir /r "$ITEM_LOCATION"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$PROCESSING_FILE"
@@ -1295,7 +1343,7 @@ Section Uninstall
     ; search plugins
     ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DisabledSearchPlugins"
     ReadRegStr $SEARCH_PLUGINS_PATH HKLM "${PRODUCT_UNINST_KEY}" "EnabledSearchPlugins"
-    ${If} $BACKUP_PATH != ""
+    ${If} "$BACKUP_PATH" != ""
     ${AndIf} ${FileExists} "$BACKUP_PATH"
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.xml"
       ${un.Locate} "$BACKUP_PATH" "/L=F /G=0 /M=*.xml" "un.EnableSearchPlugin"
@@ -1307,10 +1355,10 @@ Section Uninstall
     ; distributon customizer
     ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup"
     ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer"
-    ${If} $INSTALLED_FILE != ""
+    ${If} "$INSTALLED_FILE" != ""
       RMDir /r "$INSTALLED_FILE"
     ${EndIf}
-    ${If} $BACKUP_PATH != ""
+    ${If} "$BACKUP_PATH" != ""
     ${AndIf} ${FileExists} "$BACKUP_PATH"
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.*"
       Rename "$BACKUP_PATH" "$INSTALLED_FILE"
@@ -1319,7 +1367,7 @@ Section Uninstall
     RMDir /r "$INSTDIR"
     DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
 
-    ${If} $UNINSTALL_FAILED == "1"
+    ${If} "$UNINSTALL_FAILED" == "1"
       MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_UNINST_ERROR)" /SD IDOK
     ${EndIf}
 
@@ -1363,7 +1411,7 @@ Function un.onUninstSuccess
     ${un.GetParameters} $0
     ${un.GetOptions} "$0" "/AddonOnly" $1
     ${If} ${Errors}
-    ${AndIf} $APP_VERSION != ""
+    ${AndIf} "$APP_VERSION" != ""
       ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY}" "CurrentVersion"
       StrCmp $APP_VERSION "" RETURN
       StrCpy $0 "${APP_REG_KEY}\$APP_VERSION\Main"
@@ -1405,7 +1453,7 @@ FunctionEnd
 Var REQUIRE_ADMIN_PRIVILEGE
 Function CheckAdminPrivilege
     ReadINIStr $REQUIRE_ADMIN_PRIVILEGE "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege"
-    ${If} $REQUIRE_ADMIN_PRIVILEGE == "false"
+    ${If} "$REQUIRE_ADMIN_PRIVILEGE" == "false"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
@@ -1414,7 +1462,7 @@ Function CheckAdminPrivilege
     AccessControl::IsUserTheAdministrator $0
     Pop $0
     Pop $1
-    ${If} $1 == "yes"
+    ${If} "$1" == "yes"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
@@ -1423,14 +1471,14 @@ Function CheckAdminPrivilege
     Pop $0
     UserMgr::IsMemberOfGroup "$0" "Administrators"
     Pop $0
-    ${If} $0 == "TRUE"
+    ${If} "$0" == "TRUE"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
     ; check by file writing
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory"
     Call ResolveItemLocationBasic
-    ${Unless} $ITEM_LOCATION == ""
+    ${Unless} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\_${INSTALLER_NAME}.lock"
       ${If} ${FileExists} "$ITEM_LOCATION"
         Delete "$ITEM_LOCATION"
@@ -1459,7 +1507,7 @@ Function CheckInstalled
     !endif
 
     ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
-    ${Unless} $R0 == ""
+    ${Unless} "$R0" == ""
       !if ${APP_INSTALL_MODE} != "SKIP"
         !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
           MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_ALREADY_INSTALLED)" IDOK UNINST
@@ -1473,7 +1521,7 @@ Function CheckInstalled
         ; アプリケーションがこのアドオンの旧バージョンによって
         ; 自動インストールされたものである場合、状態を引き継ぐ
         ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
-        ${IfThen} $APP_VERSION != "" ${|} StrCpy $APP_INSTALLED "1" ${|}
+        ${IfThen} "$APP_VERSION" != "" ${|} StrCpy $APP_INSTALLED "1" ${|}
         ; アンインストーラを一時ファイルにコピーしないでそのまま実行
         ; こうしないと，すぐに終了して戻ってきてしまうみたい
         ExecWait '$R0 /AddonOnly _?=$INSTDIR'
@@ -1504,49 +1552,49 @@ Function LoadINI
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppDownloadPath = $INI_TEMP"
     !endif
-    ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_DOWNLOAD_PATH "$INI_TEMP" ${|}
+    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_DOWNLOAD_PATH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaPath"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppEulaPath = $INI_TEMP"
     !endif
-    ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_EULA_PATH "$INI_TEMP" ${|}
+    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_EULA_PATH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadUrl"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppDownloadUrl = $INI_TEMP"
     !endif
-    ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_DOWNLOAD_URL "$INI_TEMP" ${|}
+    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_DOWNLOAD_URL "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaUrl"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppEulaUrl = $INI_TEMP"
     !endif
-    ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_EULA_URL "$INI_TEMP" ${|}
+    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_EULA_URL "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppHash"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppHash = $INI_TEMP"
     !endif
-    ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_HASH "$INI_TEMP" ${|}
+    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_HASH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppInstallTalkback"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppInstallTalkback = $INI_TEMP"
     !endif
-    ${IfThen} $INI_TEMP != "" ${|} StrCpy $APP_INSTALL_TALKBACK "$INI_TEMP" ${|}
+    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_INSTALL_TALKBACK "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxEnabledSearchPlugins"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: FxEnabledSearchPlugins = $INI_TEMP"
     !endif
-    ${IfThen} $INI_TEMP != "" ${|} StrCpy $FX_ENABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
+    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $FX_ENABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxDisabledSearchPlugins"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: FxDisabledSearchPlugins = $INI_TEMP"
     !endif
-    ${IfThen} $INI_TEMP != "" ${|} StrCpy $FX_DISABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
+    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $FX_DISABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
 
   NO_INI:
 FunctionEnd
 
 Function CheckAppProc
     FindProcDLL::FindProc "${APP_EXE}" $R0
-    ${If} $R0 == "1"
+    ${If} "$R0" == "1"
       MessageBox MB_OK|MB_ICONINFORMATION `$(MSG_APP_IS_RUNNING)`
       Abort
     ${EndIf}
@@ -1554,7 +1602,7 @@ FunctionEnd
 
 Function un.CheckAppProc
     FindProcDLL::FindProc "${APP_EXE}" $R0
-    ${If} $R0 == "1"
+    ${If} "$R0" == "1"
       MessageBox MB_OK|MB_ICONINFORMATION `$(MSG_APP_IS_RUNNING)`
       Abort
     ${EndIf}
@@ -1565,7 +1613,7 @@ Function GetAppPath
       LogSet on
     !endif
 
-    ${IfThen} $APP_INSTALLED != "1" ${|} StrCpy $APP_INSTALLED "0" ${|}
+    ${IfThen} "$APP_INSTALLED" != "1" ${|} StrCpy $APP_INSTALLED "0" ${|}
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** GetAppPath: Application installed"
@@ -1643,18 +1691,18 @@ Function CheckAppVersion
     ${VersionConvert} "$NORMALIZED_APP_VERSION" "abcdefghijklmnopqrstuvwxyz" $APP_VERSION_NUM
     StrCpy $APP_WRONG_VERSION "0"
 
-    ${IfThen} $APP_EXISTS != "1" ${|} GoTo RETURN ${|}
+    ${IfThen} "$APP_EXISTS" != "1" ${|} GoTo RETURN ${|}
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** CheckAppVersion: Application exists"
     !endif
 
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppMaxVersion"
-    ${IfThen} $INI_TEMP == "" ${|} StrCpy $INI_TEMP "${APP_MAX_VERSION}" ${|}
+    ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_MAX_VERSION}" ${|}
     ${VersionConvert} "$INI_TEMP" "abcdefghijklmnopqrstuvwxyz" $NORMALIZED_VERSION
     ${VersionCompare} "$APP_VERSION_NUM" "$NORMALIZED_VERSION" $0
 
-    ${If} $0 == 1
+    ${If} "$0" == "1"
       StrCpy $APP_WRONG_VERSION "2"
       !ifdef NSIS_CONFIG_LOG
         LogText "*** CheckAppVersion: Installed version is too new"
@@ -1663,10 +1711,10 @@ Function CheckAppVersion
     ${EndIf}
 
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppMinVersion"
-    ${IfThen} $INI_TEMP == "" ${|} StrCpy $INI_TEMP "${APP_MIN_VERSION}" ${|}
+    ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_MIN_VERSION}" ${|}
     ${VersionConvert} "$INI_TEMP" "abcdefghijklmnopqrstuvwxyz" $NORMALIZED_VERSION
     ${VersionCompare} "$APP_VERSION_NUM" "$NORMALIZED_VERSION" $0
-    ${If} $0 == 2
+    ${If} "$0" == "2"
       StrCpy $APP_WRONG_VERSION "1"
       StrCpy $APP_EXISTS "0"
       !ifdef NSIS_CONFIG_LOG
@@ -1682,7 +1730,7 @@ Function CheckAppVersionWithMessage
       LogSet on
     !endif
 
-    ${IfThen} $APP_EXISTS != "1" ${|} GoTo RETURN ${|}
+    ${IfThen} "$APP_EXISTS" != "1" ${|} GoTo RETURN ${|}
 
     Call CheckAppVersion
 
