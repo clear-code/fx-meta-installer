@@ -685,7 +685,7 @@ Function "UpdateQuickLaunchShortcutForOneUser"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
-    Push $R0
+    Push $USER_NAME ; for ${Locate}
 FunctionEnd
 
 Section "Set Default Client" SetDefaultClient
@@ -803,7 +803,8 @@ Function "CollectAddonFiles"
     ${Else}
       StrCpy $ITEMS_LIST "$ITEMS_LIST${SEPARATOR}$R7"
     ${EndIf}
-    Push $ITEMS_LIST
+
+    Push $ITEMS_LIST ; for ${Locate}
 FunctionEnd
 
 Var ADDON_NAME
@@ -834,7 +835,7 @@ Function "InstallAddon"
     SetOutPath $ITEM_LOCATION
 
     ZipDLL::extractall "$EXEDIR\resources\$ITEM_NAME" "$ITEM_LOCATION"
-    AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
+    ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ITEM_LOCATION"
 
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
@@ -842,8 +843,6 @@ Function "InstallAddon"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallAddon: $ADDON_NAME successfully installed"
     !endif
-
-    ;Push $R0
 FunctionEnd
 
 Section "Install Shortcuts" InstallShortcuts
@@ -907,7 +906,7 @@ Function "InstallShortcut"
       CreateShortCut "$ITEM_LOCATION" "$SHORTCUT_PATH" "$SHORTCUT_OPTIONS" "$SHORTCUT_PATH" 5
     ${EndIf}
 
-    AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
+    ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
@@ -971,82 +970,46 @@ Section "Install Additional Files" InstallAdditionalFiles
     StrCpy $ITEM_INDEX 0
 
     StrCpy $DIST_DIR "$APP_DIR"
-    ${If} ${FileExists} "$EXEDIR\resources\*.cfg"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cfg" "InstallNormalFile"
-    ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\resources\*.properties"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.properties" "InstallNormalFile"
-    ${EndIf}
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cfg" "InstallNormalFile"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.properties" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults"
-    ${If} ${FileExists} "$EXEDIR\resources\*.cer"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer" "InstallNormalFile"
-    ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\resources\*.crt"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.crt" "InstallNormalFile"
-    ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\resources\*.pem"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.pem" "InstallNormalFile"
-    ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\resources\*.cer.override"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer.override" "InstallNormalFile"
-    ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\resources\*.crt.override"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.crt.override" "InstallNormalFile"
-    ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\resources\*.pem.override"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.pem.override" "InstallNormalFile"
-    ${EndIf}
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer" "InstallNormalFile"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.crt" "InstallNormalFile"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.pem" "InstallNormalFile"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer.override" "InstallNormalFile"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.crt.override" "InstallNormalFile"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.pem.override" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
-    ${If} ${FileExists} "$EXEDIR\resources\bookmarks.html"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
-    ${EndIf}
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
-    ${If} ${FileExists} "$EXEDIR\resources\*.rdf"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
-    ${EndIf}
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
 
     StrCpy $DIST_DIR "${APP_CONFIG_DIR}"
-    ${If} ${FileExists} "$EXEDIR\resources\*.js"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.js" "InstallNormalFile"
-    ${EndIf}
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.js" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\chrome"
-    ${If} ${FileExists} "$EXEDIR\resources\*.css"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.css" "InstallNormalFile"
-    ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\resources\*.jar"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.jar" "InstallNormalFile"
-    ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\resources\*.manifest"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.manifest" "InstallNormalFile"
-    ${EndIf}
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.css" "InstallNormalFile"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.jar" "InstallNormalFile"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.manifest" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\components"
-    ${If} ${FileExists} "$EXEDIR\resources\*.xpt"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpt" "InstallNormalFile"
-    ${EndIf}
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpt" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\plugins"
-    ${If} ${FileExists} "$EXEDIR\resources\*.dll"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
-    ${EndIf}
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
 
     !if ${APP_NAME} == "Netscape"
-      ${If} ${FileExists} "$EXEDIR\resources\installed-chrome.txt"
-        ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=installed-chrome.txt" "AppendTextFile"
-      ${EndIf}
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=installed-chrome.txt" "AppendTextFile"
     !endif
 
-    ${If} ${FileExists} "$EXEDIR\resources\*.lnk"
-      StrCpy $DIST_DIR "$DESKTOP"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
-  ;    StrCpy $DIST_DIR "$QUICKLAUNCH"
-  ;    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
-  ;    StrCpy $DIST_DIR "$SMPROGRAMS"
-  ;    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
-    ${EndIf}
+    StrCpy $DIST_DIR "$DESKTOP"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+  ;  StrCpy $DIST_DIR "$QUICKLAUNCH"
+  ;  ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+  ;  StrCpy $DIST_DIR "$SMPROGRAMS"
+  ;  ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
 SectionEnd
 
 Function "InstallNormalFile"
@@ -1076,14 +1039,15 @@ Function "InstallNormalFile"
     SetOutPath $DIST_DIR
 
     CopyFiles /SILENT "$EXEDIR\resources\$PROCESSING_FILE" "$DIST_PATH"
-    AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
+    ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallNormalFile: $PROCESSING_FILE is successfully installed"
     !endif
-    Push $R0
+
+    Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
 !if ${APP_NAME} == "Netscape"
@@ -1208,7 +1172,7 @@ Function "CheckDisableSearchPlugin"
     Rename "$DIST_PATH\$PROCESSING_FILE" "$BACKUP_PATH\$PROCESSING_FILE"
   RETURN:
 
-    Push 0
+    Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
 Section "Initialize Distribution Customizer" InitDistributonCustomizer
@@ -1238,7 +1202,7 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       ${EndIf}
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
       CreateDirectory "$DIST_PATH"
-      AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
+      ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
       ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=distribution.*" "InstallNormalFile"
     ${EndIf}
 SectionEnd
