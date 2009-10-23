@@ -1729,9 +1729,9 @@ Function "ResolveItemLocationBasic"
     ${WordReplace} "$ITEM_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%Home%" "$HOME" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%home%" "$HOME" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%HOME%" "$HOME" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Home%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%home%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%HOME%" "$PROFILE" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%Desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%DESKTOP%" "$DESKTOP" "+*" $ITEM_LOCATION
