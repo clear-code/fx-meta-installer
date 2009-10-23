@@ -622,7 +622,8 @@ Function "UpdateShortcutsExistence"
       !endif
       ${If} "$1" == "true"
         SetShellVarContext current
-        ${GetParent} "$DESKTOP" $1 ; $1 IS "HOME"
+        StrCpy $1 "$%home%"
+        ${IfThen} "$1" == "" ${|} ${GetParent} "$DESKTOP" $1 ; $1 maybe "HOME" ${|}
         StrCpy $ITEM_LOCATION_BASE "$APPDATA\Microsoft\Internet Explorer\Quick Launch"
         ${WordReplace} "$ITEM_LOCATION_BASE" "$1" "" "+*" $ITEM_LOCATION_BASE
         ${GetParent} "$1" $1 ; $1 is parent of "HOME"
