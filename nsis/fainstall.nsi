@@ -870,6 +870,13 @@ Function "InstallShortcut"
 
     ReadINIStr $SHORTCUT_NAME "${INIPATH}" "$ITEM_NAME" "Name"
 
+    ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "TargetUser"
+    ${If} "$INI_TEMP" == "all"
+      SetShellVarContext all
+    ${Else}
+      SetShellVarContext current
+    ${EndIf}
+
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "Options"
     Call ResolveItemLocationBasic
     StrCpy $SHORTCUT_OPTIONS "$ITEM_LOCATION"
@@ -908,6 +915,8 @@ Function "InstallShortcut"
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
+
+    SetShellVarContext current
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallShortcut: $ITEM_NAME successfully installed"
