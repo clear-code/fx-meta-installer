@@ -707,6 +707,9 @@ Section "Set Default Client" SetDefaultClient
           LogText "*** Command: $COMMAND_STRING"
         !endif
         ${Unless} "$COMMAND_STRING" == ""
+          StrCpy $ITEM_LOCATION "$COMMAND_STRING"
+          Call ResolveItemLocation
+          StrCpy $COMMAND_STRING "$ITEM_LOCATION"
           ExecWait "$COMMAND_STRING"
           WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
           WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient" "$ITEM_NAME"
@@ -715,7 +718,12 @@ Section "Set Default Client" SetDefaultClient
       ${EndIf}
 
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ReinstallCommand"
-      ${IfThen} "$COMMAND_STRING" != "" ${|} ExecWait "$COMMAND_STRING" ${|}
+      ${If} "$COMMAND_STRING" != ""
+        StrCpy $ITEM_LOCATION "$COMMAND_STRING"
+        Call ResolveItemLocation
+        StrCpy $COMMAND_STRING "$ITEM_LOCATION"
+        ExecWait "$COMMAND_STRING"
+      ${EndIf}
 
       !ifdef NSIS_CONFIG_LOG
         LogText "*** Complete: $ITEM_NAME"
@@ -758,6 +766,9 @@ Function "DisableClient"
         LogText "*** Command: $COMMAND_STRING"
       !endif
       ${Unless} "$COMMAND_STRING" == ""
+        StrCpy $ITEM_LOCATION "$COMMAND_STRING"
+        Call ResolveItemLocation
+        StrCpy $COMMAND_STRING "$ITEM_LOCATION"
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
         WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX" "$ITEM_NAME"
@@ -1238,6 +1249,9 @@ Section Uninstall
       ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient"
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
       ${Unless} "$COMMAND_STRING" == ""
+        StrCpy $ITEM_LOCATION "$COMMAND_STRING"
+        Call un.ResolveItemLocation
+        StrCpy $COMMAND_STRING "$ITEM_LOCATION"
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
       ${EndUnless}
@@ -1249,6 +1263,9 @@ Section Uninstall
       ${IfThen} "$ITEM_NAME" == "" ${|} ${Break} ${|}
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
       ${Unless} "$COMMAND_STRING" == ""
+        StrCpy $ITEM_LOCATION "$COMMAND_STRING"
+        Call un.ResolveItemLocation
+        StrCpy $COMMAND_STRING "$ITEM_LOCATION"
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
       ${EndUnless}
@@ -1774,4 +1791,53 @@ Function "ResolveItemLocationBasic"
     ${WordReplace} "$ITEM_LOCATION" "%Temp%" "$TEMP" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%temp%" "$TEMP" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%TEMP%" "$TEMP" "+*" $ITEM_LOCATION
+FunctionEnd
+
+Function "un.ResolveItemLocation"
+    Call un.ResolveItemLocationBasic
+    ${un.WordReplace} "$ITEM_LOCATION" "%AppData%" "$APPDATA" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%appdata%" "$APPDATA" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%APPDATA%" "$APPDATA" "+*" $ITEM_LOCATION
+FunctionEnd
+
+Function "un.ResolveItemLocationBasic"
+    ${un.WordReplace} "$ITEM_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Home%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%home%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%HOME%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%DESKTOP%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%SystemRoot%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%systemroot%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%SYSTEMROOT%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%WinDir%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%windir%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%WINDIR%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%SysDir%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%sysdir%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%SYSDIR%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%ProgramFiles%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%programfiles%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%ProgramFiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%programfiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%ProgramFiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%programfiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%CommonFiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%commonfiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%COMMONFILES%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%CommonFiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%commonfiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%COMMONFILES32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%CommonFiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%COMMONFILES64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Temp%" "$TEMP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%temp%" "$TEMP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%TEMP%" "$TEMP" "+*" $ITEM_LOCATION
 FunctionEnd
