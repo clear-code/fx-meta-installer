@@ -64,6 +64,9 @@
 !ifndef APP_EULA_URL
   !define APP_EULA_URL ""
 !endif
+!ifndef APP_HASH
+  !define APP_HASH ""
+!endif
 
 !ifndef FX_ENABLED_SEARCH_PLUGINS
   !define FX_ENABLED_SEARCH_PLUGINS "*"
