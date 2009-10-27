@@ -1466,7 +1466,7 @@ Function CheckAdminPrivilege
 
     ; check by file writing
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory"
-    Call ResolveItemLocationBasic
+    Call ResolveItemLocation
     ${Unless} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\_${INSTALLER_NAME}.lock"
       ${If} ${FileExists} "$ITEM_LOCATION"
@@ -1746,98 +1746,194 @@ FunctionEnd
 
 Function "ResolveItemLocation"
     Call ResolveItemLocationBasic
+
+    ; Windows Environment Variables
     ${WordReplace} "$ITEM_LOCATION" "%AppData%" "$APPDATA" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Appdata%" "$APPDATA" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%appdata%" "$APPDATA" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%APPDATA%" "$APPDATA" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%HomePath%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Homepath%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%homepath%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%HOMEPATH%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%HomeDrive%" "$%homedrive%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Homedrive%" "$%homedrive%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%homedrive%" "$%homedrive%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%HOMEDRIVE%" "$%homedrive%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%UserName%" "$%username%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Username%" "$%username%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%username%" "$%username%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%USERNAME%" "$%username%" "+*" $ITEM_LOCATION
 FunctionEnd
 
 Function "ResolveItemLocationBasic"
-    ${WordReplace} "$ITEM_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%Home%" "$PROFILE" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%home%" "$PROFILE" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%HOME%" "$PROFILE" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%Desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%DESKTOP%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ; Windows Environment Variables
+    ${WordReplace} "$ITEM_LOCATION" "%SystemDrive%" "$%systemdrive%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Systemdrive%" "$%systemdrive%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%systemdrive%" "$%systemdrive%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%SYSTEMDRIVE%" "$%systemdrive%" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%SystemRoot%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Systemroot%" "$WINDIR" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%systemroot%" "$WINDIR" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%SYSTEMROOT%" "$WINDIR" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%WinDir%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Windir%" "$WINDIR" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%windir%" "$WINDIR" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%WINDIR%" "$WINDIR" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%SysDir%" "$SYSDIR" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%sysdir%" "$SYSDIR" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%SYSDIR%" "$SYSDIR" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%ProgramFiles%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Programfiles%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%programfiles%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%ProgramFiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%programfiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%ProgramFiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%programfiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%CommonFiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%commonfiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%COMMONFILES%" "$COMMONFILES" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%CommonFiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%commonfiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%COMMONFILES32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%CommonFiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
-    ${WordReplace} "$ITEM_LOCATION" "%COMMONFILES64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%CommonProgramFiles%" "$%commonprogramfiles%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Commonprogramfiles%" "$%commonprogramfiles%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%commonprogramfiles%" "$%commonprogramfiles%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%COMMONPROGRAMFILES%" "$%commonprogramfiles%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Tmp%" "$TEMP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%tmp%" "$TEMP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%TMP%" "$TEMP" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%Temp%" "$TEMP" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%temp%" "$TEMP" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%TEMP%" "$TEMP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%ComputerName%" "$%computername%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Computername%" "$%computername%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%computername%" "$%computername%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%COMPUTERNAME%" "$%computername%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%AllUsersProfile%" "$%allusersprofile%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Allusersprofile%" "$%allusersprofile%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%allusersprofile%" "$%allusersprofile%" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%ALLUSERSPROFILE%" "$%allusersprofile%" "+*" $ITEM_LOCATION
+
+    ; custom
+    ${WordReplace} "$ITEM_LOCATION" "%Home%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%home%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%HOME%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%DeskTop%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%DESKTOP%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%SysDir%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Sysdir%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%sysdir%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%SYSDIR%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%ProgramFiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Programfiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%programfiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%ProgramFiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Programfiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%programfiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%CommonFiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Commonfiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%commonfiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%COMMONFILES%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%CommonFiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Commonfiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%commonfiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%COMMONFILES32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%CommonFiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%COMMONFILES64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
 FunctionEnd
 
 Function "un.ResolveItemLocation"
     Call un.ResolveItemLocationBasic
+
+    ; Windows Environment Variables
     ${un.WordReplace} "$ITEM_LOCATION" "%AppData%" "$APPDATA" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Appdata%" "$APPDATA" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%appdata%" "$APPDATA" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%APPDATA%" "$APPDATA" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%HomePath%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Homepath%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%homepath%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%HOMEPATH%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%HomeDrive%" "$%homedrive%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Homedrive%" "$%homedrive%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%homedrive%" "$%homedrive%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%HOMEDRIVE%" "$%homedrive%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%UserName%" "$%username%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Username%" "$%username%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%username%" "$%username%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%USERNAME%" "$%username%" "+*" $ITEM_LOCATION
 FunctionEnd
 
 Function "un.ResolveItemLocationBasic"
-    ${un.WordReplace} "$ITEM_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%Home%" "$PROFILE" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%home%" "$PROFILE" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%HOME%" "$PROFILE" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%Desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%DESKTOP%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ; Windows Environment Variables
+    ${un.WordReplace} "$ITEM_LOCATION" "%SystemDrive%" "$%systemdrive%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Systemdrive%" "$%systemdrive%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%systemdrive%" "$%systemdrive%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%SYSTEMDRIVE%" "$%systemdrive%" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%SystemRoot%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Systemroot%" "$WINDIR" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%systemroot%" "$WINDIR" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%SYSTEMROOT%" "$WINDIR" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%WinDir%" "$WINDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Windir%" "$WINDIR" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%windir%" "$WINDIR" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%WINDIR%" "$WINDIR" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%SysDir%" "$SYSDIR" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%sysdir%" "$SYSDIR" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%SYSDIR%" "$SYSDIR" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%ProgramFiles%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Programfiles%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%programfiles%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES%" "$PROGRAMFILES" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%ProgramFiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%programfiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%ProgramFiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%programfiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%CommonFiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%commonfiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%COMMONFILES%" "$COMMONFILES" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%CommonFiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%commonfiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%COMMONFILES32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%CommonFiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
-    ${un.WordReplace} "$ITEM_LOCATION" "%COMMONFILES64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%CommonProgramFiles%" "$%commonprogramfiles%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Commonprogramfiles%" "$%commonprogramfiles%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%commonprogramfiles%" "$%commonprogramfiles%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%COMMONPROGRAMFILES%" "$%commonprogramfiles%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Tmp%" "$TEMP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%tmp%" "$TEMP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%TMP%" "$TEMP" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%Temp%" "$TEMP" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%temp%" "$TEMP" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%TEMP%" "$TEMP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%ComputerName%" "$%computername%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Computername%" "$%computername%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%computername%" "$%computername%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%COMPUTERNAME%" "$%computername%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%AllUsersProfile%" "$%allusersprofile%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Allusersprofile%" "$%allusersprofile%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%allusersprofile%" "$%allusersprofile%" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%ALLUSERSPROFILE%" "$%allusersprofile%" "+*" $ITEM_LOCATION
+
+    ; custom
+    ${un.WordReplace} "$ITEM_LOCATION" "%Home%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%home%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%HOME%" "$PROFILE" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%DeskTop%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%desktop%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%DESKTOP%" "$DESKTOP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%AppDir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%appdir%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%APPDIR%" "$APP_DIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%SysDir%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Sysdir%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%sysdir%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%SYSDIR%" "$SYSDIR" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%ProgramFiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Programfiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%programfiles32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES32%" "$PROGRAMFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%ProgramFiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Programfiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%programfiles64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%PROGRAMFILES64%" "$PROGRAMFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%CommonFiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Commonfiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%commonfiles%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%COMMONFILES%" "$COMMONFILES" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%CommonFiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Commonfiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%commonfiles32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%COMMONFILES32%" "$COMMONFILES32" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%CommonFiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%COMMONFILES64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
 FunctionEnd
