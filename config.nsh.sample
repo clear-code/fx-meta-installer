@@ -5,7 +5,7 @@
 !define PRODUCT_FULL_NAME    "Fx Add-on Installer"
 !define PRODUCT_NAME         "FxAddonInstaller"
 !define PRODUCT_VERSION      "0.0.0.0"
-!define PRODUCT_YEAR         "2009"
+!define PRODUCT_YEAR         "2010"
 !define PRODUCT_PUBLISHER    "ClearCode Inc."
 !define PRODUCT_DOMAIN       "clear-code.com"
 !define PRODUCT_WEB_SITE     "http://www.clear-code.com/"
@@ -18,12 +18,12 @@
 !define PRODUCT_INSTALL_MODE "NORMAL"
 
 !define APP_NAME            "Firefox"
-!define APP_MIN_VERSION     "2.0"
-!define APP_MAX_VERSION     "2.0.0.99"
-;!define APP_DOWNLOAD_PATH   "\\Kuro-box\share\\Firefox Setup 2.0.0.14.exe"
+!define APP_MIN_VERSION     "3.5"
+!define APP_MAX_VERSION     "3.6.99"
+;!define APP_DOWNLOAD_PATH   "\\Kuro-box\share\\Firefox Setup 3.6.exe"
 !define APP_DOWNLOAD_URL    "http://download.mozilla.org/?product=firefox-2.0.0.14&os=win&lang=ja"
 !define APP_HASH            "8d017402de51a144d0e0fe4d3e2132cb"
-;!define APP_EULA_PATH       "\\Kuro-box\share\\Firefox Setup 2.0.0.14.txt"
+;!define APP_EULA_PATH       "\\Kuro-box\share\\Firefox Setup 3.6.txt"
 !define APP_EULA_URL        "http://www.mozilla.com/en-US/legal/eula/firefox2-en.txt"
 
 ; NORMAL : 通常のウィザード
