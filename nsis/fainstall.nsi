@@ -1470,6 +1470,7 @@ Function CheckAdminPrivilege
     ; check by file writing
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory"
     Call ResolveItemLocation
+    ${IfThen} "$ITEM_LOCATION" == "" ${|} StrCpy $ITEM_LOCATION "$PROGRAMFILES" ${|}
     ${Unless} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\_${INSTALLER_NAME}.lock"
       ${If} ${FileExists} "$ITEM_LOCATION"
