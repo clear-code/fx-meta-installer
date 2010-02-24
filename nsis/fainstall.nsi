@@ -1639,9 +1639,9 @@ Function GetAppPath
       LogText "*** GetAppPath: APP_DIR = $APP_DIR"
     !endif
 
-    ${If} ${FileExists} "$APP_INSTALLER_INI"
-      ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"
-      ReadINIStr $INI_TEMP2 "$APP_INSTALLER_INI" "Install" "InstallDirectoryPath"
+    ${If} ${FileExists} "${APP_INSTALLER_INI}"
+      ReadINIStr $INI_TEMP "${APP_INSTALLER_INI}" "Install" "InstallDirectoryName"
+      ReadINIStr $INI_TEMP2 "${APP_INSTALLER_INI}" "Install" "InstallDirectoryPath"
       ${If} $INI_TEMP != ""
       ${OrIf} $INI_TEMP2 != ""
         ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_DIRECTORY_NAME}" ${|}
