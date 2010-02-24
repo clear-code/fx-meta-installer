@@ -858,10 +858,10 @@ Section "Create Profile" CreateProfile
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
       ${EndWhile}
 
-      ${Unless} "$INI_TEMP2" == ""
+      ${If} "$INI_TEMP2" == ""
         ; 新たにプロファイルを追加する場合、次回起動時にはプロファイルマネージャを常に表示する
         WriteINIStr "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile" "0"
-      ${EndUnless}
+      ${EndIf}
 
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "Name" "$INI_TEMP"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "IsRelative" "1"
