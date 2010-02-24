@@ -852,17 +852,30 @@ Function "InstallAddon"
       StrCpy $ITEM_LOCATION "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
     ${EndUnless}
 
+    ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Overwrite"
+    ${If} "$INI_TEMP" == "false"
+    ${AndIf} ${FileExists} "$EXEDIR\resources\$ITEM_NAME"
+    ${AndIf} ${FileExists} "$EXEDIR\resources\$ITEM_NAME\*.*"
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** InstallAddon: $ADDON_NAME installation is canceled (already installed)"
+      !endif
+      GoTo CANCELED
+    ${EndIf}
+
     SetOutPath $ITEM_LOCATION
 
     ZipDLL::extractall "$EXEDIR\resources\$ITEM_NAME" "$ITEM_LOCATION"
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ITEM_LOCATION"
-
-    IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Uninstall"
+    ${If} "$INI_TEMP" != "false"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ITEM_LOCATION"
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ${EndIf}
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallAddon: $ADDON_NAME successfully installed"
     !endif
+  CANCELED:
 FunctionEnd
 
 Section "Install Shortcuts" InstallShortcuts
