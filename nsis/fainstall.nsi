@@ -1,4 +1,4 @@
-;Copyright (C) 2008-2009 ClearCode Inc.
+;Copyright (C) 2008-2010 ClearCode Inc.
 
 ;=== Libraries
 !include "LogicLib.nsh"
@@ -21,12 +21,15 @@
 !if ${APP_NAME} == "Firefox"
   !define APP_EXE "firefox.exe"
   !define APP_KEY "Mozilla\Mozilla Firefox"
+  !define APP_DIRECTORY_NAME "Mozilla Firefox"
 !else if ${APP_NAME} == "Thunderbird"
   !define APP_EXE "thunderbird.exe"
   !define APP_KEY "Mozilla\Mozilla Thunderbird"
+  !define APP_DIRECTORY_NAME "Mozilla Thunderbird"
 !else if ${APP_NAME} == "Netscape"
   !define APP_EXE "Netscp.exe"
   !define APP_KEY "Netscape\Netscape"
+  !define APP_DIRECTORY_NAME "Netscape"
 !endif
 
 !ifndef APP_EXE
@@ -34,6 +37,9 @@
 !endif
 !ifndef APP_KEY
   !define APP_KEY "${APP_NAME}"
+!endif
+!ifndef APP_DIRECTORY_NAME
+  !define APP_DIRECTORY_NAME "${APP_NAME}"
 !endif
 
 !define INSTALLER_NAME      "fainstall"
@@ -220,6 +226,7 @@ Var SHORTCUT_NAME
 Var SHORTCUT_PATH
 
 Var INI_TEMP
+Var INI_TEMP2
 
 Var APP_DOWNLOAD_PATH
 Var APP_DOWNLOAD_URL
@@ -1405,10 +1412,10 @@ Function un.onUninstSuccess
     ${If} ${Errors}
     ${AndIf} "$APP_VERSION" != ""
       ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY}" "CurrentVersion"
-      StrCmp $APP_VERSION "" RETURN
+      ${IfThen} "$APP_VERSION" == "" ${|} GoTo RETURN ${|}
       StrCpy $0 "${APP_REG_KEY}\$APP_VERSION\Main"
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
-      StrCmp $APP_DIR "" RETURN
+      ${IfThen} "$APP_DIR" == "" ${|} GoTo RETURN ${|}
 
     !if ${APP_NAME} == "Netscape"
       ${If} ${FileExists} "$APP_DIR\uninstall\install_wizard*.log"
@@ -1613,12 +1620,12 @@ Function GetAppPath
     !endif
 
     ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY}" "CurrentVersion"
-    StrCmp $APP_VERSION "" ERR
+    ${IfThen} "$APP_VERSION" == "" ${|} GoTo ERR ${|}
     StrCpy $0 "${APP_REG_KEY}\$APP_VERSION\Main"
 
     ; EXE path
     ReadRegStr $APP_EXE_PATH HKLM $0 "PathToExe"
-    StrCmp $APP_EXE_PATH "" ERR
+    ${IfThen} "$APP_EXE_PATH" == "" ${|} GoTo ERR ${|}
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** GetAppPath: APP_EXE_PATH = $APP_EXE_PATH"
@@ -1626,11 +1633,27 @@ Function GetAppPath
 
     ; Application directory
     ReadRegStr $APP_DIR HKLM $0 "Install Directory"
-    StrCmp $APP_DIR "" ERR
+    ${IfThen} "$APP_DIR" == "" ${|} GoTo ERR ${|}
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** GetAppPath: APP_DIR = $APP_DIR"
     !endif
+
+    ${If} ${FileExists} "$APP_INSTALLER_INI"
+      ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"
+      ReadINIStr $INI_TEMP2 "$APP_INSTALLER_INI" "Install" "InstallDirectoryPath"
+      ${If} $INI_TEMP != ""
+      ${OrIf} $INI_TEMP2 != ""
+        ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_DIRECTORY_NAME}" ${|}
+        ${IfThen} "$INI_TEMP2" == "" ${|} StrCpy $INI_TEMP2 "$PROGRAMFILES" ${|}
+        ${If} "$APP_DIR" != "$INI_TEMP2\$INI_TEMP"
+          !ifdef NSIS_CONFIG_LOG
+            LogText "*** GetAppPath: APP_DIR must be $INI_TEMP2\$INI_TEMP"
+          !endif
+          GoTo ERR
+        ${EndIf}
+      ${EndIf}
+    ${EndIf}
 
     ${If} ${FileExists} "$APP_EXE_PATH"
       ${If} ${FileExists} "$APP_DIR"
