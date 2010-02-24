@@ -9,7 +9,9 @@
 ・Mozilla Firefox 2.0.0.x
 ・Mozilla Firefox 3.0.x
 ・Mozilla Firefox 3.5.x
+・Mozilla Firefox 3.6.x
 ・Mozilla Thunderbird 2.0.0.x
+・Mozilla Thunderbird 3.0.x
 ・Netscape 7.x
 
 ■Mozillaアプリケーションの自動インストール
@@ -240,6 +242,10 @@ AdminPrivilegeCheckDirectory：（省略可能）
 	管理者権限の有無を確認するために、書き込み権限があるかどうかをチェックする
 	フォルダのパス。ここで指定されたパスのフォルダに書き込み可能な場合、管理者で
 	あると判定される。省略時は、何も行わない。
+DefaultClient：（省略可能）
+	詳細は「Firefoxをコンピュータの既定のブラウザに設定する/設定しない」を参照。
+DisabledClients：（省略可能）
+	詳細は「「プログラムのアクセスと既定の設定」の変更」を参照。
 
 以下の設定については、無指定の場合はビルド時の指定が有効となる。
 
@@ -408,6 +414,60 @@ TargetLocation：（省略可能）
   Path=%AppDir%\firefox.exe
   Options=-p
   TargetLocation=%Desktop%
+
+■Firefoxをコンピュータの既定のブラウザに設定する/設定しない
+
+初期状態では、Firefoxのインストールが完了した後に、Firefoxが自動的にコンピュータの
+既定のブラウザとして設定される。この挙動は、fainstall.iniの[fainstall]セクション内の
+「DefaultClient」の値を変更することで制御できる。
+
+ * 現在のブラウザをそのままコンピュータの既定のブラウザとして使い続ける場合：
+   「DefaultClient」の行を削除する、または値を空にする。
+ * Firefoxをコンピュータの既定のブラウザに設定する場合：
+   「DefaultClient」の値を「StartMenuInternet\FIREFOX.EXE」に設定する。
+ * それ以外のブラウザをコンピュータの既定のブラウザに設定する場合：
+   「DefaultClient」の値を以下の通り設定する。
+   Internet Explorer：StartMenuInternet\IEXPLORE.EXE
+   Opera            ：StartMenuInternet\Opera.exe
+   Google Chrome    ：StartMenuInternet\Google Chrome
+
+■「プログラムのアクセスと既定の設定」の変更
+
+Windows XP SP1以降の「プログラムのアクセスと既定の設定」（Windows Vistaの「プログラム
+のアクセスとコンピュータの既定の設定」）において、「このプログラムへのアクセスを有効に
+する」のチェック状態を変更する（チェックボックスをOFFにし、プログラムへのアクセスを
+禁止する）ことができる。
+
+この挙動は、fainstall.iniの[fainstall]セクション内の「DisabledClients」の値を変更する
+ことで制御できる。チェックボックスをOFFにするブラウザに対応する以下のキー名を
+「DisabledClients」の値として記入すると、機能が有効となる。
+複数のブラウザについてチェックボックスをOFFにする場合は、キー名を「|（半角パイプ）」で
+区切って記述する。
+
+Firefox          ：StartMenuInternet\FIREFOX.EXE
+Internet Explorer：StartMenuInternet\IEXPLORE.EXE
+Opera            ：StartMenuInternet\Opera.exe
+Google Chrome    ：StartMenuInternet\Google Chrome
+
+
+■[profile]セクション
+
+[profile]セクションを定義すると、インストール時に専用のユーザプロファイルを準備する
+ことができる。また、profile.zipというファイルをresourcesフォルダ内に配置することで、
+その内容をプロファイルの初期状態の内容として利用できる。
+
+[profile]セクションに設定できる情報：
+Name：
+	プロファイル名。
+RootPath：
+	プロファイルやプロファイル一覧のINIファイルが置かれるフォルダのパス。
+	プレースホルダを使用可能。
+RequireDirectories：
+	プロファイルを作成する際に存在していなければならないフォルダ群パス。プレース
+	ホルダを使用可能。
+	パイプ（|）区切りで複数のパスを記述することで、複数のフォルダを作成させる
+	ことができる。
+
 
 
 ■■Mozillaアプリケーションのサイレントインストールの挙動の変更
