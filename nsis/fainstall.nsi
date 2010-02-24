@@ -788,6 +788,95 @@ Function "DisableClient"
     ;Push $R0
 FunctionEnd
 
+Section "Create Profile" CreateProfile
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+      LogText "*** CreateProfile: start"
+    !endif
+
+    ReadINIStr $ITEM_LOCATION "${INIPATH}" "profile" "RootPath"
+    ${If} "$ITEM_LOCATION" == ""
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** CreateProfile: no profile definition"
+      !endif
+      GoTo SKIP
+    ${EndIf}
+
+    Call ResolveItemLocation
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** CreateProfile: let's setup profile"
+    !endif
+
+    ReadINIStr $ITEMS_LIST "${INIPATH}" "profile" "RequireDirectories"
+    ${Unless} "$ITEMS_LIST" == ""
+      StrCpy $INI_TEMP "$ITEM_LOCATION"
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
+        ${EndIf}
+        StrCpy $ITEM_LOCATION "$ITEM_NAME"
+        Call ResolveItemLocation
+        ${If} ${FileExists} "$ITEM_LOCATION"
+        ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
+          ${Continue}
+        ${EndIf}
+        CreateDirectory "$ITEM_LOCATION"
+      ${EndWhile}
+      StrCpy $ITEM_LOCATION "$INI_TEMP"
+    ${EndUnless}
+
+    ReadINIStr $INI_TEMP "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile"
+    ${If} "$INI_TEMP" == ""
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** CreateProfile: there is no profile"
+      !endif
+
+      ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile" "1"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "Name" "$INI_TEMP"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "IsRelative" "1"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "Path" "Profiles/$INI_TEMP"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "Default" "1"
+
+    ${Else}
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** CreateProfile: profile exists"
+      !endif
+
+      ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
+
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        ReadINIStr $INI_TEMP2 "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "Name"
+        ${If} "$INI_TEMP2" == ""
+        ${OrIf} "$INI_TEMP2" == "$INI_TEMP"
+          ${Break}
+        ${EndIf}
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+      ${EndWhile}
+
+      ${Unless} "$INI_TEMP2" == ""
+        ; 新たにプロファイルを追加する場合、次回起動時にはプロファイルマネージャを常に表示する
+        WriteINIStr "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile" "0"
+      ${EndUnless}
+
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "Name" "$INI_TEMP"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "IsRelative" "1"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "Path" "Profiles/$INI_TEMP"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "Default" "1"
+
+    ${EndIf}
+
+    ${If} ${FileExists} "$EXEDIR\resources\profile.zip"
+      ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
+    ${EndIf}
+
+  SKIP:
+SectionEnd
+
 Section "Install Add-ons" InstallAddons
     !ifdef NSIS_CONFIG_LOG
       LogSet on
