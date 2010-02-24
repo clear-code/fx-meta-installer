@@ -854,8 +854,8 @@ Function "InstallAddon"
 
     ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Overwrite"
     ${If} "$INI_TEMP" == "false"
-    ${AndIf} ${FileExists} "$EXEDIR\resources\$ITEM_NAME"
-    ${AndIf} ${FileExists} "$EXEDIR\resources\$ITEM_NAME\*.*"
+    ${AndIf} ${FileExists} "$ITEM_LOCATION"
+    ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
       !ifdef NSIS_CONFIG_LOG
         LogText "*** InstallAddon: $ADDON_NAME installation is canceled (already installed)"
       !endif
@@ -866,6 +866,7 @@ Function "InstallAddon"
 
     ZipDLL::extractall "$EXEDIR\resources\$ITEM_NAME" "$ITEM_LOCATION"
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
+
     ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Uninstall"
     ${If} "$INI_TEMP" != "false"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ITEM_LOCATION"
