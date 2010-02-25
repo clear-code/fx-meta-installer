@@ -46,6 +46,11 @@
   http://nsis.sourceforge.net/AccessControl_plug-in
   Plugins/*.dllをNSISインストール先のPluginsフォルダに移動
 
+* UserMgrプラグインをインストール.
+  http://nsis.sourceforge.net/UserMgr_plug-in
+  *.dllをNSISインストール先のPluginsフォルダに移動
+  *.nshをNSISインストール先のIncludeフォルダに移動
+
 * 7-Zipをインストール．
   http://www.7-zip.org/ja/
 
@@ -58,6 +63,12 @@
 * make.batを実行して、インストーラを生成
 
 * たぶん完成
+
+
+=== Ubuntuの場合
+
+* *.dll を /usr/share/nsis/Plugins にインストールする
+* *.nsh を /usr/share/nsis/Include にインストールする
 
 
 === 注意事項

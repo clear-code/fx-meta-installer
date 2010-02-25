@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2008-2009 ClearCode Inc.
+# Copyright (C) 2008-2010 ClearCode Inc.
 
 installer_name=${0##*/}
 installer_name=${installer_name%.sh}
