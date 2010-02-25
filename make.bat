@@ -1,6 +1,14 @@
-rem Copyright (C) 2008 ClearCode Inc.
+rem Copyright (C) 2008-2010 ClearCode Inc.
 
 @IF NOT EXIST config.bat GOTO ENDBATCH
+
+
+@IF EXIST resources GOTO CONFIG
+mkdir "resources"
+xcopy _resources\*.sample resources\ /i /s
+
+
+:CONFIG
 
 call config.bat
 

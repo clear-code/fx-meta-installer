@@ -1,5 +1,12 @@
 #!/bin/sh
-# Copyright (C) 2008-2009 ClearCode Inc.
+# Copyright (C) 2008-2010 ClearCode Inc.
+
+if [ ! -d ./resources ]
+then
+  mkdir resources
+  cp _resources/*.sample resources/
+fi
+
 
 if [ ! -f ./config.bat ]
 then
