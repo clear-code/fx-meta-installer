@@ -254,10 +254,12 @@ Var SEARCH_PLUGINS_PATH
   !define MUI_UNICON                   "${INSTALLER_NAME}.ico"
   !define MUI_WELCOMEFINISHPAGE_BITMAP "..\icon\welcome.bmp"
   !define MUI_WELCOMEFINISHPAGE_BITMAP_NOSTRETCH
-  !define MUI_FINISHPAGE_RUN           "$APP_EXE_PATH"
-  !define MUI_FINISHPAGE_RUN_TEXT      $(MSG_APP_RUN_TEXT)
-  !define MUI_FINISHPAGE_LINK          "${PRODUCT_WEB_LABEL}"
-  !define MUI_FINISHPAGE_LINK_LOCATION "${PRODUCT_WEB_SITE}"
+  !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
+    !define MUI_FINISHPAGE_RUN           "$APP_EXE_PATH"
+    !define MUI_FINISHPAGE_RUN_TEXT      $(MSG_APP_RUN_TEXT)
+    !define MUI_FINISHPAGE_LINK          "${PRODUCT_WEB_LABEL}"
+    !define MUI_FINISHPAGE_LINK_LOCATION "${PRODUCT_WEB_SITE}"
+  !endif
 
   ; MUI Pages
 
@@ -283,6 +285,10 @@ Var SEARCH_PLUGINS_PATH
 
     ; Uninstaller pages
     !insertmacro MUI_UNPAGE_INSTFILES
+  !endif
+
+  !if ${PRODUCT_INSTALL_MODE} == "PASSIVE"
+    AutoCloseWindow true
   !endif
 
   !insertmacro MUI_LANGUAGE "${PRODUCT_LANGUAGE}" #  ${LANG_JAPANESE}
