@@ -878,6 +878,19 @@ Section "Create Profile" CreateProfile
 
     ${If} ${FileExists} "$EXEDIR\resources\profile.zip"
       ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
+
+      StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
+      StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
+      StrCpy $BACKUP_COUNT 0
+      ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
+        IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
+        StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
+      ${EndWhile}
+      Rename "$DIST_PATH" "$BACKUP_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackup" "$BACKUP_PATH"
+
+      ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfile" "$DIST_PATH"
     ${EndIf}
 
   SKIP:
@@ -1390,6 +1403,23 @@ Section Uninstall
       ${EndUnless}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
+
+    StrCpy $ITEM_INDEX 0
+    ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfile"
+    ${If} 1 == 1
+      ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackup"
+      ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
+      Delete "$INSTALLED_FILE"
+      ${If} ${Errors}
+      ${AndIf} ${FileExists} "$INSTALLED_FILE"
+        StrCpy $UNINSTALL_FAILED 1
+        ${Break}
+      ${EndIf}
+      ${If} "$BACKUP_PATH" != ""
+      ${AndIf} ${FileExists} "$BACKUP_PATH"
+        Rename "$BACKUP_PATH" "$INSTALLED_FILE"
+      ${EndIf}
+    ${EndIf}
 
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
