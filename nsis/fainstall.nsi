@@ -1406,20 +1406,21 @@ Section Uninstall
 
     StrCpy $ITEM_INDEX 0
     ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfile"
-    ${If} 1 == 1
+    ${Unless} "$INSTALLED_FILE" == ""
       ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackup"
-      ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
-      Delete "$INSTALLED_FILE"
-      ${If} ${Errors}
-      ${AndIf} ${FileExists} "$INSTALLED_FILE"
-        StrCpy $UNINSTALL_FAILED 1
-        ${Break}
-      ${EndIf}
-      ${If} "$BACKUP_PATH" != ""
-      ${AndIf} ${FileExists} "$BACKUP_PATH"
-        Rename "$BACKUP_PATH" "$INSTALLED_FILE"
-      ${EndIf}
-    ${EndIf}
+      ${Unless} "$INSTALLED_FILE" == ""
+        Delete "$INSTALLED_FILE"
+        ${If} ${Errors}
+        ${AndIf} ${FileExists} "$INSTALLED_FILE"
+          StrCpy $UNINSTALL_FAILED 1
+        ${Else}
+          ${If} "$BACKUP_PATH" != ""
+          ${AndIf} ${FileExists} "$BACKUP_PATH"
+            Rename "$BACKUP_PATH" "$INSTALLED_FILE"
+          ${EndIf}
+        ${EndIf}
+      ${EndUnless}
+    ${EndUnless}
 
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
