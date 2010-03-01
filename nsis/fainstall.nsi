@@ -879,7 +879,7 @@ Section "Create Profile" CreateProfile
     ${If} ${FileExists} "$EXEDIR\resources\profile.zip"
       ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
 
-      StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
+      StrCpy $DIST_PATH "$APP_DIR\defaults\profile"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
       StrCpy $BACKUP_COUNT 0
       ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
@@ -889,7 +889,7 @@ Section "Create Profile" CreateProfile
       Rename "$DIST_PATH" "$BACKUP_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackup" "$BACKUP_PATH"
 
-      ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
+      ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$DIST_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfile" "$DIST_PATH"
     ${EndIf}
 
