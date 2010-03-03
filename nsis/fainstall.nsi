@@ -1407,19 +1407,17 @@ Section Uninstall
     StrCpy $ITEM_INDEX 0
     ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfile"
     ${Unless} "$INSTALLED_FILE" == ""
-      ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackup"
-      ${Unless} "$INSTALLED_FILE" == ""
-        Delete "$INSTALLED_FILE"
-        ${If} ${Errors}
-        ${AndIf} ${FileExists} "$INSTALLED_FILE"
-          StrCpy $UNINSTALL_FAILED 1
-        ${Else}
-          ${If} "$BACKUP_PATH" != ""
-          ${AndIf} ${FileExists} "$BACKUP_PATH"
-            Rename "$BACKUP_PATH" "$INSTALLED_FILE"
-          ${EndIf}
+      RMDir /r "$INSTALLED_FILE"
+      ${If} ${Errors}
+      ${AndIf} ${FileExists} "$INSTALLED_FILE"
+        StrCpy $UNINSTALL_FAILED 1
+      ${Else}
+        ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackup"
+        ${If} "$BACKUP_PATH" != ""
+        ${AndIf} ${FileExists} "$BACKUP_PATH"
+          Rename "$BACKUP_PATH" "$INSTALLED_FILE"
         ${EndIf}
-      ${EndUnless}
+      ${EndIf}
     ${EndUnless}
 
     StrCpy $ITEM_INDEX 0
