@@ -215,6 +215,9 @@ Var INSTALLED_FILE
 
 Var ITEMS_LIST
 Var ITEMS_LIST_INDEX
+Var REQUIRED_DIRECTORIES
+Var REQUIRED_DIRECTORY_INDEX
+Var REQUIRED_DIRECTORY
 Var ITEM_NAME
 Var ITEM_INDEX
 Var ITEM_LOCATION
@@ -813,17 +816,17 @@ Section "Create Profile" CreateProfile
       LogText "*** CreateProfile: let's setup profile"
     !endif
 
-    ReadINIStr $ITEMS_LIST "${INIPATH}" "profile" "RequireDirectories"
-    ${Unless} "$ITEMS_LIST" == ""
+    ReadINIStr $REQUIRED_DIRECTORIES "${INIPATH}" "profile" "RequireDirectories"
+    ${Unless} "$REQUIRED_DIRECTORIES" == ""
       StrCpy $INI_TEMP "$ITEM_LOCATION"
-      StrCpy $ITEMS_LIST_INDEX 0
+      StrCpy $REQUIRED_DIRECTORY_INDEX 0
       ${While} 1 == 1
-        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
-        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
-        ${If} $ITEMS_LIST_INDEX > 1
-          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
+        IntOp $REQUIRED_DIRECTORY_INDEX $REQUIRED_DIRECTORY_INDEX + 1
+        ${WordFind} $REQUIRED_DIRECTORIES "${SEPARATOR}" "+$REQUIRED_DIRECTORY_INDEX" $REQUIRED_DIRECTORY
+        ${If} $REQUIRED_DIRECTORY_INDEX > 1
+          ${IfThen} "$REQUIRED_DIRECTORY" == "$REQUIRED_DIRECTORIES" ${|} ${Break} ${|}
         ${EndIf}
-        StrCpy $ITEM_LOCATION "$ITEM_NAME"
+        StrCpy $ITEM_LOCATION "$REQUIRED_DIRECTORY"
         Call ResolveItemLocation
         ${If} ${FileExists} "$ITEM_LOCATION"
         ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
@@ -1005,6 +1008,7 @@ SectionEnd
 
 Var SHORTCUT_OPTIONS
 Var SHORTCUT_ICON_INDEX
+Var SHORTCUT_DIRECTORY_CREATED
 Function "InstallShortcut"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1019,6 +1023,35 @@ Function "InstallShortcut"
     ${Else}
       SetShellVarContext current
     ${EndIf}
+
+
+    StrCpy $SHORTCUT_DIRECTORY_CREATED 0
+    ReadINIStr $REQUIRED_DIRECTORIES "${INIPATH}" "$ITEM_NAME" "RequireDirectories"
+    ${Unless} "$REQUIRED_DIRECTORIES" == ""
+      StrCpy $INI_TEMP "$ITEM_LOCATION"
+      StrCpy $REQUIRED_DIRECTORY_INDEX 0
+      ${While} 1 == 1
+        IntOp $REQUIRED_DIRECTORY_INDEX $REQUIRED_DIRECTORY_INDEX + 1
+        ${WordFind} $REQUIRED_DIRECTORIES "${SEPARATOR}" "+$REQUIRED_DIRECTORY_INDEX" $REQUIRED_DIRECTORY
+        ${If} $REQUIRED_DIRECTORY_INDEX > 1
+          ${IfThen} "$REQUIRED_DIRECTORY" == "$REQUIRED_DIRECTORIES" ${|} ${Break} ${|}
+        ${EndIf}
+        StrCpy $ITEM_LOCATION "$REQUIRED_DIRECTORY"
+        Call ResolveItemLocation
+        ${If} ${FileExists} "$ITEM_LOCATION"
+        ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
+          ${Continue}
+        ${EndIf}
+        CreateDirectory "$ITEM_LOCATION"
+        ${Unless} "$SHORTCUT_DIRECTORY_CREATED" == "1"
+          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
+          IntOp $ITEM_INDEX $ITEM_INDEX + 1
+          StrCpy $SHORTCUT_DIRECTORY_CREATED 1
+        ${EndUnless}
+      ${EndWhile}
+      StrCpy $ITEM_LOCATION "$INI_TEMP"
+    ${EndUnless}
+
 
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "Options"
     Call ResolveItemLocationBasic
@@ -1056,8 +1089,10 @@ Function "InstallShortcut"
     ${EndIf}
 
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
-    IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ${Unless} "$SHORTCUT_DIRECTORY_CREATED" == "1"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ${EndUnless}
 
     SetShellVarContext current
 
@@ -1442,7 +1477,12 @@ Section Uninstall
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
-      Delete "$INSTALLED_FILE"
+      ${If} ${FileExists} "$INSTALLED_FILE"
+      ${AndIf} ${FileExists} "$INSTALLED_FILE\*.*"
+        RMDir /r "$INSTALLED_FILE"
+      ${Else}
+        Delete "$INSTALLED_FILE"
+      ${EndIf}
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
         StrCpy $UNINSTALL_FAILED 1
