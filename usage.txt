@@ -330,6 +330,9 @@ TargetLocation：（省略可能）
 	              （C:\Users\<username>\AppData\Roaming など）
 	  %Home%    : ユーザのホーム（C:\Users\<username> など）
 	  %Desktop% : デスクトップ（C:\Users\<username>\Desktop など）
+	  %StartMenu% : スタートメニュー直下
+	  %Programs%  : スタートメニュー内の「すべてのプログラム」
+	  %StartUp%   : スタートメニュー内の「スタートアップ」
 	省略時は「%AppDir%\extensions」として扱われる。
 Uninstall：（省略可能）
 	メタインストーラのアンインストール時にアドオンをアンインストールするかどうか。
@@ -386,11 +389,17 @@ Path：
 	              （C:\Users\<username>\AppData\Roaming など）
 	  %Home%    : ユーザのホーム（C:\Users\<username> など）
 	  %Desktop% : デスクトップ（C:\Users\<username>\Desktop など）
+	  %StartMenu% : スタートメニュー直下
+	  %Programs%  : スタートメニュー内の「すべてのプログラム」
+	  %StartUp%   : スタートメニュー内の「スタートアップ」
 Options：（省略可能）
 	追加の起動オプション。以下のプレースホルダを使用可能。
 	  %AppDir%  : Firefoxのインストール先フォルダ
 	  %Home%    : ユーザのホーム（C:\Users\<username> など）
 	  %Desktop% : デスクトップ（C:\Users\<username>\Desktop など）
+	  %StartMenu% : スタートメニュー直下
+	  %Programs%  : スタートメニュー内の「すべてのプログラム」
+	  %StartUp%   : スタートメニュー内の「スタートアップ」
 IconIndex：（省略可能）
 	Pathで示されたファイルにアイコンが複数含まれている場合に、ショートカットの
 	アイコンとして使うアイコンの番号を示す。
@@ -401,6 +410,9 @@ TargetLocation：（省略可能）
 	              （C:\Users\<username>\AppData\Roaming など）
 	  %Home%    : ユーザのホーム（C:\Users\<username> など）
 	  %Desktop% : デスクトップ（C:\Users\<username>\Desktop など）
+	  %StartMenu% : スタートメニュー直下
+	  %Programs%  : スタートメニュー内の「すべてのプログラム」
+	  %StartUp%   : スタートメニュー内の「スタートアップ」
 	省略時は「%Desktop%」として扱われる。
 
 例えば、デスクトップ上にFirefoxのプロファイルマネージャを起動するショート

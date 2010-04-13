@@ -2004,6 +2004,17 @@ Function "ResolveItemLocationBasic"
     ${WordReplace} "$ITEM_LOCATION" "%Commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
     ${WordReplace} "$ITEM_LOCATION" "%COMMONFILES64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Startmenu%" "$STARTMENU" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%StartMenu%" "$STARTMENU" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%startmenu%" "$STARTMENU" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%STARTMENU%" "$STARTMENU" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Programs%" "$SMPROGRAMS" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%programs%" "$SMPROGRAMS" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%PROGRAMS%" "$SMPROGRAMS" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%Startup%" "$SMSTARTUP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%StartUp%" "$SMSTARTUP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%startup%" "$SMSTARTUP" "+*" $ITEM_LOCATION
+    ${WordReplace} "$ITEM_LOCATION" "%STARTUP%" "$SMSTARTUP" "+*" $ITEM_LOCATION
 FunctionEnd
 
 Function "un.ResolveItemLocation"
@@ -2101,4 +2112,15 @@ Function "un.ResolveItemLocationBasic"
     ${un.WordReplace} "$ITEM_LOCATION" "%Commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%commonfiles64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
     ${un.WordReplace} "$ITEM_LOCATION" "%COMMONFILES64%" "$COMMONFILES64" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Startmenu%" "$STARTMENU" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%StartMenu%" "$STARTMENU" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%startmenu%" "$STARTMENU" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%STARTMENU%" "$STARTMENU" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Programs%" "$SMPROGRAMS" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%programs%" "$SMPROGRAMS" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%PROGRAMS%" "$SMPROGRAMS" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%Startup%" "$SMSTARTUP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%StartUp%" "$SMSTARTUP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%startup%" "$SMSTARTUP" "+*" $ITEM_LOCATION
+    ${un.WordReplace} "$ITEM_LOCATION" "%STARTUP%" "$SMSTARTUP" "+*" $ITEM_LOCATION
 FunctionEnd
