@@ -1054,10 +1054,10 @@ Function "InstallShortcut"
     ${EndIf}
 
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
-    ${Unless} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
+    ${If} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
-    ${EndUnless}
+    ${EndIf}
 
     SetShellVarContext current
 
@@ -1443,15 +1443,16 @@ Section Uninstall
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       ${If} ${FileExists} "$INSTALLED_FILE"
-      ${AndIf} ${FileExists} "$INSTALLED_FILE\*.*"
-        RMDir /r "$INSTALLED_FILE"
-      ${Else}
-        Delete "$INSTALLED_FILE"
-      ${EndIf}
-      ${If} ${Errors}
-      ${AndIf} ${FileExists} "$INSTALLED_FILE"
-        StrCpy $UNINSTALL_FAILED 1
-        ${Break}
+        ${If} ${FileExists} "$INSTALLED_FILE\*.*"
+          RMDir /r "$INSTALLED_FILE"
+        ${Else}
+          Delete "$INSTALLED_FILE"
+        ${EndIf}
+        ${If} ${Errors}
+        ${AndIf} ${FileExists} "$INSTALLED_FILE"
+          StrCpy $UNINSTALL_FAILED 1
+          ${Break}
+        ${EndIf}
       ${EndIf}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
