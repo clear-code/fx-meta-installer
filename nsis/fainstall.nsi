@@ -215,13 +215,15 @@ Var INSTALLED_FILE
 
 Var ITEMS_LIST
 Var ITEMS_LIST_INDEX
-Var REQUIRED_DIRECTORIES
-Var REQUIRED_DIRECTORY_INDEX
-Var REQUIRED_DIRECTORY
 Var ITEM_NAME
 Var ITEM_INDEX
 Var ITEM_LOCATION
 Var ITEM_LOCATION_BASE
+
+Var REQUIRED_DIRECTORY
+Var CREATED_TOP_REQUIRED_DIRECTORY
+Var REQUIRED_DIRECTORIES
+Var REQUIRED_DIRECTORY_INDEX
 
 Var COMMAND_STRING
 
@@ -816,26 +818,12 @@ Section "Create Profile" CreateProfile
       LogText "*** CreateProfile: let's setup profile"
     !endif
 
-    ReadINIStr $REQUIRED_DIRECTORIES "${INIPATH}" "profile" "RequireDirectories"
-    ${Unless} "$REQUIRED_DIRECTORIES" == ""
-      StrCpy $INI_TEMP "$ITEM_LOCATION"
-      StrCpy $REQUIRED_DIRECTORY_INDEX 0
-      ${While} 1 == 1
-        IntOp $REQUIRED_DIRECTORY_INDEX $REQUIRED_DIRECTORY_INDEX + 1
-        ${WordFind} $REQUIRED_DIRECTORIES "${SEPARATOR}" "+$REQUIRED_DIRECTORY_INDEX" $REQUIRED_DIRECTORY
-        ${If} $REQUIRED_DIRECTORY_INDEX > 1
-          ${IfThen} "$REQUIRED_DIRECTORY" == "$REQUIRED_DIRECTORIES" ${|} ${Break} ${|}
-        ${EndIf}
-        StrCpy $ITEM_LOCATION "$REQUIRED_DIRECTORY"
-        Call ResolveItemLocation
-        ${If} ${FileExists} "$ITEM_LOCATION"
-        ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
-          ${Continue}
-        ${EndIf}
-        CreateDirectory "$ITEM_LOCATION"
-      ${EndWhile}
-      StrCpy $ITEM_LOCATION "$INI_TEMP"
-    ${EndUnless}
+    StrCpy $1 "$ITEM_LOCATION"
+    ReadINIStr $REQUIRED_DIRECTORY "${INIPATH}" "profile" "RootPath"
+    ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
+    StrCpy $REQUIRED_DIRECTORY "$REQUIRED_DIRECTORY\Profiles\$INI_TEMP"
+    Call SetUpRequiredDirectories
+    StrCpy $ITEM_LOCATION "$1"
 
     ReadINIStr $INI_TEMP "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile"
     ${If} "$INI_TEMP" == ""
@@ -1008,7 +996,6 @@ SectionEnd
 
 Var SHORTCUT_OPTIONS
 Var SHORTCUT_ICON_INDEX
-Var SHORTCUT_DIRECTORY_CREATED
 Function "InstallShortcut"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1024,32 +1011,12 @@ Function "InstallShortcut"
       SetShellVarContext current
     ${EndIf}
 
-
-    StrCpy $SHORTCUT_DIRECTORY_CREATED 0
-    ReadINIStr $REQUIRED_DIRECTORIES "${INIPATH}" "$ITEM_NAME" "RequireDirectories"
-    ${Unless} "$REQUIRED_DIRECTORIES" == ""
-      StrCpy $REQUIRED_DIRECTORY_INDEX 0
-      ${While} 1 == 1
-        IntOp $REQUIRED_DIRECTORY_INDEX $REQUIRED_DIRECTORY_INDEX + 1
-        ${WordFind} $REQUIRED_DIRECTORIES "${SEPARATOR}" "+$REQUIRED_DIRECTORY_INDEX" $REQUIRED_DIRECTORY
-        ${If} $REQUIRED_DIRECTORY_INDEX > 1
-          ${IfThen} "$REQUIRED_DIRECTORY" == "$REQUIRED_DIRECTORIES" ${|} ${Break} ${|}
-        ${EndIf}
-        StrCpy $ITEM_LOCATION "$REQUIRED_DIRECTORY"
-        Call ResolveItemLocation
-        ${If} ${FileExists} "$ITEM_LOCATION"
-        ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
-          ${Continue}
-        ${EndIf}
-        CreateDirectory "$ITEM_LOCATION"
-        ${Unless} "$SHORTCUT_DIRECTORY_CREATED" == "1"
-          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
-          IntOp $ITEM_INDEX $ITEM_INDEX + 1
-          StrCpy $SHORTCUT_DIRECTORY_CREATED 1
-        ${EndUnless}
-      ${EndWhile}
+    ReadINIStr $REQUIRED_DIRECTORY "${INIPATH}" "$ITEM_NAME" "TargetLocation"
+    Call SetUpRequiredDirectories
+    ${Unless} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$CREATED_TOP_REQUIRED_DIRECTORY"
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndUnless}
-
 
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "Options"
     Call ResolveItemLocationBasic
@@ -1087,7 +1054,7 @@ Function "InstallShortcut"
     ${EndIf}
 
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
-    ${Unless} "$SHORTCUT_DIRECTORY_CREATED" == "1"
+    ${Unless} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndUnless}
@@ -1945,6 +1912,52 @@ Function CheckAppVersionWithMessage
     ${EndSwitch}
 
   RETURN:
+FunctionEnd
+
+Function "SetUpRequiredDirectories"
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** SetUpRequiredDirectories: setup $REQUIRED_DIRECTORY"
+    !endif
+
+    StrCpy $CREATED_TOP_REQUIRED_DIRECTORY ""
+    StrCpy $REQUIRED_DIRECTORIES "$REQUIRED_DIRECTORY"
+
+    StrCpy $R0 "$REQUIRED_DIRECTORIES"
+    ${While} 1 == 1
+      ${GetParent} "$R0" $R1
+      ${IfThen} "$R1" == "" ${|} ${Break} ${|}
+      StrCpy $REQUIRED_DIRECTORIES "$R1${SEPARATOR}$REQUIRED_DIRECTORIES"
+      StrCpy $R0 "$R1"
+    ${EndWhile}
+
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** SetUpRequiredDirectories: folders = $REQUIRED_DIRECTORIES"
+    !endif
+
+    StrCpy $REQUIRED_DIRECTORY_INDEX 0
+    ${While} 1 == 1
+      IntOp $REQUIRED_DIRECTORY_INDEX $REQUIRED_DIRECTORY_INDEX + 1
+      ${WordFind} $REQUIRED_DIRECTORIES "${SEPARATOR}" "+$REQUIRED_DIRECTORY_INDEX" $REQUIRED_DIRECTORY
+      ${If} $REQUIRED_DIRECTORY_INDEX > 1
+        ${IfThen} "$REQUIRED_DIRECTORY" == "$REQUIRED_DIRECTORIES" ${|} ${Break} ${|}
+      ${EndIf}
+      StrCpy $ITEM_LOCATION "$REQUIRED_DIRECTORY"
+      Call ResolveItemLocation
+      ${If} ${FileExists} "$ITEM_LOCATION"
+      ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
+        ${Continue}
+      ${EndIf}
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** SetUpRequiredDirectories: create $ITEM_LOCATION"
+      !endif
+      CreateDirectory "$ITEM_LOCATION"
+      ${If} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
+        StrCpy $CREATED_TOP_REQUIRED_DIRECTORY "$ITEM_LOCATION"
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** SetUpRequiredDirectories: top level = $ITEM_LOCATION"
+        !endif
+      ${EndIf}
+    ${EndWhile}
 FunctionEnd
 
 Function "ResolveItemLocation"
