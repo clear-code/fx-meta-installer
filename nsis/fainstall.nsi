@@ -1028,7 +1028,6 @@ Function "InstallShortcut"
     StrCpy $SHORTCUT_DIRECTORY_CREATED 0
     ReadINIStr $REQUIRED_DIRECTORIES "${INIPATH}" "$ITEM_NAME" "RequireDirectories"
     ${Unless} "$REQUIRED_DIRECTORIES" == ""
-      StrCpy $INI_TEMP "$ITEM_LOCATION"
       StrCpy $REQUIRED_DIRECTORY_INDEX 0
       ${While} 1 == 1
         IntOp $REQUIRED_DIRECTORY_INDEX $REQUIRED_DIRECTORY_INDEX + 1
@@ -1049,7 +1048,6 @@ Function "InstallShortcut"
           StrCpy $SHORTCUT_DIRECTORY_CREATED 1
         ${EndUnless}
       ${EndWhile}
-      StrCpy $ITEM_LOCATION "$INI_TEMP"
     ${EndUnless}
 
 
