@@ -799,29 +799,81 @@ Function "DisableClient"
     ;Push $R0
 FunctionEnd
 
-Section "Create Profile" CreateProfile
+Section "Install Profiles" InstallProfiles
     !ifdef NSIS_CONFIG_LOG
       LogSet on
-      LogText "*** CreateProfile: start"
+      LogText "*** InstallProfiles: start"
     !endif
 
-    ReadINIStr $ITEM_LOCATION "${INIPATH}" "profile" "RootPath"
-    ${If} "$ITEM_LOCATION" == ""
+    StrCpy $ITEM_INDEX 0
+
+    ReadINIStr $ITEMS_LIST "${INIPATH}" "profile" "RootPathes"
+    ${If} "$ITEMS_LIST" == ""
+      ReadINIStr $ITEMS_LIST "${INIPATH}" "profile" "RootPath"
+    ${EndIf}
+    ${Unless} "$ITEMS_LIST" == ""
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_LOCATION
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} "$ITEM_LOCATION" == "$ITEMS_LIST" ${|} ${Break} ${|}
+        ${EndIf}
+        Call ResolveItemLocation
+        Call InstallProfile
+      ${EndWhile}
+    ${EndUnless}
+
+    ReadINIStr $ITEMS_LIST "${INIPATH}" "profile" "DefaultRootPathes"
+    ${If} "$ITEMS_LIST" == ""
+      ReadINIStr $ITEMS_LIST "${INIPATH}" "profile" "DefaultRootPath"
+    ${EndIf}
+    ${Unless} "$ITEMS_LIST" == ""
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_LOCATION
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} "$ITEM_LOCATION" == "$ITEMS_LIST" ${|} ${Break} ${|}
+        ${EndIf}
+        Call ResolveItemLocation
+        Call InstallProfile
+        ${Unless} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
+          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX" "$CREATED_TOP_REQUIRED_DIRECTORY"
+          IntOp $ITEM_INDEX $ITEM_INDEX + 1
+        ${EndUnless}
+      ${EndWhile}
+    ${EndUnless}
+
+    ${If} ${FileExists} "$EXEDIR\resources\profile.zip"
       !ifdef NSIS_CONFIG_LOG
-        LogText "*** CreateProfile: no profile definition"
+        LogText "*** Install Default Profile"
       !endif
-      GoTo SKIP
+      StrCpy $DIST_PATH "$APP_DIR\defaults\profile"
+      StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
+      StrCpy $BACKUP_COUNT 0
+      ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
+        IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
+        StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
+      ${EndWhile}
+      Rename "$DIST_PATH" "$BACKUP_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackups$ITEM_INDEX" "$BACKUP_PATH"
+
+      ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$DIST_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX" "$DIST_PATH"
     ${EndIf}
 
-    Call ResolveItemLocation
+SectionEnd
+
+Var PROFILE_INDEX
+Function "InstallProfile"
     !ifdef NSIS_CONFIG_LOG
-      LogText "*** CreateProfile: let's setup profile"
+      LogSet on
+      LogText "*** InstallProfile: start for $ITEM_LOCATION"
     !endif
 
     StrCpy $1 "$ITEM_LOCATION"
-    ReadINIStr $REQUIRED_DIRECTORY "${INIPATH}" "profile" "RootPath"
-    ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
-    StrCpy $REQUIRED_DIRECTORY "$REQUIRED_DIRECTORY\Profiles\$INI_TEMP"
+    StrCpy $REQUIRED_DIRECTORY "$1\Profiles\$INI_TEMP"
     Call SetUpRequiredDirectories
     StrCpy $ITEM_LOCATION "$1"
 
@@ -845,14 +897,14 @@ Section "Create Profile" CreateProfile
 
       ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
 
-      StrCpy $ITEMS_LIST_INDEX 0
+      StrCpy $PROFILE_INDEX 0
       ${While} 1 == 1
-        ReadINIStr $INI_TEMP2 "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "Name"
+        ReadINIStr $INI_TEMP2 "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "Name"
         ${If} "$INI_TEMP2" == ""
         ${OrIf} "$INI_TEMP2" == "$INI_TEMP"
           ${Break}
         ${EndIf}
-        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        IntOp $PROFILE_INDEX $PROFILE_INDEX + 1
       ${EndWhile}
 
       ${If} "$INI_TEMP2" == ""
@@ -860,32 +912,19 @@ Section "Create Profile" CreateProfile
         WriteINIStr "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile" "0"
       ${EndIf}
 
-      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "Name" "$INI_TEMP"
-      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "IsRelative" "1"
-      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "Path" "Profiles/$INI_TEMP"
-      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$ITEMS_LIST_INDEX" "Default" "1"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "Name" "$INI_TEMP"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "IsRelative" "1"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "Path" "Profiles/$INI_TEMP"
+      WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "Default" "1"
 
     ${EndIf}
 
     ${If} ${FileExists} "$EXEDIR\resources\profile.zip"
-      ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
-
-      StrCpy $DIST_PATH "$APP_DIR\defaults\profile"
-      StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
-      StrCpy $BACKUP_COUNT 0
-      ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
-        IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
-        StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
-      ${EndWhile}
-      Rename "$DIST_PATH" "$BACKUP_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackup" "$BACKUP_PATH"
-
-      ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$DIST_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfile" "$DIST_PATH"
+      ${Unless} ${FileExists} "$ITEM_LOCATION\Profiles\$INI_TEMP"
+        ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
+      ${EndUnless}
     ${EndIf}
-
-  SKIP:
-SectionEnd
+FunctionEnd
 
 Section "Install Add-ons" InstallAddons
     !ifdef NSIS_CONFIG_LOG
@@ -1405,20 +1444,22 @@ Section Uninstall
     ${EndWhile}
 
     StrCpy $ITEM_INDEX 0
-    ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfile"
-    ${Unless} "$INSTALLED_FILE" == ""
+    ${While} 1 == 1
+      ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX"
+      ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       RMDir /r "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
         StrCpy $UNINSTALL_FAILED 1
       ${Else}
-        ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackup"
+        ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackups$ITEM_INDEX"
         ${If} "$BACKUP_PATH" != ""
         ${AndIf} ${FileExists} "$BACKUP_PATH"
           Rename "$BACKUP_PATH" "$INSTALLED_FILE"
         ${EndIf}
       ${EndIf}
-    ${EndUnless}
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ${EndWhile}
 
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
