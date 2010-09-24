@@ -127,45 +127,49 @@ APP_MAX_VERSION：
 	バージョンより新しい場合、インストールを中断する。
 	アドオンの最大対応バージョン表記の「2.0.0.*」のようなワイルドカードは
 	利用できない。この場合は代わりとして「2.0.0.99」を用いる。
-APP_DOWNLOAD_PATH（省略可）：
+APP_ALLOW_DOWNGRADE：（省略可能）
+	定数を定義した場合、APP_MAX_VERSIONよりも新しいバージョンがインストール
+	されている場合に、Mozillaアプリケーション自体の上書きインストール（ダウ
+	ングレード）を試みる。
+APP_DOWNLOAD_PATH：（省略可能）
 	Mozillaアプリケーションの新規インストールまたはアップデートに使用する
 	インストーラを、システムのファイルパスで指定する。
 	ファイル共有サーバ上のパスまたはローカルのファイルパスを指定可能。
 	無指定、またはファイルがそのパスに存在しない場合、APP_DOWNLOAD_URLからの
 	ダウンロードを試みる。
-APP_DOWNLOAD_URL（省略可）：
+APP_DOWNLOAD_URL：（省略可能）
 	Mozillaアプリケーションのインストーラのダウンロード元URI。
 	APP_DOWNLOAD_PATHが無指定またはファイルが存在しない場合、このURIからの
 	ダウンロードを試みる。
 	ダウンロードに失敗した場合は、インストールを中断する。
-APP_HASH（省略可）：
+APP_HASH：（省略可能）
 	APP_DOWNLOAD_URLからダウンロードしたファイルが正しいものであるかどうかを
 	検証するためのハッシュ値。MD5ハッシュ文字列を指定。
-APP_EULA_PATH（省略可）：
+APP_EULA_PATH：（省略可能）
 	APP_INSTALL_MODEが"QUIET"の時に表示するMozillaアプリケーションの
 	利用許諾書（テキストファイル）を、システムのファイルパスで指定する。
 	ファイル共有サーバ上のパスまたはローカルのファイルパスを指定可能。
 	無指定、またはファイルがそのパスに存在しない場合、APP_EULA_URLからの
 	ダウンロードを試みる。
 	サイレントインストールモードでは無視される。
-APP_EULA_URL（省略可）：
+APP_EULA_URL：（省略可能）
 	Mozillaアプリケーションの利用許諾書のダウンロード元URI。
 	APP_EULA_PATHが無指定またはファイルが存在しない場合、このURIからの
 	ダウンロードを試みる。
 	ダウンロードに失敗した場合は、インストールを中断する。
-APP_EXE（省略可）：
+APP_EXE：（省略可能）
 	インストール済みのMozillaアプリケーションの実行ファイル名。
 	省略時はAPP_NAMEから自動的に推測する。
-APP_KEY（省略可）：
+APP_KEY：（省略可能）
 	インストール済みのMozillaアプリケーションに関する情報を収集する
 	レジストリのキー。省略時はAPP_NAMEから自動的に推測する。
 
-FX_ENABLED_SEARCH_PLUGINS（省略可）：
+FX_ENABLED_SEARCH_PLUGINS：（省略可能）
 	Firefoxの検索バーで、初期状態で有効にする検索エンジンのファイル名のリスト。
 	無指定または「*」を指定した場合、すべての検索エンジンを有効にする。
 	検索エンジンのファイル名を列挙した場合、列挙されなかった検索エンジンは
 	無効化される。
-FX_DISABLED_SEARCH_PLUGINS（省略可）：
+FX_DISABLED_SEARCH_PLUGINS：（省略可能）
 	Firefoxの検索バーで、初期状態で無効にする検索エンジンのファイル名のリスト。
 	無指定の場合、すべての検索エンジンを有効にする。
 	「*」を指定した場合、すべての検索エンジンを無効にする。
@@ -200,9 +204,9 @@ SIGN_PASSWORD：
 	コードサイニング証明書を使用するためのパスワード。
 SIGN_TIMESTAMP：
 	コードサイニング証明書で署名を行うときのタイムスタンプサーバのURI。
-SIGN_DESC（省略可）：
+SIGN_DESC：（省略可能）
 	署名された内容の説明文。
-SIGN_DESC_URL（省略可）：
+SIGN_DESC_URL：（省略可能）
 	署名された内容を説明するWebページのURI。
 
 ■COPYING.txt
@@ -260,6 +264,10 @@ AppMaxVersion：（省略可能）
 	バージョンより新しい場合、インストールを中断する。
 	アドオンの最大対応バージョン表記の「2.0.0.*」のようなワイルドカードは
 	利用できない。この場合は代わりとして「2.0.0.99」を用いる。
+AppAllowDowngrade：（省略可能）
+	trueの場合、AppMaxVersionよりも新しいバージョンがインストールされている場合
+	に、Mozillaアプリケーション自体の上書きインストール（ダウングレード）を試み
+	る。
 AppDownloadPath：（省略可能）
 	Mozillaアプリケーションの新規インストールまたはアップデートに使用する
 	インストーラを、システムのファイルパスで指定する。
@@ -483,23 +491,23 @@ Mozillaアプリケーションをサイレントインストールする際の挙動は、resources
 フォルダ内に置いた <Mozillaアプリケーション名>-setup.ini において、
 [Install]セクションで以下の指定を行うことにより変更可能。
 
-InstallDirectoryPath（省略可）：
+InstallDirectoryPath：（省略可能）
 	インストール先フォルダのフルパス。値を指定すると、そのフォルダに
 	Mozillaアプリケーションをインストールする。
 	無指定の場合はC:\Program Files\へのインストールと見なし、
 	InstallDirectoryNameの指定を使用する。
-InstallDirectoryName（省略可）：
+InstallDirectoryName：（省略可能）
 	インストール先フォルダの名称。値を指定すると
 	C:\Program Files\<InstallDirectoryName>\
 	にMozillaアプリケーションをインストールする。
 ShortcutName：
 	生成あるいは削除の対象とするショートカットの名称。
-DesktopShortcut（省略可）：
+DesktopShortcut：（省略可能）
 	デスクトップのショートカット作成の可否。
 	true：デスクトップにショートカットを作成する。
 	false：デスクトップにショートカットを作成しない。
 	省略時はtrueとして扱う。
-StartMenuShortcuts（省略可）：
+StartMenuShortcuts：（省略可能）
 	スタートメニューの項目追加の可否。
 	true：スタートメニューに項目を追加する。
 	false：スタートメニューに項目を追加しない。
@@ -509,12 +517,12 @@ StartMenuDirectoryName：
 	サブメニューの名称。
 	StartMenuShortcutsがfalseである場合は、削除対象とするサブメニューの
 	名称として解釈する。
-QuickLaunchShortcut（省略可）：
+QuickLaunchShortcut：（省略可能）
 	クイックランチへの登録の可否。
 	true：クイックランチにショートカットを作成する。
 	false：クイックランチにショートカットを作成しない。
 	省略時はtrueとして扱う。
-QuickLaunchShortcutAllUsers（省略可）：
+QuickLaunchShortcutAllUsers：（省略可能）
 	クイックランチへのショートカットの変更をすべてのユーザに適用するかどうか。
 	true：全ユーザのクイックランチに適用する。
 	false：現在のユーザのクイックランチにのみ適用する。

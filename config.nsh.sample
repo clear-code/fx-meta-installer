@@ -31,6 +31,8 @@
 ; SKIP   : インストールしない
 !define APP_INSTALL_MODE    "QUIET"
 
+;!define APP_ALLOW_DOWNGRADE
+
 ;!define APP_EXE             "something.exe"
 ;!define APP_KEY             "Vendor\Something"
 

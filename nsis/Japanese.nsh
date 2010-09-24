@@ -8,6 +8,7 @@ LangString MSG_APP_INSTALL_ERROR   ${LANG_JAPANESE} "${APP_NAME}がインストールさ
 LangString MSG_APP_NOT_INSTALLED_ERROR  ${LANG_JAPANESE} "${APP_NAME}がインストールされていません。${PRODUCT_FULL_NAME}の利用には${APP_NAME}のインストールが必要です。"
 LangString MSG_APP_VERSION_TOO_LOW_CONFIRM ${LANG_JAPANESE} "${PRODUCT_FULL_NAME}の利用には${APP_NAME}のバージョン${APP_MIN_VERSION}以上が必要です。$\n${APP_NAME}の新しいバージョンをインストールしますか？"
 LangString MSG_APP_VERSION_TOO_LOW_ERROR ${LANG_JAPANESE} "${APP_NAME}の新しいバージョンがインストールされませんでした。${PRODUCT_FULL_NAME}のインストールを中断します。"
+LangString MSG_APP_VERSION_TOO_HIGH_CONFIRM ${LANG_JAPANESE} "${PRODUCT_FULL_NAME}の利用には${APP_NAME}のバージョン${APP_MAX_VERSION}以下が必要です。$\n${APP_NAME}の古いバージョンをインストールしますか？"
 LangString MSG_APP_VERSION_TOO_HIGH_ERROR   ${LANG_JAPANESE} "${PRODUCT_FULL_NAME}のインストールを中断します。$\n${PRODUCT_FULL_NAME}は${APP_NAME}の新しいバージョン$APP_VERSIONには対応していません。"
 LangString MSG_PRODUCT_INSTALLING  ${LANG_JAPANESE} "${PRODUCT_FULL_NAME}をインストールしています。しばらくお待ちください。"
 LangString MSG_APP_RUN_TEXT        ${LANG_JAPANESE} "${APP_NAME}を起動する"

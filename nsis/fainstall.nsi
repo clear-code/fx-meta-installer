@@ -202,6 +202,7 @@ Var APP_INSTALLED
 Var NORMALIZED_VERSION
 Var APP_MAX_VERSION
 Var APP_MIN_VERSION
+Var APP_ALLOW_DOWNGRADE
 Var APP_EULA_DL_FAILED
 Var APP_WRONG_VERSION
 
@@ -394,7 +395,7 @@ SectionEnd
 
       ${Unless} "$APP_EXISTS" == "1"
         !ifdef NSIS_CONFIG_LOG
-          LogText "*** DownloadApp: Application dest not exist so do installation"
+          LogText "*** DownloadApp: Application not exist so do installation"
         !endif
         StrCpy $APP_INSTALLER_FINAL_PATH "${APP_INSTALLER_PATH}"
 
@@ -499,6 +500,8 @@ SectionEnd
         ${Unless} "$APP_EXISTS" == "1"
           ${If} "$APP_WRONG_VERSION" == "1"
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_ERROR)" /SD IDOK
+          ${ElseIf} "$APP_WRONG_VERSION" == "2"
+            MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_HIGH_ERROR)" /SD IDOK
           ${Else}
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_INSTALL_ERROR)" /SD IDOK
           ${EndIf}
@@ -1887,10 +1890,19 @@ Function CheckAppVersion
       LogText "*** CheckAppVersion: NORMALIZED_APP_VERSION = $NORMALIZED_APP_VERSION"
       LogText "*** CheckAppVersion: APP_MIN_VERSION = $APP_MIN_VERSION"
       LogText "*** CheckAppVersion: APP_MAX_VERSION = $APP_MAX_VERSION"
+      LogText "*** CheckAppVersion: APP_ALLOW_DOWNGRADE = $APP_ALLOW_DOWNGRADE"
     !endif
 
     ${VersionConvert} "$NORMALIZED_APP_VERSION" "abcdefghijklmnopqrstuvwxyz" $APP_VERSION_NUM
     StrCpy $APP_WRONG_VERSION "0"
+
+    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppAllowDowngrade"
+    ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_ALLOW_DOWNGRADE}" ${|}
+    ${If} "$INI_TEMP" == "1"
+    ${OrIf} "$INI_TEMP" == "true"
+    ${OrIf} "$INI_TEMP" == "yes"
+      StrCpy $APP_ALLOW_DOWNGRADE "true"
+    ${EndIf}
 
     ${IfThen} "$APP_EXISTS" != "1" ${|} GoTo RETURN ${|}
 
@@ -1902,7 +1914,6 @@ Function CheckAppVersion
     ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_MAX_VERSION}" ${|}
     ${VersionConvert} "$INI_TEMP" "abcdefghijklmnopqrstuvwxyz" $NORMALIZED_VERSION
     ${VersionCompare} "$APP_VERSION_NUM" "$NORMALIZED_VERSION" $0
-
     ${If} "$0" == "1"
       StrCpy $APP_WRONG_VERSION "2"
       !ifdef NSIS_CONFIG_LOG
@@ -1947,6 +1958,9 @@ Function CheckAppVersionWithMessage
         ${Break}
 
       ${Case} 2
+        ${If} "$APP_ALLOW_DOWNGRADE" == "true"
+          MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_HIGH_CONFIRM)" IDOK RETURN
+        ${EndIf}
         MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_HIGH_ERROR)" /SD IDOK
         Abort
         ${Break}
