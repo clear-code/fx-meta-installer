@@ -273,16 +273,17 @@ Var SEARCH_PLUGINS_PATH
     !insertmacro MUI_PAGE_WELCOME
     ;!define MUI_LICENSEPAGE_RADIOBUTTONS
     !insertmacro MUI_PAGE_LICENSE "..\resources\COPYING.txt"
-  !endif
 
-  !if ${APP_INSTALL_MODE} != "NORMAL"
-    !define MUI_LICENSEPAGE_RADIOBUTTONS
-    !if ${APP_INSTALL_MODE} == "QUIET"
-      !define MUI_PAGE_CUSTOMFUNCTION_PRE "AppEULAPageCheck"
-      !define MUI_PAGE_CUSTOMFUNCTION_SHOW "AppEULAPageSetup"
-      !insertmacro MUI_PAGE_LICENSE "dummy.txt"
+    !if ${APP_INSTALL_MODE} != "NORMAL"
+      !define MUI_LICENSEPAGE_RADIOBUTTONS
+      !if ${APP_INSTALL_MODE} == "QUIET"
+        !define MUI_PAGE_CUSTOMFUNCTION_PRE "AppEULAPageCheck"
+        !define MUI_PAGE_CUSTOMFUNCTION_SHOW "AppEULAPageSetup"
+        !insertmacro MUI_PAGE_LICENSE "dummy.txt"
+      !endif
     !endif
   !endif
+
 
   !insertmacro MUI_PAGE_INSTFILES
 
@@ -303,7 +304,7 @@ Var SEARCH_PLUGINS_PATH
 !endif
 
 ;=== MUI sections
-!if ${PRODUCT_INSTALL_MODE} != "QUIET"
+!if ${PRODUCT_INSTALL_MODE} == "NORMAL"
   !if ${APP_INSTALL_MODE} == "QUIET"
     Function AppEULAPageCheck
         !ifdef NSIS_CONFIG_LOG
@@ -1916,6 +1917,7 @@ Function CheckAppVersion
     ${VersionCompare} "$APP_VERSION_NUM" "$NORMALIZED_VERSION" $0
     ${If} "$0" == "1"
       StrCpy $APP_WRONG_VERSION "2"
+      StrCpy $APP_EXISTS "0"
       !ifdef NSIS_CONFIG_LOG
         LogText "*** CheckAppVersion: Installed version is too new"
       !endif
@@ -1952,16 +1954,26 @@ Function CheckAppVersionWithMessage
     ${Switch} $APP_WRONG_VERSION
 
       ${Case} 1
-        MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_CONFIRM)" IDOK RETURN
-        MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_ERROR)" /SD IDOK
+        !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
+          MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_CONFIRM)" IDOK RETURN
+          MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_ERROR)" /SD IDOK
+        !else
+          GoTo RETURN
+        !endif
         Abort
         ${Break}
 
       ${Case} 2
         ${If} "$APP_ALLOW_DOWNGRADE" == "true"
-          MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_HIGH_CONFIRM)" IDOK RETURN
+          !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
+            MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_HIGH_CONFIRM)" IDOK RETURN
+          !else
+            GoTo RETURN
+          !endif
         ${EndIf}
-        MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_HIGH_ERROR)" /SD IDOK
+        !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
+          MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_HIGH_ERROR)" /SD IDOK
+        !endif
         Abort
         ${Break}
 
