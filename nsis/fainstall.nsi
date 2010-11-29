@@ -239,7 +239,7 @@ Var APP_DOWNLOAD_URL
 Var APP_EULA_PATH
 Var APP_EULA_URL
 Var APP_HASH
-Var APP_INSTALL_TALKBACK
+Var APP_ENABLE_CRASH_REPORT
 
 Var FX_ENABLED_SEARCH_PLUGINS
 Var FX_DISABLED_SEARCH_PLUGINS
@@ -516,13 +516,20 @@ SectionEnd
 
         StrCpy $APP_INSTALLED "1"
 
-        ${If} "$APP_INSTALL_TALKBACK" == "false"
+        ${If} "$APP_ENABLE_CRASH_REPORT" == "false"
           RMDir /r "${APP_EXTENSIONS_DIR}\talkback@mozilla.org"
         ${EndIf}
 
         ; overwrite subtitle
         SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_PRODUCT_INSTALLING)"
       ${EndUnless}
+
+      ${If} "$APP_ENABLE_CRASH_REPORT" == "false"
+        ; disable crash reporter for Firefox 3.6
+        WriteRegDWORD HKCU "Software\Mozilla\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
+        ; disable crash reporter for Firefox 4
+        WriteRegDWORD HKLM "Software\Mozilla\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
+      ${EndIf}
   SectionEnd
 !endif
 
@@ -1763,10 +1770,11 @@ Function LoadINI
     !endif
     ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_HASH "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppInstallTalkback"
+    ${IfThen} "$INI_TEMP" == "" ${|} ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEnableCrashReport" ${|}
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppInstallTalkback = $INI_TEMP"
     !endif
-    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_INSTALL_TALKBACK "$INI_TEMP" ${|}
+    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_ENABLE_CRASH_REPORT "$INI_TEMP" ${|}
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxEnabledSearchPlugins"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: FxEnabledSearchPlugins = $INI_TEMP"
