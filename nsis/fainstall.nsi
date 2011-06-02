@@ -1,4 +1,22 @@
-;Copyright (C) 2008-2010 ClearCode Inc.
+;Copyright (C) 2008-2011 ClearCode Inc.
+
+;===================== SETUP NSIS-DBG FOR DEBUGGING ================
+
+; See http://nsis.sourceforge.net/Nsisdbg_plug-in for details
+
+!ifdef DEBUG
+
+!define MUI_CUSTOMFUNCTION_GUIINIT myGUIInit
+
+Function myGUIInit
+  InitPluginsDir
+  nsisdbg::init /NOUNLOAD
+  nsisdbg::setoption /NOUNLOAD "notifymsgs" "1"
+FunctionEnd
+
+!endif
+;===================================================================
+
 
 ;=== Libraries
 !include "LogicLib.nsh"
@@ -14,6 +32,7 @@
 !insertmacro WordReplace
 !insertmacro VersionCompare
 !insertmacro VersionConvert
+
 
 ;== Basic Information
 !include "..\config.nsh"
