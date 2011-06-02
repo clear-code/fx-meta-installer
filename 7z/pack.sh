@@ -7,7 +7,10 @@ installer_name=${installer_name%.sh}
 rm "packed.7z"
 rm "$installer_name.exe"
 
-7z a -t7z packed.7z @pack.list -mx=9 -xr!*.svn -xr!*.sample
+# 7z a -t7z packed.7z @pack.list -mx=9 -xr!*.svn -xr!*.sample
+## Archives made by 7z on Linux couldn't extracted by the sfx correctly,
+## so we have to use the wine and 7zr.exe instead.
+wine 7zr.exe a -t7z packed.7z @pack.list -mx=9 -xr\!\*.svn -xr\!\*.sample
 
 cat ./fainstall.sfx ./packed.7z > "$installer_name.exe"
 
