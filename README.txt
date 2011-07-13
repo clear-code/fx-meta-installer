@@ -71,6 +71,13 @@
 * *.nsh を /usr/share/nsis/Include にインストールする
 
 
+=== MSI形式への変換
+
+MSIはNSISに比べて限定的な機能しか持たないため、完全な変換は不可能。
+MSIからNSIS製のインストーラをキックする事はできる。
+http://wiki.team-mediaportal.com/1_MEDIAPORTAL_1/18_Contribute/6_Plugins/MPEMaker/How_to_include_an_NSIS_or_an_MSI_installer
+
+
 === 注意事項
 
 * いくつか恥ずかしい罠あり
