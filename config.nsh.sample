@@ -1,11 +1,11 @@
-;Copyright (C) 2008-2009 ClearCode Inc.
+;Copyright (C) 2008-2011 ClearCode Inc.
 
 ;====================== CUSTOMIZABLE SECTION =======================
 
 !define PRODUCT_FULL_NAME    "Fx Add-on Installer"
 !define PRODUCT_NAME         "FxAddonInstaller"
 !define PRODUCT_VERSION      "0.0.0.0"
-!define PRODUCT_YEAR         "2010"
+!define PRODUCT_YEAR         "2011"
 !define PRODUCT_PUBLISHER    "ClearCode Inc."
 !define PRODUCT_DOMAIN       "clear-code.com"
 !define PRODUCT_WEB_SITE     "http://www.clear-code.com/"
@@ -39,5 +39,9 @@
 !define FX_ENABLED_SEARCH_PLUGINS  "*"
 !define FX_DISABLED_SEARCH_PLUGINS ""
 
+; REQUIRED  : 必ずクリーンインストールでないといけない（インストールを強制中断）
+; PREFERRED : クリーンインストールを推奨（任意でインストール可能）
+; それ以外  : 警告なし
+!define CLEAN_INSTALL ""
 
 ;===================================================================

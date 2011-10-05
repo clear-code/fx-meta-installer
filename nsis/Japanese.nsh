@@ -21,6 +21,9 @@ OK をクリックするとインストールされているバージョンを削除します。$\n\
 キャンセル をクリックするとインストールを中止します。"
 LangString MSG_APP_NOT_ADMIN_ERROR ${LANG_JAPANESE} "${PRODUCT_FULL_NAME}のインストールには管理者権限が必要です。"
 
+LangString MSG_CLEAN_INSTALL_REQUIRED ${LANG_JAPANESE} "${APP_NAME}が既に利用されていますが、${PRODUCT_FULL_NAME}の利用にあたってはクリーンな環境が必要です。$\nインストールを中断します。"
+LangString MSG_CLEAN_INSTALL_PREFERRED ${LANG_JAPANESE} "${APP_NAME}が既に利用されていますが、${PRODUCT_FULL_NAME}の利用にあたってはクリーンな環境が推奨されます。$\nインストールを続行しますか？"
+
 ; ダウンロード進捗
 LangString MSG_DL_DOWNLOADING    ${LANG_JAPANESE} "%sをダウンロード中"
 LangString MSG_DL_CONNECTIING    ${LANG_JAPANESE} "接続中"

@@ -41,14 +41,17 @@ FunctionEnd
   !define APP_EXE "firefox.exe"
   !define APP_KEY "Mozilla\Mozilla Firefox"
   !define APP_DIRECTORY_NAME "Mozilla Firefox"
+  !define APP_PROFILE_PATH "$APPDATA\Mozilla\Firefox"
 !else if ${APP_NAME} == "Thunderbird"
   !define APP_EXE "thunderbird.exe"
   !define APP_KEY "Mozilla\Mozilla Thunderbird"
   !define APP_DIRECTORY_NAME "Mozilla Thunderbird"
+  !define APP_PROFILE_PATH "$APPDATA\Thunderbird"
 !else if ${APP_NAME} == "Netscape"
   !define APP_EXE "Netscp.exe"
   !define APP_KEY "Netscape\Netscape"
   !define APP_DIRECTORY_NAME "Netscape"
+  !define APP_PROFILE_PATH "$APPDATA\Mozilla\Netscape"
 !endif
 
 !ifndef APP_EXE
@@ -263,6 +266,7 @@ Var APP_ENABLE_CRASH_REPORT
 Var FX_ENABLED_SEARCH_PLUGINS
 Var FX_DISABLED_SEARCH_PLUGINS
 Var SEARCH_PLUGINS_PATH
+Var CLEAN_INSTALL
 
 !if ${PRODUCT_INSTALL_MODE} != "QUIET"
   ;=== MUI: Modern UI
@@ -302,7 +306,6 @@ Var SEARCH_PLUGINS_PATH
       !endif
     !endif
   !endif
-
 
   !insertmacro MUI_PAGE_INSTFILES
 
@@ -1599,6 +1602,7 @@ Function .onInit
     Call CheckAppProc
     Call CheckInstalled
     Call LoadINI
+    Call CheckCleanInstall
     !if ${PRODUCT_INSTALL_MODE} == "QUIET"
       SetSilent silent
     !endif
@@ -1664,6 +1668,26 @@ Function un.onUninstSuccess
 FunctionEnd
 
 ;=== Utility functions
+Function CheckCleanInstall
+  !ifdef NSIS_CONFIG_LOG
+    LogSet on
+  !endif
+
+  ${If} ${FileExists} "${APP_PROFILE_PATH}"
+    ${If} "$CLEAN_INSTALL" == "REQUIRED"
+      ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage"
+      ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "$(MSG_CLEAN_INSTALL_REQUIRED)" ${|}
+      MessageBox MB_OK|MB_ICONEXCLAMATION "$INI_TEMP" /SD IDOK
+      Abort
+    ${ElseIf} "$CLEAN_INSTALL" == "PREFERRED"
+      ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredMessage"
+      ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "$(MSG_CLEAN_INSTALL_PREFERRED)" ${|}
+      MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$INI_TEMP" IDYES +2
+      Abort
+    ${EndIf}
+  ${EndIf}
+FunctionEnd
+
 Var REQUIRE_ADMIN_PRIVILEGE
 Function CheckAdminPrivilege
     ReadINIStr $REQUIRE_ADMIN_PRIVILEGE "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege"
@@ -1756,6 +1780,11 @@ Function LoadINI
     StrCpy $APP_HASH "${APP_HASH}"
     StrCpy $FX_ENABLED_SEARCH_PLUGINS "${FX_ENABLED_SEARCH_PLUGINS}"
     StrCpy $FX_DISABLED_SEARCH_PLUGINS "${FX_DISABLED_SEARCH_PLUGINS}"
+    !ifdef CLEAN_INSTALL
+      StrCpy $CLEAN_INSTALL "${CLEAN_INSTALL}"
+    !else
+      StrCpy $CLEAN_INSTALL ""
+    !endif
 
     IfFileExists "${INIPATH}" "" NO_INI
 
@@ -1768,42 +1797,71 @@ Function LoadINI
       LogText "*** LoadINI: AppDownloadPath = $INI_TEMP"
     !endif
     ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_DOWNLOAD_PATH "$INI_TEMP" ${|}
+
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaPath"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppEulaPath = $INI_TEMP"
     !endif
     ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_EULA_PATH "$INI_TEMP" ${|}
+
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadUrl"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppDownloadUrl = $INI_TEMP"
     !endif
     ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_DOWNLOAD_URL "$INI_TEMP" ${|}
+
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaUrl"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppEulaUrl = $INI_TEMP"
     !endif
     ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_EULA_URL "$INI_TEMP" ${|}
+
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppHash"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppHash = $INI_TEMP"
     !endif
     ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_HASH "$INI_TEMP" ${|}
+
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppInstallTalkback"
     ${IfThen} "$INI_TEMP" == "" ${|} ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEnableCrashReport" ${|}
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: AppInstallTalkback = $INI_TEMP"
     !endif
     ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_ENABLE_CRASH_REPORT "$INI_TEMP" ${|}
+
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxEnabledSearchPlugins"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: FxEnabledSearchPlugins = $INI_TEMP"
     !endif
     ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $FX_ENABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
+
     ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxDisabledSearchPlugins"
     !ifdef NSIS_CONFIG_LOG
       LogText "*** LoadINI: FxDisabledSearchPlugins = $INI_TEMP"
     !endif
     ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $FX_DISABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
+
+    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferred"
+    ${If} "$INI_TEMP" == "1"
+    ${OrIf} "$INI_TEMP" == "true"
+    ${OrIf} "$INI_TEMP" == "yes"
+      StrCpy $CLEAN_INSTALL "PREFERRED"
+    ${EndIf}
+    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredMessage"
+    ${Unless} "$INI_TEMP" == ""
+      StrCpy $CLEAN_INSTALL "PREFERRED"
+    ${EndUnless}
+
+    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequired"
+    ${If} "$INI_TEMP" == "1"
+    ${OrIf} "$INI_TEMP" == "true"
+    ${OrIf} "$INI_TEMP" == "yes"
+      StrCpy $CLEAN_INSTALL "REQUIRED"
+    ${EndIf}
+    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage"
+    ${Unless} "$INI_TEMP" == ""
+      StrCpy $CLEAN_INSTALL "REQUIRED"
+    ${EndUnless}
 
   NO_INI:
 FunctionEnd

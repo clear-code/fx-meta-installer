@@ -20,6 +20,9 @@ If you want the existing version to be uninstalled, click OK.$\n\
 If not, click Cancel."
 LangString MSG_APP_NOT_ADMIN_ERROR ${LANG_ENGLISH} "You must have administrator privilege to install ${PRODUCT_FULL_NAME}."
 
+LangString MSG_CLEAN_INSTALL_REQUIRED ${LANG_ENGLISH} "You have existing installation of ${APP_NAME}.$\nThis installation is aborted because ${PRODUCT_FULL_NAME} requires a clean environment."
+LangString MSG_CLEAN_INSTALL_PREFERRED ${LANG_ENGLISH} "You have existing installation of ${APP_NAME}. A clean environment is preferred for ${PRODUCT_FULL_NAME}.$\nDo you want to continue this installation?"
+
 ; progress download
 LangString MSG_DL_DOWNLOADING    ${LANG_ENGLISH} "Downloading %s"
 LangString MSG_DL_CONNECTIING    ${LANG_ENGLISH} "Connecting"
