@@ -256,6 +256,18 @@ Var SHORTCUT_PATH
 Var INI_TEMP
 Var INI_TEMP2
 
+!define ReadINIStrWithDefault "!insertmacro ReadINIStrWithDefault"
+!macro ReadINIStrWithDefault OutVariable File Section Name Default
+  StrCpy ${OutVariable} "${Default}"
+  ${If} ${FileExists} ${File}
+    ReadINIStr ${OutVariable} ${File} ${Section} ${Name}
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** LoadINI: ${Name} = ${OutVariable}"
+    !endif
+    ${IfThen} "${OutVariable}" == "" ${|} StrCpy ${OutVariable} "${Default}" ${|}
+  ${EndIf}
+!macroend
+
 Var APP_DOWNLOAD_PATH
 Var APP_DOWNLOAD_URL
 Var APP_EULA_PATH
@@ -1773,97 +1785,33 @@ Function LoadINI
       LogSet on
     !endif
 
-    StrCpy $APP_DOWNLOAD_PATH "${APP_DOWNLOAD_PATH}"
-    StrCpy $APP_EULA_PATH "${APP_EULA_PATH}"
-    StrCpy $APP_DOWNLOAD_URL "${APP_DOWNLOAD_URL}"
-    StrCpy $APP_EULA_URL "${APP_EULA_URL}"
-    StrCpy $APP_HASH "${APP_HASH}"
-    StrCpy $FX_ENABLED_SEARCH_PLUGINS "${FX_ENABLED_SEARCH_PLUGINS}"
-    StrCpy $FX_DISABLED_SEARCH_PLUGINS "${FX_DISABLED_SEARCH_PLUGINS}"
+    ${ReadINIStrWithDefault} $APP_DOWNLOAD_PATH "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadPath" "${APP_DOWNLOAD_PATH}"
+    ${ReadINIStrWithDefault} $APP_EULA_PATH     "${INIPATH}" "${INSTALLER_NAME}" "AppEulaPath"     "${APP_EULA_PATH}"
+    ${ReadINIStrWithDefault} $APP_DOWNLOAD_URL  "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadUrl"  "${APP_DOWNLOAD_URL}"
+    ${ReadINIStrWithDefault} $APP_EULA_URL      "${INIPATH}" "${INSTALLER_NAME}" "AppEulaUrl"      "${APP_EULA_URL}"
+    ${ReadINIStrWithDefault} $APP_HASH          "${INIPATH}" "${INSTALLER_NAME}" "AppHash"         "${APP_HASH}"
+
+    ${ReadINIStrWithDefault} $APP_ENABLE_CRASH_REPORT "${INIPATH}" "${INSTALLER_NAME}" "AppInstallTalkback"   ""
+    ${If} "$APP_ENABLE_CRASH_REPORT" == ""
+      ${ReadINIStrWithDefault} $APP_ENABLE_CRASH_REPORT "${INIPATH}" "${INSTALLER_NAME}" "AppEnableCrashReport" "true"
+    ${EndIf}
+
+    ${ReadINIStrWithDefault} $FX_ENABLED_SEARCH_PLUGINS  "${INIPATH}" "${INSTALLER_NAME}" "FxEnabledSearchPlugins"  "${FX_ENABLED_SEARCH_PLUGINS}"
+    ${ReadINIStrWithDefault} $FX_DISABLED_SEARCH_PLUGINS "${INIPATH}" "${INSTALLER_NAME}" "FxDisabledSearchPlugins" "${FX_DISABLED_SEARCH_PLUGINS}"
+
     !ifdef CLEAN_INSTALL
       StrCpy $CLEAN_INSTALL "${CLEAN_INSTALL}"
-    !else
-      StrCpy $CLEAN_INSTALL ""
     !endif
 
-    IfFileExists "${INIPATH}" "" NO_INI
-
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** LoadINI: INI file exists"
-    !endif
-
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadPath"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** LoadINI: AppDownloadPath = $INI_TEMP"
-    !endif
-    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_DOWNLOAD_PATH "$INI_TEMP" ${|}
-
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaPath"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** LoadINI: AppEulaPath = $INI_TEMP"
-    !endif
-    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_EULA_PATH "$INI_TEMP" ${|}
-
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadUrl"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** LoadINI: AppDownloadUrl = $INI_TEMP"
-    !endif
-    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_DOWNLOAD_URL "$INI_TEMP" ${|}
-
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEulaUrl"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** LoadINI: AppEulaUrl = $INI_TEMP"
-    !endif
-    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_EULA_URL "$INI_TEMP" ${|}
-
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppHash"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** LoadINI: AppHash = $INI_TEMP"
-    !endif
-    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_HASH "$INI_TEMP" ${|}
-
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppInstallTalkback"
-    ${IfThen} "$INI_TEMP" == "" ${|} ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppEnableCrashReport" ${|}
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** LoadINI: AppInstallTalkback = $INI_TEMP"
-    !endif
-    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $APP_ENABLE_CRASH_REPORT "$INI_TEMP" ${|}
-
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxEnabledSearchPlugins"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** LoadINI: FxEnabledSearchPlugins = $INI_TEMP"
-    !endif
-    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $FX_ENABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
-
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FxDisabledSearchPlugins"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** LoadINI: FxDisabledSearchPlugins = $INI_TEMP"
-    !endif
-    ${IfThen} "$INI_TEMP" != "" ${|} StrCpy $FX_DISABLED_SEARCH_PLUGINS "$INI_TEMP" ${|}
-
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferred"
-    ${If} "$INI_TEMP" == "1"
-    ${OrIf} "$INI_TEMP" == "true"
-    ${OrIf} "$INI_TEMP" == "yes"
-      StrCpy $CLEAN_INSTALL "PREFERRED"
-    ${EndIf}
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredMessage"
-    ${Unless} "$INI_TEMP" == ""
+    ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredMessage" ""
+    ${Unless} $INI_TEMP == ""
       StrCpy $CLEAN_INSTALL "PREFERRED"
     ${EndUnless}
 
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequired"
-    ${If} "$INI_TEMP" == "1"
-    ${OrIf} "$INI_TEMP" == "true"
-    ${OrIf} "$INI_TEMP" == "yes"
-      StrCpy $CLEAN_INSTALL "REQUIRED"
-    ${EndIf}
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage"
-    ${Unless} "$INI_TEMP" == ""
-      StrCpy $CLEAN_INSTALL "REQUIRED"
+    ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage" ""
+    ${Unless} $INI_TEMP == ""
+      StrCpy $CLEAN_INSTALL "PREFERRED"
     ${EndUnless}
-
-  NO_INI:
 FunctionEnd
 
 Function CheckAppProc
@@ -1982,11 +1930,9 @@ Function CheckAppVersion
     ${VersionConvert} "$NORMALIZED_APP_VERSION" "abcdefghijklmnopqrstuvwxyz" $APP_VERSION_NUM
     StrCpy $APP_WRONG_VERSION "0"
 
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppAllowDowngrade"
-    ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_ALLOW_DOWNGRADE}" ${|}
-    ${If} "$INI_TEMP" == "1"
-    ${OrIf} "$INI_TEMP" == "true"
-    ${OrIf} "$INI_TEMP" == "yes"
+    ${ReadINIStrWithDefault} $APP_ALLOW_DOWNGRADE "${INIPATH}" "${INSTALLER_NAME}" "AppAllowDowngrade" "${APP_ALLOW_DOWNGRADE}"
+    ${If} "$APP_ALLOW_DOWNGRADE" == "1"
+    ${OrIf} "$APP_ALLOW_DOWNGRADE" == "yes"
       StrCpy $APP_ALLOW_DOWNGRADE "true"
     ${EndIf}
 
@@ -1996,10 +1942,9 @@ Function CheckAppVersion
       LogText "*** CheckAppVersion: Application exists"
     !endif
 
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppMaxVersion"
-    ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_MAX_VERSION}" ${|}
-    ${VersionConvert} "$INI_TEMP" "abcdefghijklmnopqrstuvwxyz" $NORMALIZED_VERSION
-    ${VersionCompare} "$APP_VERSION_NUM" "$NORMALIZED_VERSION" $0
+    ${ReadINIStrWithDefault} $0 "${INIPATH}" "${INSTALLER_NAME}" "AppMaxVersion" "${APP_MAX_VERSION}"
+    ${VersionConvert} "$0" "abcdefghijklmnopqrstuvwxyz" $1
+    ${VersionCompare} "$APP_VERSION_NUM" "$1" $0
     ${If} "$0" == "1"
       StrCpy $APP_WRONG_VERSION "2"
       StrCpy $APP_EXISTS "0"
@@ -2009,10 +1954,9 @@ Function CheckAppVersion
       GoTo RETURN
     ${EndIf}
 
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "AppMinVersion"
-    ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_MIN_VERSION}" ${|}
-    ${VersionConvert} "$INI_TEMP" "abcdefghijklmnopqrstuvwxyz" $NORMALIZED_VERSION
-    ${VersionCompare} "$APP_VERSION_NUM" "$NORMALIZED_VERSION" $0
+    ${ReadINIStrWithDefault} $0 "${INIPATH}" "${INSTALLER_NAME}" "AppMinVersion" "${APP_MIN_VERSION}"
+    ${VersionConvert} "$0" "abcdefghijklmnopqrstuvwxyz" $1
+    ${VersionCompare} "$APP_VERSION_NUM" "$1" $0
     ${If} "$0" == "2"
       StrCpy $APP_WRONG_VERSION "1"
       StrCpy $APP_EXISTS "0"
