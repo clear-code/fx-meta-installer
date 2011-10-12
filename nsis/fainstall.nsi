@@ -1680,6 +1680,19 @@ Function un.onUninstSuccess
 FunctionEnd
 
 ;=== Utility functions
+!macro NativeMessageBox flags title message out
+   System::Call "user32::MessageBox(i $HWNDPARENT, t '${message}', t '${title}', i ${flags}) i.s"
+   Pop ${out}
+!macroend
+; see http://msdn.microsoft.com/en-us/library/windows/desktop/ms645505%28v=vs.85%29.aspx
+!define NATIVE_MB_OK              0x000000
+!define NATIVE_MB_YESNO           0x000004
+!define NATIVE_MB_ICONQUESTION    0x000020
+!define NATIVE_MB_ICONEXCLAMATION 0x000030
+!define NATIVE_MB_DEFBUTTON2      0x000100
+!define NATIVE_MB_BUTTON_YES      6
+!define NATIVE_MB_BUTTON_NO       7
+
 Function CheckCleanInstall
   !ifdef NSIS_CONFIG_LOG
     LogSet on
@@ -1689,13 +1702,26 @@ Function CheckCleanInstall
     ${If} "$CLEAN_INSTALL" == "REQUIRED"
       ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage"
       ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "$(MSG_CLEAN_INSTALL_REQUIRED)" ${|}
-      MessageBox MB_OK|MB_ICONEXCLAMATION "$INI_TEMP" /SD IDOK
+      ReadINIStr $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredTitle"
+      ${If} "$INI_TEMP2" == ""
+        MessageBox MB_OK|MB_ICONEXCLAMATION "$INI_TEMP" /SD IDOK
+      ${Else}
+        !insertmacro NativeMessageBox ${NATIVE_MB_OK}|${NATIVE_MB_ICONEXCLAMATION} "$INI_TEMP2" "$INI_TEMP" $0
+      ${EndIf}
       Abort
     ${ElseIf} "$CLEAN_INSTALL" == "PREFERRED"
       ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredMessage"
+      ReadINIStr $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredTitle"
       ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "$(MSG_CLEAN_INSTALL_PREFERRED)" ${|}
-      MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$INI_TEMP" IDYES +2
-      Abort
+      ${If} "$INI_TEMP2" == ""
+        MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$INI_TEMP" IDYES +2
+        Abort
+      ${Else}
+        !insertmacro NativeMessageBox ${NATIVE_MB_ICONQUESTION}|${NATIVE_MB_YESNO}|${NATIVE_MB_DEFBUTTON2} "$INI_TEMP2" "$INI_TEMP" $0
+        ${Unless} $0 == ${NATIVE_MB_BUTTON_YES}
+          Abort
+        ${EndUnless}
+      ${EndIf}
     ${EndIf}
   ${EndIf}
 FunctionEnd
@@ -1810,7 +1836,7 @@ Function LoadINI
 
     ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage" ""
     ${Unless} $INI_TEMP == ""
-      StrCpy $CLEAN_INSTALL "PREFERRED"
+      StrCpy $CLEAN_INSTALL "REQUIRED"
     ${EndUnless}
 FunctionEnd
 
