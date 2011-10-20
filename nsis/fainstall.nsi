@@ -1207,6 +1207,7 @@ Section "Install Additional Files" InstallAdditionalFiles
     StrCpy $DIST_DIR "$APP_DIR"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cfg" "InstallNormalFile"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.properties" "InstallNormalFile"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer" "InstallNormalFile"
