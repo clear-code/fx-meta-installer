@@ -1408,6 +1408,7 @@ Function "CheckDisableSearchPlugin"
     Rename "$DIST_PATH\$PROCESSING_FILE" "$BACKUP_PATH\$PROCESSING_FILE"
   RETURN:
 
+
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
@@ -1613,13 +1614,16 @@ FunctionEnd
 ;=== Callback functions
 Function .onInit
     Call CheckAppProc
-    Call CheckInstalled
+
     Call LoadINI
     Call CheckCleanInstall
+
+    Call CheckAdminPrivilege
+
+    Call CheckInstalled
     !if ${PRODUCT_INSTALL_MODE} == "QUIET"
       SetSilent silent
     !endif
-    Call CheckAdminPrivilege
 FunctionEnd
 
 Function un.onInit
