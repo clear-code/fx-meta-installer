@@ -32,6 +32,7 @@ FunctionEnd
 !insertmacro WordReplace
 !insertmacro VersionCompare
 !insertmacro VersionConvert
+!include "native_message_box.nsh"
 
 
 ;== Basic Information
@@ -1409,6 +1410,7 @@ Function "CheckDisableSearchPlugin"
   RETURN:
 
 
+
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
@@ -1456,6 +1458,18 @@ Section -Post
     ${If} "$APP_INSTALLED" == "1"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion" "$APP_VERSION"
     ${EndIf}
+SectionEnd
+
+Section "Show Finish Message" ShowFinishMessage
+    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FinishMessage"
+    ReadINIStr $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "FinishTitle"
+    ${Unless} "$INI_TEMP" == ""
+      ${If} "$INI_TEMP2" == ""
+        MessageBox MB_OK "$INI_TEMP" /SD IDOK
+      ${Else}
+        !insertmacro NativeMessageBox ${NATIVE_MB_OK} "$INI_TEMP2" "$INI_TEMP" $0
+      ${EndIf}
+    ${EndUnless}
 SectionEnd
 
 Var UNINSTALL_FAILED
@@ -1685,19 +1699,6 @@ Function un.onUninstSuccess
 FunctionEnd
 
 ;=== Utility functions
-!macro NativeMessageBox flags title message out
-   System::Call "user32::MessageBox(i $HWNDPARENT, t '${message}', t '${title}', i ${flags}) i.s"
-   Pop ${out}
-!macroend
-; see http://msdn.microsoft.com/en-us/library/windows/desktop/ms645505%28v=vs.85%29.aspx
-!define NATIVE_MB_OK              0x000000
-!define NATIVE_MB_YESNO           0x000004
-!define NATIVE_MB_ICONQUESTION    0x000020
-!define NATIVE_MB_ICONEXCLAMATION 0x000030
-!define NATIVE_MB_DEFBUTTON2      0x000100
-!define NATIVE_MB_BUTTON_YES      6
-!define NATIVE_MB_BUTTON_NO       7
-
 Function CheckCleanInstall
   !ifdef NSIS_CONFIG_LOG
     LogSet on
@@ -1706,8 +1707,8 @@ Function CheckCleanInstall
   ${If} ${FileExists} "${APP_PROFILE_PATH}"
     ${If} "$CLEAN_INSTALL" == "REQUIRED"
       ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage"
-      ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "$(MSG_CLEAN_INSTALL_REQUIRED)" ${|}
       ReadINIStr $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredTitle"
+      ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "$(MSG_CLEAN_INSTALL_REQUIRED)" ${|}
       ${If} "$INI_TEMP2" == ""
         MessageBox MB_OK|MB_ICONEXCLAMATION "$INI_TEMP" /SD IDOK
       ${Else}

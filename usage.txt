@@ -177,6 +177,17 @@ FX_DISABLED_SEARCH_PLUGINS：（省略可能）
 	検索エンジンのファイル名を列挙した場合、列挙された検索エンジンを
 	無効にする。
 
+CLEAN_INSTALL:（省略可能）
+	FirefoxまたはThunderbirdのプロファイルが既に存在する場合に、
+	インストールを中断するかどうか。
+	既存の環境を破壊する恐れがある場合に使用する。
+	デフォルト値はなし（未定義）。
+	"PREFERRED" : プロファイルが既に存在する場合はインストールを継続するか
+	              どうかユーザに確認を求める。ユーザが中断を選択した倍は
+	              インストールを中断する。
+	"REQUIRED"  : プロファイルが既に存在する場合はインストールを問答無用で
+	              中断する。
+
 ※FX_ENABLED_SEARCH_PLUGINSおよびFX_DISABLED_SEARCH_PLUGINSは、
 　FX_ENABLED_SEARCH_PLUGINSの指定を適用した後に
 　FX_DISABLED_SEARCH_PLUGINSが適用される。
@@ -312,6 +323,30 @@ FxDisabledSearchPlugins：（省略可能）
 	「*」を指定した場合、すべての検索エンジンを無効にする。
 	検索エンジンのファイル名を列挙した場合、列挙された検索エンジンを
 	無効にする。
+
+CleanInstallPreferredTitle：（省略可能）
+	CLEAN_INSTALL = "PREFERRED" の時に表示するメッセージダイアログのタイトル。
+	省略時は、メタインストーラのアプリケーション名がタイトルになる。
+CleanInstallPreferredMessage：（省略可能）
+	CLEAN_INSTALL = "PREFERRED" の時に表示するメッセージダイアログの内容。
+	省略時は、既定のメッセージ。
+	CLEAN_INSTALLがconfig.nshで定義されていない場合でも、このエントリが
+	fainstall.iniにある場合は CLEAN_INSTALL = "PREFERRED" と同等の扱いとなる。
+CleanInstallRequiredTitle：（省略可能）
+	CLEAN_INSTALL = "REQUIRED" の時に表示するメッセージダイアログのタイトル。
+	省略時は、メタインストーラのアプリケーション名がタイトルになる。
+CleanInstallRequiredMessage：（省略可能）
+	CLEAN_INSTALL = "REQUIRED" の時に表示するメッセージダイアログの内容。
+	省略時は、既定のメッセージ。
+	CLEAN_INSTALLがconfig.nshで定義されていない場合でも、このエントリが
+	fainstall.iniにある場合は CLEAN_INSTALL = "REQUIRED" と同等の扱いとなる。
+
+FinishTitle：（省略可能）
+	インストール処理が完了した後に表示するメッセージダイアログのタイトル。
+	省略時は、メタインストーラのアプリケーション名がタイトルになる。
+FinishMessage：（省略可能）
+	インストール処理が完了した後に表示するメッセージダイアログの内容。
+	省略時は、メッセージダイアログ自体を表示しない。
 
 ※FxEnabledSearchPluginsおよびFxDisabledSearchPluginsは、
 　FxEnabledSearchPluginsの指定を適用した後に
