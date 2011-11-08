@@ -1466,9 +1466,9 @@ Section "Show Finish Message" ShowFinishMessage
     ${Unless} "$INI_TEMP" == ""
       ${WordReplace} "$INI_TEMP" "\n" "$\n" "+*" $INI_TEMP
       ${If} "$INI_TEMP2" == ""
-        MessageBox MB_OK "$INI_TEMP" /SD IDOK
+        MessageBox MB_OK|MB_ICONINFORMATION "$INI_TEMP" /SD IDOK
       ${Else}
-        !insertmacro NativeMessageBox ${NATIVE_MB_OK} "$INI_TEMP2" "$INI_TEMP" $0
+        !insertmacro NativeMessageBox ${NATIVE_MB_OK}|${NATIVE_MB_ICONINFORMATION} "$INI_TEMP2" "$INI_TEMP" $0
       ${EndIf}
     ${EndUnless}
 SectionEnd
