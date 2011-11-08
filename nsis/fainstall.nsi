@@ -785,12 +785,12 @@ Section "Set Default Client" SetDefaultClient
       ${EndIf}
 
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ReinstallCommand"
-      ${If} "$COMMAND_STRING" != ""
+      ${Unless} "$COMMAND_STRING" == ""
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
         ExecWait "$COMMAND_STRING"
-      ${EndIf}
+      ${EndUnless}
 
       !ifdef NSIS_CONFIG_LOG
         LogText "*** Complete: $ITEM_NAME"

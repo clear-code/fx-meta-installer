@@ -486,6 +486,7 @@ TargetLocation：（省略可能）
    Internet Explorer：StartMenuInternet\IEXPLORE.EXE
    Opera            ：StartMenuInternet\Opera.exe
    Google Chrome    ：StartMenuInternet\Google Chrome
+   Thunderbird      ：Mail\Mozilla Thunderbird
 
 ■「プログラムのアクセスと既定の設定」の変更
 
@@ -504,6 +505,7 @@ Firefox          ：StartMenuInternet\FIREFOX.EXE
 Internet Explorer：StartMenuInternet\IEXPLORE.EXE
 Opera            ：StartMenuInternet\Opera.exe
 Google Chrome    ：StartMenuInternet\Google Chrome
+Thunderbird      ：Mail\Mozilla Thunderbird
 
 
 ■[profile]セクション
