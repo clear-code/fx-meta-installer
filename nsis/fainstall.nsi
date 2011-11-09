@@ -953,6 +953,7 @@ Function "InstallProfile"
         IntOp $PROFILE_INDEX $PROFILE_INDEX + 1
       ${EndWhile}
 
+
       ${If} "$INI_TEMP2" == ""
         ; 新たにプロファイルを追加する場合、次回起動時にはプロファイルマネージャを常に表示する
         WriteINIStr "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile" "0"
@@ -1222,6 +1223,8 @@ Section "Install Additional Files" InstallAdditionalFiles
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
+    StrCpy $DIST_DIR "$APP_DIR\isp"
+    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xml" "InstallNormalFile"
 
     StrCpy $DIST_DIR "${APP_CONFIG_DIR}"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.js" "InstallNormalFile"

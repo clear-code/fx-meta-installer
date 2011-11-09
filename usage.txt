@@ -47,6 +47,8 @@
                     %AppDir%\defaults\profile\ にインストールされる。
   ・*.rdf         ：新規プロファイルの初期設定として
                     %AppDir%\defaults\profile\ にインストールされる。
+  ・*.xml         ：ThunderbirdのAutoConfigurationよう設定ファイルとして
+                    %AppDir%\isp\ にインストールされる。
   ・*.jar         ：Mozillaアプリケーションの追加モジュールとして、
                     %AppDir%\chrome\ にインストールされる。
   ・*.manifest    ：Mozillaアプリケーションの追加モジュールの定義ファイルとして、
