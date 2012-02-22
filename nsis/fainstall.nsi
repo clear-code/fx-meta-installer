@@ -40,23 +40,29 @@ FunctionEnd
 
 !if ${APP_NAME} == "Firefox"
   !define APP_EXE "firefox.exe"
-  !define APP_KEY "Mozilla\Mozilla Firefox"
-  !define APP_DIRECTORY_NAME "Mozilla Firefox"
+  !define APP_FULL_NAME "Mozilla Firefox"
+  !define APP_KEY "Mozilla\${APP_FULL_NAME}"
+  !define APP_DIRECTORY_NAME "${APP_FULL_NAME}"
   !define APP_PROFILE_PATH "$APPDATA\Mozilla\Firefox"
 !else if ${APP_NAME} == "Thunderbird"
   !define APP_EXE "thunderbird.exe"
-  !define APP_KEY "Mozilla\Mozilla Thunderbird"
-  !define APP_DIRECTORY_NAME "Mozilla Thunderbird"
+  !define APP_FULL_NAME "Mozilla Thunderbird"
+  !define APP_KEY "Mozilla\${APP_FULL_NAME}"
+  !define APP_DIRECTORY_NAME "${APP_FULL_NAME}"
   !define APP_PROFILE_PATH "$APPDATA\Thunderbird"
 !else if ${APP_NAME} == "Netscape"
   !define APP_EXE "Netscp.exe"
-  !define APP_KEY "Netscape\Netscape"
-  !define APP_DIRECTORY_NAME "Netscape"
+  !define APP_FULL_NAME "Netscape"
+  !define APP_KEY "Netscape\${APP_FULL_NAME}"
+  !define APP_DIRECTORY_NAME "${APP_FULL_NAME}"
   !define APP_PROFILE_PATH "$APPDATA\Mozilla\Netscape"
 !endif
 
 !ifndef APP_EXE
   !define APP_EXE "${APP_NAME}.exe"
+!endif
+!ifndef APP_FULL_NAME
+  !define APP_FULL_NAME "${APP_NAME}"
 !endif
 !ifndef APP_KEY
   !define APP_KEY "${APP_NAME}"
@@ -204,21 +210,21 @@ Var APP_DIR
 Var SHORTCUT_DEFAULT_NAME
 Var PROGRAM_FOLDER_DEFAULT_NAME
 Var PROGRAM_FOLDER_NAME
+Var EXISTS_SHORTCUT_DESKTOP
+Var EXISTS_SHORTCUT_STARTMENU
+Var EXISTS_SHORTCUT_STARTMENU_PROGRAM
+Var EXISTS_SHORTCUT_QUICKLAUNCH
+Var SHORTCUT_PATH_DESKTOP
+Var SHORTCUT_PATH_STARTMENU
+Var SHORTCUT_PATH_STARTMENU_PROGRAM
+Var SHORTCUT_PATH_QUICKLAUNCH
 !if ${APP_NAME} == "Netscape"
-  Var EXISTS_SHORTCUT_DESKTOP
   Var EXISTS_SHORTCUT_DESKTOP_IM
   Var EXISTS_SHORTCUT_DESKTOP_MAIL
-  Var EXISTS_SHORTCUT_QUICKLAUNCH
   Var EXISTS_SHORTCUT_QUICKLAUNCH_MAIL
-  Var EXISTS_SHORTCUT_STARTMENU
-  Var EXISTS_SHORTCUT_STARTMENU_PROGRAM
-  Var SHORTCUT_PATH_DESKTOP
   Var SHORTCUT_PATH_DESKTOP_IM
   Var SHORTCUT_PATH_DESKTOP_MAIL
-  Var SHORTCUT_PATH_QUICKLAUNCH
   Var SHORTCUT_PATH_QUICKLAUNCH_MAIL
-  Var SHORTCUT_PATH_STARTMENU
-  Var SHORTCUT_PATH_STARTMENU_PROGRAM
 !endif
 Var APP_EXISTS
 Var APP_INSTALLED
@@ -580,45 +586,57 @@ Function "CheckShortcutsExistence"
       ReadINIStr $SHORTCUT_NAME "${APP_INSTALLER_INI}" "Install" "ShortcutName"
       ReadINIStr $PROGRAM_FOLDER_NAME "${APP_INSTALLER_INI}" "Install" "StartMenuDirectoryName"
     ${EndIf}
-    ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "$SHORTCUT_DEFAULT_NAME" ${|}
-    ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "$PROGRAM_FOLDER_DEFAULT_NAME" ${|}
+    !if ${APP_NAME} == "Netscape"
+      ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "$SHORTCUT_DEFAULT_NAME" ${|}
+      ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "$PROGRAM_FOLDER_DEFAULT_NAME" ${|}
+    !else
+      ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "${APP_FULL_NAME}" ${|}
+      ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "${APP_FULL_NAME}" ${|}
+    !endif
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** SHORTCUT_NAME : $SHORTCUT_NAME"
       LogText "*** PROGRAM_FOLDER_NAME : $PROGRAM_FOLDER_NAME"
     !endif
 
+    SetShellVarContext all
+    StrCpy $SHORTCUT_PATH_DESKTOP "$DESKTOP\$SHORTCUT_NAME.lnk"
+    ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP "1" ${|}
+
+    SetShellVarContext current
+    StrCpy $SHORTCUT_PATH_QUICKLAUNCH "$QUICKLAUNCH\$SHORTCUT_NAME.lnk"
+    ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH "1" ${|}
+
+    StrCpy $SHORTCUT_PATH_STARTMENU "$STARTMENU\$SHORTCUT_NAME.lnk"
+    ${IfThen} ${FileExists} "$SHORTCUT_PATH_STARTMENU" ${|} StrCpy $EXISTS_SHORTCUT_STARTMENU "1" ${|}
+
+    StrCpy $SHORTCUT_PATH_STARTMENU_PROGRAM "$SMPROGRAMS\$PROGRAM_FOLDER_NAME"
+    ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+    ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
+      StrCpy $EXISTS_SHORTCUT_STARTMENU_PROGRAM "1"
+    ${EndIf}
+
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** EXISTS_SHORTCUT_DESKTOP           : $EXISTS_SHORTCUT_DESKTOP"
+      LogText "*** EXISTS_SHORTCUT_STARTMENU         : $EXISTS_SHORTCUT_STARTMENU"
+      LogText "*** EXISTS_SHORTCUT_STARTMENU_PROGRAM : $EXISTS_SHORTCUT_STARTMENU_PROGRAM"
+      LogText "*** EXISTS_SHORTCUT_QUICKLAUNCH       : $EXISTS_SHORTCUT_QUICKLAUNCH"
+    !endif
+
     !if ${APP_NAME} == "Netscape"
       SetShellVarContext all
-      StrCpy $SHORTCUT_PATH_DESKTOP "$DESKTOP\$SHORTCUT_NAME.lnk"
-      ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP "1" ${|}
       StrCpy $SHORTCUT_PATH_DESKTOP_IM "$DESKTOP\Instant Messenger.lnk"
       ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_IM "1" ${|}
       StrCpy $SHORTCUT_PATH_DESKTOP_MAIL "$DESKTOP\Netscape Mail & Newsgroups.lnk"
       ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_MAIL "1" ${|}
 
-      StrCpy $SHORTCUT_PATH_STARTMENU "$STARTMENU\$SHORTCUT_NAME.lnk"
-      ${IfThen} ${FileExists} "$SHORTCUT_PATH_STARTMENU" ${|} StrCpy $EXISTS_SHORTCUT_STARTMENU "1" ${|}
-
-      StrCpy $SHORTCUT_PATH_STARTMENU_PROGRAM "$SMPROGRAMS\$PROGRAM_FOLDER_NAME"
-      ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
-      ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
-        StrCpy $EXISTS_SHORTCUT_STARTMENU_PROGRAM "1"
-      ${EndIf}
-
       SetShellVarContext current
-      StrCpy $SHORTCUT_PATH_QUICKLAUNCH "$QUICKLAUNCH\$SHORTCUT_NAME.lnk"
-      ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH "1" ${|}
       StrCpy $SHORTCUT_PATH_QUICKLAUNCH_MAIL "$QUICKLAUNCH\Netscape Mail & Newsgroups.lnk"
       ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL "1" ${|}
 
       !ifdef NSIS_CONFIG_LOG
-        LogText "*** EXISTS_SHORTCUT_DESKTOP           : $EXISTS_SHORTCUT_DESKTOP"
         LogText "*** EXISTS_SHORTCUT_DESKTOP_IM        : $EXISTS_SHORTCUT_DESKTOP_IM"
         LogText "*** EXISTS_SHORTCUT_DESKTOP_MAIL      : $EXISTS_SHORTCUT_DESKTOP_MAIL"
-        LogText "*** EXISTS_SHORTCUT_STARTMENU         : $EXISTS_SHORTCUT_STARTMENU"
-        LogText "*** EXISTS_SHORTCUT_STARTMENU_PROGRAM : $EXISTS_SHORTCUT_STARTMENU_PROGRAM"
-        LogText "*** EXISTS_SHORTCUT_QUICKLAUNCH       : $EXISTS_SHORTCUT_QUICKLAUNCH"
         LogText "*** EXISTS_SHORTCUT_QUICKLAUNCH_MAIL  : $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL"
       !endif
     !endif
@@ -634,16 +652,17 @@ Function "UpdateShortcutsExistence"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
 
     ${If} ${FileExists} "${APP_INSTALLER_INI}"
-      !if ${APP_NAME} == "Netscape"
-        ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "DesktopShortcut"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** DesktopShortcut: $1"
-        !endif
-        ${If} "$1" == "false"
-          ${If} "$EXISTS_SHORTCUT_DESKTOP" == ""
-          ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP"
-            Delete "$SHORTCUT_PATH_DESKTOP"
-          ${EndIf}
+      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "DesktopShortcut"
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** DesktopShortcut: $1"
+      !endif
+      ${If} "$1" == "false"
+        ${If} "$EXISTS_SHORTCUT_DESKTOP" == ""
+        ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP"
+          Delete "$SHORTCUT_PATH_DESKTOP"
+        ${EndIf}
+
+        !if ${APP_NAME} == "Netscape"
           ${If} "$EXISTS_SHORTCUT_DESKTOP_IM" == ""
           ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM"
             Delete "$SHORTCUT_PATH_DESKTOP_IM"
@@ -652,38 +671,43 @@ Function "UpdateShortcutsExistence"
           ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL"
             Delete "$SHORTCUT_PATH_DESKTOP_MAIL"
           ${EndIf}
-        ${Else}
-          SetShellVarContext all
-          ${If} ${FileExists} "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk"
-            Rename "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_DESKTOP"
-          ${EndIf}
-          SetShellVarContext current
-        ${EndIf}
-
-        ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "StartMenuShortcuts"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** StartMenuShortcuts: $1"
         !endif
-        ${If} "$1" == "false"
-          ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
-          ${AndIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
-            Delete "$SHORTCUT_PATH_STARTMENU"
-          ${EndIf}
-          ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
-          ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
-            ${IfThen} "$EXISTS_SHORTCUT_STARTMENU_PROGRAM" == "" ${|} RMDir /r "$SHORTCUT_PATH_STARTMENU_PROGRAM" ${|}
-          ${EndIf}
-        ${Else}
-          SetShellVarContext all
-          ${If} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME"
-          ${OrIf} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME\*.*"
-            Rename "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME" "$SHORTCUT_PATH_STARTMENU_PROGRAM"
-          ${EndIf}
-          SetShellVarContext current
+    !if ${APP_NAME} == "Netscape"
+      ${Else}
+        SetShellVarContext all
+        ${If} ${FileExists} "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk"
+          Rename "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_DESKTOP"
         ${EndIf}
+        SetShellVarContext current
+    !endif
+      ${EndIf}
+
+      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "StartMenuShortcuts"
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** StartMenuShortcuts: $1"
       !endif
+      ${If} "$1" == "false"
+        ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
+        ${AndIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
+          Delete "$SHORTCUT_PATH_STARTMENU"
+        ${EndIf}
+        ${If} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+        ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
+          ${IfThen} "$EXISTS_SHORTCUT_STARTMENU_PROGRAM" == "" ${|} RMDir /r "$SHORTCUT_PATH_STARTMENU_PROGRAM" ${|}
+        ${EndIf}
+    !if ${APP_NAME} == "Netscape"
+      ${Else}
+        SetShellVarContext all
+        ${If} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME"
+        ${OrIf} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME\*.*"
+          Rename "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME" "$SHORTCUT_PATH_STARTMENU_PROGRAM"
+        ${EndIf}
+        SetShellVarContext current
+    !endif
+      ${EndIf}
 
       ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcutAllUsers"
+      ReadINIStr $2 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
       !ifdef NSIS_CONFIG_LOG
         LogText "*** QuickLaunchShortcutAllUsers: $1"
       !endif
@@ -701,23 +725,22 @@ Function "UpdateShortcutsExistence"
         ReadINIStr $INI_TEMP "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
         ${Locate} "$1" "/L=D /G=0 /M=*" "UpdateQuickLaunchShortcutForOneUser"
         SetShellVarContext current
-    !if ${APP_NAME} == "Netscape"
-      ${Else}
-        ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
-        ${If} "$1" == "false"
-          ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH" == ""
-          ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH"
-            Delete "$SHORTCUT_PATH_QUICKLAUNCH"
-          ${EndIf}
+      ${ElseIf} "$2" == "false"
+        ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH" == ""
+        ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH"
+          Delete "$SHORTCUT_PATH_QUICKLAUNCH"
+        ${EndIf}
+        !if ${APP_NAME} == "Netscape"
           ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH_MAIL" == ""
           ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
             Delete "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
           ${EndIf}
-        ${Else}
-          SetShellVarContext current
-          ${If} ${FileExists} "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk"
-            Rename "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_QUICKLAUNCH"
-          ${EndIf}
+        !endif
+    !if ${APP_NAME} == "Netscape"
+      ${Else}
+        SetShellVarContext current
+        ${If} ${FileExists} "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk"
+          Rename "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_QUICKLAUNCH"
         ${EndIf}
     !endif
       ${EndIf}
@@ -790,6 +813,9 @@ Section "Set Default Client" SetDefaultClient
         Call ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
         ExecWait "$COMMAND_STRING"
+
+        ; re-installation can re-create shortcuts, so we have to remove them manually
+        Call UpdateShortcutsExistence
       ${EndUnless}
 
       !ifdef NSIS_CONFIG_LOG
