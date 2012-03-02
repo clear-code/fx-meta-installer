@@ -570,6 +570,9 @@ SectionEnd
         WriteRegDWORD HKCU "Software\Mozilla\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
         ; disable crash reporter for Firefox 4
         WriteRegDWORD HKLM "Software\Mozilla\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
+        ; on Windows 7, vendor part is missing.
+        WriteRegDWORD HKCU "Software\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
+        WriteRegDWORD HKLM "Software\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
       ${EndIf}
   SectionEnd
 !endif
