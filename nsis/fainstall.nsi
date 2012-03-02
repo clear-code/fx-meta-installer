@@ -207,6 +207,7 @@ Var APP_EXE_PATH
 Var APP_EULA_FINAL_PATH
 Var APP_INSTALLER_FINAL_PATH
 Var APP_DIR
+Var APP_INI
 Var SHORTCUT_DEFAULT_NAME
 Var PROGRAM_FOLDER_DEFAULT_NAME
 Var PROGRAM_FOLDER_NAME
@@ -568,11 +569,19 @@ SectionEnd
       ${If} "$APP_ENABLE_CRASH_REPORT" == "false"
         ; disable crash reporter for Firefox 3.6
         WriteRegDWORD HKCU "Software\Mozilla\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
-        ; disable crash reporter for Firefox 4
-        WriteRegDWORD HKLM "Software\Mozilla\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
+        WriteRegDWORD HKCU "Software\Mozilla\${APP_NAME}\Crash Reporter" "Enabled" 0
         ; on Windows 7, vendor part is missing.
         WriteRegDWORD HKCU "Software\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
+        WriteRegDWORD HKCU "Software\${APP_NAME}\Crash Reporter" "Enabled" 0
+
+        ; disable crash reporter for Firefox 4
+        WriteRegDWORD HKLM "Software\Mozilla\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
+        WriteRegDWORD HKLM "Software\Mozilla\${APP_NAME}\Crash Reporter" "Enabled" 0
+        ; on Windows 7, vendor part is missing.
         WriteRegDWORD HKLM "Software\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
+        WriteRegDWORD HKLM "Software\${APP_NAME}\Crash Reporter" "Enabled" 0
+
+        WriteIniStr "$APP_DIR\application.ini" "Crash Reporter" "Enabled" "0"
       ${EndIf}
   SectionEnd
 !endif
