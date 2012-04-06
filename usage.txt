@@ -559,6 +559,7 @@ StartMenuDirectoryName：
 	サブメニューの名称。
 	StartMenuShortcutsがfalseである場合は、削除対象とするサブメニューの
 	名称として解釈する。
+	（Firefox 4以降ではサブメニューが作成されないため、機能しない）
 QuickLaunchShortcut：（省略可能）
 	クイックランチへの登録の可否。
 	（Windows 7ではクイックランチが存在しないので機能しない）
