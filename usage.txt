@@ -533,39 +533,56 @@ Mozillaアプリケーションをサイレントインストールする際の挙動は、resources
 フォルダ内に置いた <Mozillaアプリケーション名>-setup.ini において、
 [Install]セクションで以下の指定を行うことにより変更可能。
 
-InstallDirectoryPath：（省略可能）
-	インストール先フォルダのフルパス。値を指定すると、そのフォルダに
-	Mozillaアプリケーションをインストールする。
-	無指定の場合はC:\Program Files\へのインストールと見なし、
-	InstallDirectoryNameの指定を使用する。
 InstallDirectoryName：（省略可能）
-	インストール先フォルダの名称。値を指定すると
-	C:\Program Files\<InstallDirectoryName>\
-	にMozillaアプリケーションをインストールする。
+	通常、Firefoxは「C:\Program Files\Mozilla Firefox」または
+	「C:\Program Files(x86)\Mozilla Firefox」（64bit版Windowsの場合）
+	という位置にインストールされるが、この「Mozilla Firefox」部分を
+	任意のフォルダ名に変更することができる。
+	初期値は「Mozilla Firefox」。
+InstallDirectoryPath：（省略可能）
+	Firefoxのインストール先フォルダをフルパスで指定する。
+	初期値は無し。
+	この指定は、InstallDirectoryNameが空でない場合にのみ利用される。
+	こちらの指定を優先させる場合、InstallDirectoryNameは明示的に
+	空にする必要がある。
+	例えば「C:\Firefox」にインストールさせる場合は以下のように記述する。
+	> InstallDirectoryName=
+	> InstallDirectoryPath=C:\Firefox
 ShortcutName：
 	生成あるいは削除の対象とするショートカットの名称。
+	（FirefixおよびThunderbirdでは、ショートカット名は固定されており
+	　この設定は機能しない）
 DesktopShortcut：（省略可能）
-	デスクトップのショートカット作成の可否。
-	true：デスクトップにショートカットを作成する。
-	false：デスクトップにショートカットを作成しない。
+	デスクトップ上にショートカットを作成するかどうかを指定する。
+	true：デスクトップに項目を追加する。
+	false：デスクトップに項目を追加しない。
 	省略時はtrueとして扱う。
+	（FirefixおよびThunderbirdでは、ショートカット名は固定されている）
 StartMenuShortcuts：（省略可能）
-	スタートメニューの項目追加の可否。
+	スタートメニューの「すべてのプログラム」内にショートカットを作成するか
+	どうかを指定する。
 	true：スタートメニューに項目を追加する。
 	false：スタートメニューに項目を追加しない。
 	省略時はtrueとして扱う。
+	（FirefixおよびThunderbirdでは、ショートカット名は固定されている）
 StartMenuDirectoryName：
-	StartMenuShortcutsがtrueである場合に、スタートメニュー内に作成する
-	サブメニューの名称。
+	スタートメニューの「すべてのプログラム」内に作成される、Firefoxの
+	通常起動用のショートカットとセーフモード用のショートカットを格納する
+	フォルダの名前を指定する。
+	初期値は「Mozilla Firefox」。
 	StartMenuShortcutsがfalseである場合は、削除対象とするサブメニューの
 	名称として解釈する。
-	（Firefox 4以降ではサブメニューが作成されないため、機能しない）
+	（この指定はFirefox 3.6以前でのみ利用できる。Firefox 4以降ではスタート
+	　メニューにショートカットのフォルダを作成しないようになったため、
+	　この指定は単に無視される。）
 QuickLaunchShortcut：（省略可能）
-	クイックランチへの登録の可否。
-	（Windows 7ではクイックランチが存在しないので機能しない）
+	Windows Vista以前のWindowsにおいて、クイック起動のショートカットを
+	作成するかどうかを指定する。
 	true：クイックランチにショートカットを作成する。
 	false：クイックランチにショートカットを作成しない。
 	省略時はtrueとして扱う。
+	（Windows 7以降ではクイック起動の機能自体が存在しなくなっているため、
+	　指定は単に無視される。）
 QuickLaunchShortcutAllUsers：（省略可能）
 	クイックランチへのショートカットの変更をすべてのユーザに適用するかどうか。
 	true：全ユーザのクイックランチに適用する。
