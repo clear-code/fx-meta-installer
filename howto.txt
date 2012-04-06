@@ -2,6 +2,19 @@
 
 
 ■Mozillaアプリケーション（FirefoxまたはThunderbird）の
+　アップデート
+
+・同梱のMozillaアプリケーションを新しいバージョンに入れ替えるには？
+　→resourcesフォルダ内の<アプリケーション名>-setup.exeを入れ替えて、
+　　fainstall.ini の [fainstall] セクションに
+　　------------
+    AppMinVersion=<入れ替え後の新しいバージョン>
+    AppMaxVersion=<入れ替え後の新しいバージョン>
+　　------------
+　　と記述する。
+
+
+■Mozillaアプリケーション（FirefoxまたはThunderbird）の
 　インストールオプション
 
 ・Mozillaアプリケーションのインストール先を変えるには？

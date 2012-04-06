@@ -10,8 +10,11 @@
 ・Mozilla Firefox 3.0.x
 ・Mozilla Firefox 3.5.x
 ・Mozilla Firefox 3.6.x
+・Mozilla Firefox 10.x
 ・Mozilla Thunderbird 2.0.0.x
 ・Mozilla Thunderbird 3.0.x
+・Mozilla Thunderbird 3.1.x
+・Mozilla Thunderbird 10.x
 ・Netscape 7.x
 
 ■Mozillaアプリケーションの自動インストール
