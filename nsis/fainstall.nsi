@@ -84,6 +84,8 @@ FunctionEnd
 !define APP_INSTALLER_PATH  "$EXEDIR\resources\${APP_NAME}-setup.exe"
 !define APP_INSTALLER_INI   "$EXEDIR\resources\${APP_NAME}-setup.ini"
 !define APP_EXTENSIONS_DIR  "$APP_DIR\extensions"
+!define APP_DISTRIBUTION_DIR "$APP_DIR\distribution"
+!define APP_BUNDLES_DIR      "${APP_DISTRIBUTION_DIR}\bundles"
 !define APP_CONFIG_DIR      "$APP_DIR\defaults\pref"
 !define APP_REG_KEY         "Software\${APP_KEY}"
 
@@ -1072,7 +1074,13 @@ Function "InstallAddon"
       Call ResolveItemLocation
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME"
     ${Else}
-      StrCpy $ITEM_LOCATION "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
+      ; use distribution directory for Firefox/Thunderbird 10 or later.
+      ${VersionCompare} "$APP_VERSION_NUM" "10" $0
+      ${If} "$0" == "1"
+        StrCpy $ITEM_LOCATION "${APP_BUNDLES_DIR}\$ADDON_NAME"
+      ${Else}
+        StrCpy $ITEM_LOCATION "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
+      ${EndIf}
     ${EndUnless}
 
     ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Overwrite"
@@ -1460,7 +1468,7 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       LogSet on
     !endif
 
-    StrCpy $DIST_PATH   "$APP_DIR\distribution"
+    StrCpy $DIST_PATH   "${APP_DISTRIBUTION_DIR}"
     StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
     StrCpy $BACKUP_COUNT 0
     !ifdef NSIS_CONFIG_LOG
