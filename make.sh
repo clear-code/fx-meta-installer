@@ -73,7 +73,7 @@ cp ./7z/pack.bat "./$installer_name-source/$installer_name.bat"
 cp ./7z/pack.sh "./$installer_name-source/$installer_name.sh"
 cd "$installer_name-source"
 
-bash ./$installer_name.sh
+# bash ./$installer_name.sh
 
 cd ..
 
