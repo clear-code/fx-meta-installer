@@ -10,7 +10,12 @@ fi
 
 if [ ! -f ./config.bat ]
 then
-  exit
+  cp ./config.bat.sample ./config.bat
+fi
+
+if [ ! -f ./config.nsh ]
+then
+  cp ./config.nsh.sample ./config.nsh
 fi
 
 
