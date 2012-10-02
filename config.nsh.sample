@@ -1,34 +1,38 @@
-;Copyright (C) 2008-2011 ClearCode Inc.
+;Copyright (C) 2008-2012 ClearCode Inc.
+;This file must be encoded in Shift_JIS
 
 ;====================== CUSTOMIZABLE SECTION =======================
 
-!define PRODUCT_FULL_NAME    "Fx Add-on Installer"
-!define PRODUCT_NAME         "FxAddonInstaller"
+!define PRODUCT_FULL_NAME    "Fx Meta Installer"
+!define PRODUCT_NAME         "FxMetaInstaller"
 !define PRODUCT_VERSION      "0.0.0.0"
-!define PRODUCT_YEAR         "2011"
+!define PRODUCT_YEAR         "2012"
 !define PRODUCT_PUBLISHER    "ClearCode Inc."
 !define PRODUCT_DOMAIN       "clear-code.com"
 !define PRODUCT_WEB_SITE     "http://www.clear-code.com/"
-!define PRODUCT_WEB_LABEL    "クリアコードのホームページを表示"
+!define PRODUCT_WEB_LABEL    "Go to Clear Code Inc."
 !define PRODUCT_LANGUAGE     "Japanese"
 
-; NORMAL  : 通常のウィザード
-; PASSIVE : 確認をすべてスキップする準サイレントインストール
-; QUIET   : 完全なサイレントインストール
+; Type of the wizard
+;  NORMAL  : Show full wizard
+;  PASSIVE : Show message dialog but process installation automatically
+;            (semi-silent install)
+;  QUIET   : Silent install
 !define PRODUCT_INSTALL_MODE "NORMAL"
 
 !define APP_NAME            "Firefox"
 !define APP_MIN_VERSION     "3.5"
-!define APP_MAX_VERSION     "3.6.99"
-;!define APP_DOWNLOAD_PATH   "\\Kuro-box\share\\Firefox Setup 3.6.exe"
-!define APP_DOWNLOAD_URL    "http://download.mozilla.org/?product=firefox-2.0.0.14&os=win&lang=ja"
+!define APP_MAX_VERSION     "99.99"
+;!define APP_DOWNLOAD_PATH   "\\fileserver\shared\Firefox Setup 15.0.1.exe"
+!define APP_DOWNLOAD_URL    "http://download.mozilla.org/?product=firefox-15.0.1&os=win&lang=ja"
 !define APP_HASH            "8d017402de51a144d0e0fe4d3e2132cb"
-;!define APP_EULA_PATH       "\\Kuro-box\share\\Firefox Setup 3.6.txt"
+;!define APP_EULA_PATH       "\\fileserver\shared\Firefox Setup 15.0.1.txt"
 !define APP_EULA_URL        "http://www.mozilla.com/en-US/legal/eula/firefox2-en.txt"
 
-; NORMAL : 通常のウィザード
-; QUIET  : 完全なサイレントインストール
-; SKIP   : インストールしない
+; Type of installation of Firefox/Thunderbird itself
+;  NORMAL : Show full wizard
+;  QUIET  : Silent install (recommended)
+;  SKIP   : Do not install Firefox/Thunderbird
 !define APP_INSTALL_MODE    "QUIET"
 
 ;!define APP_ALLOW_DOWNGRADE
@@ -39,9 +43,14 @@
 !define FX_ENABLED_SEARCH_PLUGINS  "*"
 !define FX_DISABLED_SEARCH_PLUGINS ""
 
-; REQUIRED  : 必ずクリーンインストールでないといけない（インストールを強制中断）
-; PREFERRED : クリーンインストールを推奨（任意でインストール可能）
-; それ以外  : 警告なし
+; Requirement of a clean environment with no existing profile
+;  REQUIRED  : Requires a clean environment. If there is any existing
+;              Firefox/Thunderbird profile, then cancels the installation
+;              process automatically.
+;  PREFERRED : Recommends a clean environment. The wizard asks to the user to
+;              continue installation process, so the user can cancel the
+;              insta
+;  Otherwise : No alert.
 !define CLEAN_INSTALL ""
 
 ;===================================================================
