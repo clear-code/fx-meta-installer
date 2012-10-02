@@ -3,7 +3,7 @@ rem This file must be encoded in Shift_JIS
 
 rem ====================== CUSTOMIZABLE SECTION =======================
 
-set INSTALLER_NAME=FxAddonInstaller
+set INSTALLER_NAME=FxMetaInstaller
 
 set NSIS_PATH=C:\Program Files\NSIS
 set SEVENZIP_PATH=C:\Program Files\7-Zip
