@@ -1,4 +1,4 @@
-rem Copyright (C) 2008-2010 ClearCode Inc.
+rem Copyright (C) 2008-2012 ClearCode Inc.
 
 @IF NOT EXIST config.bat GOTO ENDBATCH
 

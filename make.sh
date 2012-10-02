@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2008-2010 ClearCode Inc.
+# Copyright (C) 2008-2012 ClearCode Inc.
 
 if [ ! -d ./resources ]
 then
