@@ -1,4 +1,4 @@
-;Copyright (C) 2008-2011 ClearCode Inc.
+;Copyright (C) 2008-2012 ClearCode Inc.
 
 ;===================== SETUP NSIS-DBG FOR DEBUGGING ================
 
@@ -172,10 +172,10 @@ FunctionEnd
 !define INIPATH             "$EXEDIR\${INSTALLER_NAME}.ini"
 
 !define SILENT_INSTALL_OPTIONS "-ms -ira -ispf"
-; -ms   : サイレントインストール（INIを無視）
-; -ma   : 自動インストール（進行状況をダイアログで表示、Netscape用）
-; -ira  : インストール完了後のアプリケーションの自動起動を無効（Netscape用）
-; -ispf : インストール完了後のスタートメニュー内フォルダを開く処理を無効（Netscape用）
+; -ms   : silent install (ignore INI files)
+; -ma   : automatic install (show progress meter, for Netscape)
+; -ira  : prevent to start the application after installation, for Netscape)
+; -ispf : prevent to open the folder in the start menu, for Netscape)
 
 !define SEPARATOR "|"
 
@@ -995,7 +995,7 @@ Function "InstallProfile"
 
 
       ${If} "$INI_TEMP2" == ""
-        ; 新たにプロファイルを追加する場合、次回起動時にはプロファイルマネージャを常に表示する
+        ; If we create a new profile, we should show the profile manager at the next startup.
         WriteINIStr "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile" "0"
       ${EndIf}
 
@@ -1853,12 +1853,12 @@ Function CheckInstalled
         !ifdef NSIS_CONFIG_LOG
           LogText "CheckInstalled: Application is installed by meta installer"
         !endif
-        ; アプリケーションがこのアドオンの旧バージョンによって
-        ; 自動インストールされたものである場合、状態を引き継ぐ
+        ; If the Firefox/Thunderbird/Netscape is installed by this meta installer,
+        ; then we should keep the state.
         ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
         ${IfThen} "$APP_VERSION" != "" ${|} StrCpy $APP_INSTALLED "1" ${|}
-        ; アンインストーラを一時ファイルにコピーしないでそのまま実行
-        ; こうしないと，すぐに終了して戻ってきてしまうみたい
+        ; Run the uninstaller directly. If we copy the exe file into the
+        ; temporary directory, it doesn't work as we expect.
         ExecWait '$R0 /AddonOnly _?=$INSTDIR'
       !endif
     ${EndUnless}
