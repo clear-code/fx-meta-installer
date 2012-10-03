@@ -5,6 +5,13 @@ if [ ! -d ./resources ]
 then
   mkdir resources
   cp _resources/*.sample resources/
+  cd resources
+  for file in *.sample; do
+    echo $file
+    echo ${file%.sample}
+    mv $file ${file%.sample};
+  done
+  cd ..
 fi
 
 
