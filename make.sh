@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright (C) 2008-2012 ClearCode Inc.
 
 if [ ! -d ./resources ]
@@ -18,8 +18,9 @@ then
   cp ./config.nsh.sample ./config.nsh
 fi
 
+sed='sed -r -e'
 
-installer_name=`grep 'INSTALLER_NAME=' config.bat | sed -r -e 's/[^=]+=|[ \t\r\n]+$//g'`
+installer_name=`grep 'INSTALLER_NAME=' config.bat | $sed 's/[^=]+=|[ \t\r\n]+$//g'`
 echo installer_name
 
 rm fainstall.exe
@@ -31,24 +32,31 @@ rm "$installer_name.exe"
 cd nsis
 
 inifile=../fainstall.ini
+configfile=../config.nsh
+
+read_config() {
+  cat ../config.nsh | grep -v -E "^;" | grep $1 | cut -d '"' -f 2
+}
 
 cat > $inifile << EOS
 [fainstall]
-AppDownloadPath=
-AppDownloadUrl=
-AppEulaPath=
-AppEulaUrl=
-AppHash=
-AppInstallTalkback=true
+AppMaxVersion=$(read_config "APP_MAX_VERSION")
+AppMinVersion=$(read_config "APP_MIN_VERSION")
+AppDownloadPath=$(read_config "APP_DOWNLOAD_PATH")
+AppDownloadUrl=$(read_config "APP_DOWNLOAD_URL")
+AppEulaPath=$(read_config "APP_EULA_PATH")
+AppEulaUrl=$(read_config "APP_EULA_URL")
+AppHash=$(read_config "APP_HASH")
+AppEnableCrashReport=true
 
 EOS
 
 for filename in ../resources/*.xpi
 do
   echo reading $filename
-  echo $filename | sed -r -e 's/.+\/([^\/]+)$/[\1]/' >> $inifile
+  echo $filename | $sed 's/.+\/([^\/]+)$/[\1]/' >> $inifile
   install_rdf=`unzip -p $filename install.rdf`
-  echo AddonId=`echo $install_rdf | sed -r -e 's/.*em:id="([^"]+)".*(em:name|<em:targetApplication>).*/\1/'` >> $inifile
+  echo AddonId=`echo $install_rdf | $sed 's/.*em:id="([^"]+)".*(em:name|<em:targetApplication>).*/\1/'` >> $inifile
   echo '' >> $inifile
 done
 
