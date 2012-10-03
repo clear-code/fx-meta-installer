@@ -74,7 +74,7 @@ mv fainstall.ini "./$installer_name-source/"
 
 tar -c -f- --exclude-vcs -C resources . | tar -x -C "./$installer_name-source/resources"
 cp ./7z/pack.list "./$installer_name-source/"
-cat ./7z/7zS.sfx ./7z/FxAddonInstaller.tag > "./$installer_name-source/fainstall.sfx"
+cat ./7z/7zS.sfx ./7z/FxMetaInstaller.tag > "./$installer_name-source/fainstall.sfx"
 cp ./7z/7zr.exe "./$installer_name-source/"
 cp ./7z/pack.bat "./$installer_name-source/$installer_name.bat"
 cp ./7z/pack.sh "./$installer_name-source/$installer_name.sh"
