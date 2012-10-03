@@ -32,7 +32,6 @@ rm "$installer_name.exe"
 cd nsis
 
 inifile=../fainstall.ini
-configfile=../config.nsh
 
 read_config() {
   cat ../config.nsh | grep -v -E "^;" | grep $1 | cut -d '"' -f 2
