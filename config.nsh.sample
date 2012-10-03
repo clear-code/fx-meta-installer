@@ -24,10 +24,10 @@
 !define APP_MIN_VERSION     "3.5"
 !define APP_MAX_VERSION     "99.99"
 ;!define APP_DOWNLOAD_PATH   "\\fileserver\shared\Firefox Setup 15.0.1.exe"
-!define APP_DOWNLOAD_URL    "http://download.mozilla.org/?product=firefox-15.0.1&os=win&lang=ja"
-!define APP_HASH            "8d017402de51a144d0e0fe4d3e2132cb"
+;!define APP_DOWNLOAD_URL    "http://download.mozilla.org/?product=firefox-15.0.1&os=win&lang=ja"
+;!define APP_HASH            "8d017402de51a144d0e0fe4d3e2132cb"
 ;!define APP_EULA_PATH       "\\fileserver\shared\Firefox Setup 15.0.1.txt"
-!define APP_EULA_URL        "http://www.mozilla.com/en-US/legal/eula/firefox2-en.txt"
+;!define APP_EULA_URL        "http://www.mozilla.com/en-US/legal/eula/firefox2-en.txt"
 
 ; Type of installation of Firefox/Thunderbird itself
 ;  NORMAL : Show full wizard
