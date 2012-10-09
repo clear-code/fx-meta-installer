@@ -68,7 +68,7 @@ environments at first.
 
 ### Build the binary
 
- 1. Run "make.bat".
+ 1. Run "make.bat" (Windows) or "make.sh" (Linux).
  2. If you are on Linux, the built installer is broken.
     You have to run "FxMetaInstaller.bat" on Windows again.
 
