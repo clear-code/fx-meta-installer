@@ -20,8 +20,9 @@
 ;  QUIET   : Silent install
 !define PRODUCT_INSTALL_MODE "NORMAL"
 
-; These can be overridden by fainstall.ini
 !define APP_NAME            "Firefox"
+
+; These can be overridden by fainstall.ini
 !define APP_MIN_VERSION     "3.5"
 !define APP_MAX_VERSION     "99.99"
 ;!define APP_DOWNLOAD_PATH   "\\fileserver\shared\Firefox Setup 15.0.1.exe"
