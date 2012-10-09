@@ -13,8 +13,8 @@
 !define PRODUCT_WEB_LABEL    "Go to Clear Code Inc."
 !define PRODUCT_LANGUAGE     "Japanese"
 
-!define REQUIRE_ADMIN_PRIVILEGE
-;!define ADMIN_PRIVILEGE_CHECK_DIR ""
+!define REQUIRE_ADMIN
+;!define ADMIN_CHECK_DIR ""
 
 ; Type of the wizard
 ;  NORMAL  : Show full wizard
@@ -56,10 +56,10 @@
 ;              insta
 ;  Otherwise : No alert.
 !define CLEAN_INSTALL ""
-;!define CLEAN_INSTALL_REQUIRED_TITLE    ""
-;!define CLEAN_INSTALL_REQUIRED_MESSAGE  ""
-;!define CLEAN_INSTALL_PREFERRED_TITLE   ""
-;!define CLEAN_INSTALL_PREFERRED_MESSAGE ""
+;!define CLEAN_REQUIRED_TITLE    ""
+;!define CLEAN_REQUIRED_MESSAGE  ""
+;!define CLEAN_PREFERRED_TITLE   ""
+;!define CLEAN_PREFERRED_MESSAGE ""
 
 ;!define INSTALL_ADDONS            ""
 ;!define EXTRA_INSTALLERS          ""

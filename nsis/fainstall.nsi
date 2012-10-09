@@ -1756,9 +1756,9 @@ Function CheckCleanInstall
 
   ${If} ${FileExists} "${APP_PROFILE_PATH}"
     ${If} "$CLEAN_INSTALL" == "REQUIRED"
-      ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage" "${CLEAN_INSTALL_REQUIRED_MESSAGE}"
+      ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage" "${CLEAN_REQUIRED_MESSAGE}"
       ${WordReplace} "$INI_TEMP" "\n" "$\n" "+*" $INI_TEMP
-      ${ReadINIStrWithDefault} $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredTitle" "${CLEAN_INSTALL_REQUIRED_TITLE}"
+      ${ReadINIStrWithDefault} $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredTitle" "${CLEAN_REQUIRED_TITLE}"
       ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "$(MSG_CLEAN_INSTALL_REQUIRED)" ${|}
       ${If} "$INI_TEMP2" == ""
         MessageBox MB_OK|MB_ICONEXCLAMATION "$INI_TEMP" /SD IDOK
@@ -1767,10 +1767,10 @@ Function CheckCleanInstall
       ${EndIf}
       Abort
     ${ElseIf} "$CLEAN_INSTALL" == "PREFERRED"
-      ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredMessage" "${CLEAN_INSTALL_PREFERRED_MESSAGE}"
+      ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredMessage" "${CLEAN_PREFERRED_MESSAGE}"
       ${WordReplace} "$INI_TEMP" "\n" "$\n" "+*" $INI_TEMP
       ReadINIStr $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" ""
-      ${ReadINIStrWithDefault} $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredTitle" "${CLEAN_INSTALL_PREFERRED_TITLE}"
+      ${ReadINIStrWithDefault} $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredTitle" "${CLEAN_PREFERRED_TITLE}"
       ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "$(MSG_CLEAN_INSTALL_PREFERRED)" ${|}
       ${If} "$INI_TEMP2" == ""
         MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$INI_TEMP" IDYES +2
@@ -1785,10 +1785,10 @@ Function CheckCleanInstall
   ${EndIf}
 FunctionEnd
 
-Var REQUIRE_ADMIN_PRIVILEGE
+Var REQUIRE_ADMIN
 Function CheckAdminPrivilege
-    ${ReadINIStrWithDefault} $REQUIRE_ADMIN_PRIVILEGE "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege" "${REQUIRE_ADMIN_PRIVILEGE}"
-    ${If} "$REQUIRE_ADMIN_PRIVILEGE" == "false"
+    ${ReadINIStrWithDefault} $REQUIRE_ADMIN "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege" "${REQUIRE_ADMIN}"
+    ${If} "$REQUIRE_ADMIN" == "false"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
@@ -1811,7 +1811,7 @@ Function CheckAdminPrivilege
     ${EndIf}
 
     ; check by file writing
-    ${ReadINIStrWithDefault} $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory" "${ADMIN_PRIVILEGE_CHECK_DIR}"
+    ${ReadINIStrWithDefault} $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory" "${ADMIN_CHECK_DIR}"
     Call ResolveItemLocation
     ${IfThen} "$ITEM_LOCATION" == "" ${|} StrCpy $ITEM_LOCATION "$PROGRAMFILES" ${|}
     ${Unless} "$ITEM_LOCATION" == ""

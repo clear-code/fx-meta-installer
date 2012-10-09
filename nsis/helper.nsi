@@ -50,13 +50,17 @@ Var FX_ENABLED_SEARCH_PLUGINS
 Var FX_DISABLED_SEARCH_PLUGINS
 Var FINISH_TITLE
 Var FINISH_MESSAGE
-Var REQUIRE_ADMIN_PRIVILEGE
-Var ADMIN_PRIVILEGE_CHECK_DIR
+Var REQUIRE_ADMIN
+Var ADMIN_CHECK_DIR
 Var DEFAULT_CLIENT
 Var DISABLED_CLIENTS
 Var INSTALL_ADDONS
 Var EXTRA_INSTALLERS
 Var EXTRA_SHORTCUTS
+Var CLEAN_PREFERRED_TITLE
+Var CLEAN_PREFERRED_MESSAGE
+Var CLEAN_REQUIRED_TITLE
+Var CLEAN_REQUIRED_MESSAGE
 
 ;=== Libraries
 !include "LogicLib.nsh"
@@ -77,7 +81,7 @@ Section "Make INI File" MakeINI
 
     StrCpy $APP_ENABLE_CRASH_REPORT "false"
     StrCpy $APP_ALLOW_DOWNGRADE "false"
-    StrCpy $REQUIRE_ADMIN_PRIVILEGE "true"
+    StrCpy $REQUIRE_ADMIN "true"
 
     ${LineFind} "..\config.nsh" "NUL" "1:-1" "ReadConfigurations"
 
@@ -95,14 +99,14 @@ Section "Make INI File" MakeINI
     FileWrite $FILE_HANDLER "AppAllowDowngrade=$APP_ALLOW_DOWNGRADE$\r$\n"
     FileWrite $FILE_HANDLER "FinishTitle=$FINISH_TITLE$\r$\n"
     FileWrite $FILE_HANDLER "FinishMessage=$FINISH_MESSAGE$\r$\n"
-    FileWrite $FILE_HANDLER "CleanInstallPreferredTitle=$\r$\n"
-    FileWrite $FILE_HANDLER "CleanInstallPreferredMessage=$\r$\n"
-    FileWrite $FILE_HANDLER "CleanInstallRequiredTitle=$\r$\n"
-    FileWrite $FILE_HANDLER "CleanInstallRequiredMessage=$\r$\n"
+    FileWrite $FILE_HANDLER "CleanInstallPreferredTitle=$CLEAN_PREFERRED_TITLE$\r$\n"
+    FileWrite $FILE_HANDLER "CleanInstallPreferredMessage=$CLEAN_PREFERRED_MESSAGE$\r$\n"
+    FileWrite $FILE_HANDLER "CleanInstallRequiredTitle=$CLEAN_REQUIRED_TITLE$\r$\n"
+    FileWrite $FILE_HANDLER "CleanInstallRequiredMessage$CLEAN_REQUIRED_MESSAGE=$\r$\n"
     FileWrite $FILE_HANDLER "FxEnabledSearchPlugins=$FX_ENABLED_SEARCH_PLUGINS$\r$\n"
     FileWrite $FILE_HANDLER "FxDisabledSearchPlugins=$FX_DISABLED_SEARCH_PLUGINS$\r$\n"
-    FileWrite $FILE_HANDLER "RequireAdminPrivilege=$REQUIRE_ADMIN_PRIVILEGE$\r$\n"
-    FileWrite $FILE_HANDLER "AdminPrivilegeCheckDirectory=$ADMIN_PRIVILEGE_CHECK_DIR$\r$\n"
+    FileWrite $FILE_HANDLER "RequireAdminPrivilege=$REQUIRE_ADMIN$\r$\n"
+    FileWrite $FILE_HANDLER "AdminPrivilegeCheckDirectory=$ADMIN_CHECK_DIR$\r$\n"
     FileWrite $FILE_HANDLER "DefaultClient=$DEFAULT_CLIENT$\r$\n"
     FileWrite $FILE_HANDLER "DisabledClients=$DISABLED_CLIENTS$\r$\n"
     FileWrite $FILE_HANDLER "Addons=$INSTALL_ADDONS$\r$\n"
@@ -167,10 +171,10 @@ Function "ReadConfigurations"
       StrCpy $FINISH_TITLE "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "FINISH_MESSAGE"
       StrCpy $FINISH_MESSAGE "$CONFIG_VALUE"
-    ${ElseIf} $CONFIG_KEY == "REQUIRE_ADMIN_PRIVILEGE"
-      StrCpy $REQUIRE_ADMIN_PRIVILEGE "$CONFIG_VALUE"
-    ${ElseIf} $CONFIG_KEY == "ADMIN_PRIVILEGE_CHECK_DIR"
-      StrCpy $ADMIN_PRIVILEGE_CHECK_DIR "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "REQUIRE_ADMIN"
+      StrCpy $REQUIRE_ADMIN "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "ADMIN_CHECK_DIR"
+      StrCpy $ADMIN_CHECK_DIR "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "DEFAULT_CLIENT"
       StrCpy $DEFAULT_CLIENT "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "DISABLED_CLIENTS"
@@ -181,6 +185,14 @@ Function "ReadConfigurations"
       StrCpy $EXTRA_INSTALLERS "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "EXTRA_SHORTCUTS"
       StrCpy $EXTRA_SHORTCUTS "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "CLEAN_PREFERRED_TITLE"
+      StrCpy $CLEAN_PREFERRED_TITLE "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "CLEAN_PREFERRED_MESSAGE"
+      StrCpy $CLEAN_PREFERRED_MESSAGE "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "CLEAN_REQUIRED_TITLE"
+      StrCpy $CLEAN_REQUIRED_TITLE "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "CLEAN_REQUIRED_MESSAGE"
+      StrCpy $CLEAN_REQUIRED_MESSAGE "$CONFIG_VALUE"
     ${EndIf}
 
   RETURN:
