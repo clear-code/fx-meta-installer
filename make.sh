@@ -99,6 +99,13 @@ do
 done
 
 addon_files=$(echo "$addon_files" | $sed 's/^\|//')
+
+given_addon_files=$(read_config "INSTALL_ADDONS")
+if [ $given_addon_files != "" ]
+then
+  addon_files=$given_addon_files
+fi
+
 $sed "s/<addon_files>/$addon_files/" -i $inifile
 
 
