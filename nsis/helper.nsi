@@ -58,6 +58,13 @@ Section "Make INI File" MakeINI
     FileWrite $INI_FILE "AppEulaUrl=$\r$\n"
     FileWrite $INI_FILE "AppHash=$\r$\n"
     FileWrite $INI_FILE "AppEnableCrashReport=true$\r$\n"
+    FileWrite $INI_FILE "AppAllowDowngrade=$\r$\n"
+    FileWrite $INI_FILE "CleanInstallPreferredTitle=$\r$\n"
+    FileWrite $INI_FILE "CleanInstallPreferredMessage=$\r$\n"
+    FileWrite $INI_FILE "CleanInstallRequiredTitle=$\r$\n"
+    FileWrite $INI_FILE "CleanInstallRequiredMessage=$\r$\n"
+    FileWrite $INI_FILE "FxEnabledSearchPlugins=$\r$\n"
+    FileWrite $INI_FILE "FxDisabledSearchPlugins=$\r$\n"
     FileWrite $INI_FILE "$\r$\n"
 
     ${Locate} "$EXEDIR\..\resources" "/L=F /M=*.xpi" "AddEntry"

@@ -44,6 +44,16 @@ read_config() {
   cat ../config.nsh | grep -v -E "^;" | grep $1 | cut -d '"' -f 2
 }
 
+read_boolean_config() {
+  found=$(cat ../config.nsh | grep -v -E "^;" | grep $1)
+  if [ "$found" = "" ]
+  then
+    echo -n "false"
+  else
+    echo -n "true"
+  fi
+}
+
 cat > $inifile << EOS
 [fainstall]
 AppMinVersion=$(read_config "APP_MIN_VERSION")
@@ -54,6 +64,13 @@ AppEulaPath=$(read_config "APP_EULA_PATH")
 AppEulaUrl=$(read_config "APP_EULA_URL")
 AppHash=$(read_config "APP_HASH")
 AppEnableCrashReport=true
+AppAllowDowngrade=$(read_boolean_config "APP_ALLOW_DOWNGRADE")
+CleanInstallPreferredTitle=
+CleanInstallPreferredMessage=
+CleanInstallRequiredTitle=
+CleanInstallRequiredMessage=
+FxEnabledSearchPlugins=$(read_config "FX_ENABLED_SEARCH_PLUGINS")
+FxDisabledSearchPlugins=$(read_config "FX_DISABLEd_SEARCH_PLUGINS")
 
 EOS
 
