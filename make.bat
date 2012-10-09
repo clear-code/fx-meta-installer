@@ -13,6 +13,7 @@ copy config.nsh.sample config.nsh
 IF EXIST resources GOTO CONFIG
 mkdir "resources"
 xcopy _resources\*.sample resources\ /i /s
+ren resources\*.sample *.
 
 
 :CONFIG
