@@ -282,7 +282,7 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
                              詳細は「同梱アドオンのインストール」を参照。
 　取り得る値               ：ファイル名のリスト。
   デフォルト値             ：なし。
-■■
+■■インストール対象の同梱アプリケーション
   config.nshでの設定キー   ：EXTRA_INSTALLERS
   fainstall.iniでの設定キー：Installers
 　説明                     ：resourcesフォルダ内に置いたインストーラのEXEファ
@@ -292,7 +292,7 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
                              省略時は、何も行わない。
 　取り得る値               ：ファイル名のリスト。
   デフォルト値             ：なし。
-■■
+■■インストール対象の追加のショートカット
   config.nshでの設定キー   ：EXTRA_SHORTCUTS
   fainstall.iniでの設定キー：Shortcuts
 　説明                     ：追加で作成するショートカット定義のリスト。
