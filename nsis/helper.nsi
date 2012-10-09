@@ -50,12 +50,14 @@ Section "Make INI File" MakeINI
     FileOpen $INI_FILE "${INIPATH}" w
 
     FileWrite $INI_FILE "[fainstall]$\r$\n"
+    FileWrite $INI_FILE "AppMinVersion=$\r$\n"
+    FileWrite $INI_FILE "AppMaxVersion=$\r$\n"
     FileWrite $INI_FILE "AppDownloadPath=$\r$\n"
     FileWrite $INI_FILE "AppDownloadUrl=$\r$\n"
     FileWrite $INI_FILE "AppEulaPath=$\r$\n"
     FileWrite $INI_FILE "AppEulaUrl=$\r$\n"
     FileWrite $INI_FILE "AppHash=$\r$\n"
-    FileWrite $INI_FILE "AppInstallTalkback=true$\r$\n"
+    FileWrite $INI_FILE "AppEnableCrashReport=true$\r$\n"
     FileWrite $INI_FILE "$\r$\n"
 
     ${Locate} "$EXEDIR\..\resources" "/L=F /M=*.xpi" "AddEntry"

@@ -46,8 +46,8 @@ read_config() {
 
 cat > $inifile << EOS
 [fainstall]
-AppMaxVersion=$(read_config "APP_MAX_VERSION")
 AppMinVersion=$(read_config "APP_MIN_VERSION")
+AppMaxVersion=$(read_config "APP_MAX_VERSION")
 AppDownloadPath=$(read_config "APP_DOWNLOAD_PATH")
 AppDownloadUrl=$(read_config "APP_DOWNLOAD_URL")
 AppEulaPath=$(read_config "APP_EULA_PATH")
