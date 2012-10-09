@@ -48,6 +48,14 @@ Var APP_ENABLE_CRASH_REPORT
 Var APP_ALLOW_DOWNGRADE
 Var FX_ENABLED_SEARCH_PLUGINS
 Var FX_DISABLED_SEARCH_PLUGINS
+Var FINISH_TITLE
+Var FINISH_MESSAGE
+Var REQUIRE_ADMIN_PRIVILEGE
+Var ADMIN_PRIVILEGE_CHECK_DIR
+Var DISABLED_CLIENTS
+Var INSTALL_ADDONS
+Var EXTRA_INSTALLERS
+Var EXTRA_SHORTCUTS
 
 ;=== Libraries
 !include "LogicLib.nsh"
@@ -80,14 +88,20 @@ Section "Make INI File" MakeINI
     FileWrite $FILE_HANDLER "AppHash=$APP_HASH$\r$\n"
     FileWrite $FILE_HANDLER "AppEnableCrashReport=$APP_ENABLE_CRASH_REPORT$\r$\n"
     FileWrite $FILE_HANDLER "AppAllowDowngrade=$APP_ALLOW_DOWNGRADE$\r$\n"
+    FileWrite $FILE_HANDLER "FinishTitle=$FINISH_TITLE$\r$\n"
+    FileWrite $FILE_HANDLER "FinishMessage=$FINISH_MESSAGE$\r$\n"
     FileWrite $FILE_HANDLER "CleanInstallPreferredTitle=$\r$\n"
     FileWrite $FILE_HANDLER "CleanInstallPreferredMessage=$\r$\n"
     FileWrite $FILE_HANDLER "CleanInstallRequiredTitle=$\r$\n"
     FileWrite $FILE_HANDLER "CleanInstallRequiredMessage=$\r$\n"
-    FileWrite $FILE_HANDLER "FinishTitle=$\r$\n"
-    FileWrite $FILE_HANDLER "FinishMessage=$\r$\n"
     FileWrite $FILE_HANDLER "FxEnabledSearchPlugins=$FX_ENABLED_SEARCH_PLUGINS$\r$\n"
     FileWrite $FILE_HANDLER "FxDisabledSearchPlugins=$FX_DISABLED_SEARCH_PLUGINS$\r$\n"
+    FileWrite $FILE_HANDLER "RequireAdminPrivilege=$REQUIRE_ADMIN_PRIVILEGE$\r$\n"
+    FileWrite $FILE_HANDLER "AdminPrivilegeCheckDirectory=$ADMIN_PRIVILEGE_CHECK_DIR$\r$\n"
+    FileWrite $FILE_HANDLER "DisabledClients=$DISABLED_CLIENTS$\r$\n"
+    FileWrite $FILE_HANDLER "Addons=$INSTALL_ADDONS$\r$\n"
+    FileWrite $FILE_HANDLER "Installers=$EXTRA_INSTALLERS$\r$\n"
+    FileWrite $FILE_HANDLER "Shortcuts=$EXTRA_SHORTCUTS$\r$\n"
     FileWrite $FILE_HANDLER "$\r$\n"
 
     ${Locate} "$EXEDIR\..\resources" "/L=F /M=*.xpi" "AddFileEntry"
@@ -145,6 +159,22 @@ Function "ReadConfigurations"
       StrCpy $FX_ENABLED_SEARCH_PLUGINS "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "FX_DISABLED_SEARCH_PLUGINS"
       StrCpy $FX_DISABLED_SEARCH_PLUGINS "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "FINISH_TITLE"
+      StrCpy $FINISH_TITLE "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "FINISH_MESSAGE"
+      StrCpy $FINISH_MESSAGE "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "REQUIRE_ADMIN_PRIVILEGE"
+      StrCpy $REQUIRE_ADMIN_PRIVILEGE "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "ADMIN_PRIVILEGE_CHECK_DIR"
+      StrCpy $ADMIN_PRIVILEGE_CHECK_DIR "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "DISABLED_CLIENTS"
+      StrCpy $DISABLED_CLIENTS "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "INSTALL_ADDONS"
+      StrCpy $INSTALL_ADDONS "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "EXTRA_INSTALLERS"
+      StrCpy $EXTRA_INSTALLERS "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "EXTRA_SHORTCUTS"
+      StrCpy $EXTRA_SHORTCUTS "$CONFIG_VALUE"
     ${EndIf}
 
   RETURN:

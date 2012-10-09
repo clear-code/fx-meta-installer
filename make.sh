@@ -65,12 +65,18 @@ AppEulaUrl=$(read_config "APP_EULA_URL")
 AppHash=$(read_config "APP_HASH")
 AppEnableCrashReport=$(read_boolean_config "APP_ENABLE_CRASH_REPORT")
 AppAllowDowngrade=$(read_boolean_config "APP_ALLOW_DOWNGRADE")
+FinishTitle=$(read_config "FINISH_TITLE")
+FinishMessage=$(read_config "FINISH_MESSAGE")
 CleanInstallPreferredTitle=
 CleanInstallPreferredMessage=
 CleanInstallRequiredTitle=
 CleanInstallRequiredMessage=
-FinishTitle=
-FinishMessage=
+RequireAdminPrivilege=$(read_config "REQUIRE_ADMIN_PRIVILEGE$")
+AdminPrivilegeCheckDirectory=$(read_config "ADMIN_PRIVILEGE_CHECK_DIR")
+DisabledClients$(read_config "DISABLED_CLIENTS")
+Addons$(read_config "INSTALL_ADDONS")
+Installers$(read_config "EXTRA_INSTALLERS")
+Shortcuts$(read_config "EXTRA_SHORTCUTS")
 FxEnabledSearchPlugins=$(read_config "FX_ENABLED_SEARCH_PLUGINS")
 FxDisabledSearchPlugins=$(read_config "FX_DISABLEd_SEARCH_PLUGINS")
 
