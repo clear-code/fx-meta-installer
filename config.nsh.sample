@@ -30,6 +30,7 @@
 ;!define APP_HASH            "8d017402de51a144d0e0fe4d3e2132cb"
 ;!define APP_EULA_PATH       "\\fileserver\shared\Firefox Setup 15.0.1.txt"
 ;!define APP_EULA_URL        "http://www.mozilla.com/en-US/legal/eula/firefox2-en.txt"
+!define APP_ENABLE_CRASH_REPORT
 
 ; Type of installation of Firefox/Thunderbird itself
 ;  NORMAL : Show full wizard
