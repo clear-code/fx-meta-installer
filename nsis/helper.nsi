@@ -55,12 +55,14 @@ Var ADMIN_CHECK_DIR
 Var DEFAULT_CLIENT
 Var DISABLED_CLIENTS
 Var INSTALL_ADDONS
+Var GIVEN_INSTALL_ADDONS
 Var EXTRA_INSTALLERS
 Var EXTRA_SHORTCUTS
 Var CLEAN_PREFERRED_TITLE
 Var CLEAN_PREFERRED_MESSAGE
 Var CLEAN_REQUIRED_TITLE
 Var CLEAN_REQUIRED_MESSAGE
+Var ADDON_ENTRIES
 
 ;=== Libraries
 !include "LogicLib.nsh"
@@ -84,9 +86,12 @@ Section "Make INI File" MakeINI
     StrCpy $REQUIRE_ADMIN "true"
 
     ${LineFind} "..\config.nsh" "NUL" "1:-1" "ReadConfigurations"
+    ${Locate} "$EXEDIR\..\resources" "/L=F /M=*.xpi" "PrepareFileEntry"
+    ${Unless} $GIVEN_INSTALL_ADDONS == ""
+      StrCpy $INSTALL_ADDONS "$GIVEN_INSTALL_ADDONS"
+    ${EndUnless}
 
     FileOpen $FILE_HANDLER "${INIPATH}" w
-
     FileWrite $FILE_HANDLER "[fainstall]$\r$\n"
     FileWrite $FILE_HANDLER "AppMinVersion=$APP_MIN_VERSION$\r$\n"
     FileWrite $FILE_HANDLER "AppMaxVersion=$APP_MAX_VERSION$\r$\n"
@@ -112,9 +117,7 @@ Section "Make INI File" MakeINI
     FileWrite $FILE_HANDLER "Addons=$INSTALL_ADDONS$\r$\n"
     FileWrite $FILE_HANDLER "Installers=$EXTRA_INSTALLERS$\r$\n"
     FileWrite $FILE_HANDLER "Shortcuts=$EXTRA_SHORTCUTS$\r$\n"
-    FileWrite $FILE_HANDLER "$\r$\n"
-
-    ${Locate} "$EXEDIR\..\resources" "/L=F /M=*.xpi" "AddFileEntry"
+    FileWrite $FILE_HANDLER "$ADDON_ENTRIES$\r$\n"
     FileClose $FILE_HANDLER
 
     FileOpen $FILE_HANDLER "${PRODUCT_NAME_PATH}" w
@@ -180,7 +183,7 @@ Function "ReadConfigurations"
     ${ElseIf} $CONFIG_KEY == "DISABLED_CLIENTS"
       StrCpy $DISABLED_CLIENTS "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "INSTALL_ADDONS"
-      StrCpy $INSTALL_ADDONS "$CONFIG_VALUE"
+      StrCpy $GIVEN_INSTALL_ADDONS "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "EXTRA_INSTALLERS"
       StrCpy $EXTRA_INSTALLERS "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "EXTRA_SHORTCUTS"
@@ -199,10 +202,8 @@ Function "ReadConfigurations"
     Push "SkipWrite"
 FunctionEnd
 
-Function "AddFileEntry"
+Function "PrepareFileEntry"
     StrCpy $ADDON_FILE "$R7"
-
-    FileWrite $FILE_HANDLER "[$ADDON_FILE]$\r$\n"
 
     ZipDLL::extractfile "$R9" "$EXEDIR" "install.rdf"
     ${xml::LoadFile} "install.rdf" $0
@@ -249,7 +250,12 @@ Function "AddFileEntry"
     ${xml::Unload}
     Delete "$EXEDIR\install.rdf"
 
-    FileWrite $FILE_HANDLER "AddonId=$ADDON_NAME$\r$\n"
-    FileWrite $FILE_HANDLER "$\r$\n"
+    StrCpy $ADDON_ENTRIES "$ADDON_ENTRIES$\r$\n[$ADDON_FILE]$\r$\nAddonId=$ADDON_NAME$\r$\n"
+
+    ${If} $INSTALL_ADDONS == ""
+      StrCpy $INSTALL_ADDONS "$ADDON_FILE"
+    ${Else}
+      StrCpy $INSTALL_ADDONS "$INSTALL_ADDONS|$ADDON_FILE"
+    ${EndIf}
 
 FunctionEnd
