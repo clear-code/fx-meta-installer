@@ -9,6 +9,7 @@
 !define PRODUCT_WEB_SITE    "http://www.clear-code.com/"
 
 !define INIPATH             "$EXEDIR\..\fainstall.ini"
+!define PRODUCT_NAME_PATH   "$EXEDIR\..\product.txt"
 
 ;=== Program Details
 Name    "${PRODUCT_FULL_NAME}"
@@ -33,8 +34,9 @@ AutoCloseWindow True
 ;=== Variables
 Var ADDON_FILE
 Var ADDON_NAME
-Var INI_FILE
+Var FILE_HANDLER
 
+Var PRODUCT_NAME
 Var APP_MIN_VERSION
 Var APP_MAX_VERSION
 Var APP_DOWNLOAD_PATH
@@ -60,31 +62,38 @@ Section "Make INI File" MakeINI
     ${If} ${FileExists} "${INIPATH}"
       Delete "${INIPATH}"
     ${EndIf}
+    ${If} ${FileExists} "${PRODUCT_NAME_PATH}"
+      Delete "${PRODUCT_NAME_PATH}"
+    ${EndIf}
 
     ${LineFind} "..\config.nsh" "NUL" "1:-1" "ReadConfigurations"
 
-    FileOpen $INI_FILE "${INIPATH}" w
+    FileOpen $FILE_HANDLER "${INIPATH}" w
 
-    FileWrite $INI_FILE "[fainstall]$\r$\n"
-    FileWrite $INI_FILE "AppMinVersion=$APP_MIN_VERSION$\r$\n"
-    FileWrite $INI_FILE "AppMaxVersion=$APP_MAX_VERSION$\r$\n"
-    FileWrite $INI_FILE "AppDownloadPath=$APP_DOWNLOAD_PATH$\r$\n"
-    FileWrite $INI_FILE "AppDownloadUrl=$APP_DOWNLOAD_URL$\r$\n"
-    FileWrite $INI_FILE "AppEulaPath=$APP_EULA_PATH$\r$\n"
-    FileWrite $INI_FILE "AppEulaUrl=$APP_EULA_URL$\r$\n"
-    FileWrite $INI_FILE "AppHash=$APP_HASH$\r$\n"
-    FileWrite $INI_FILE "AppEnableCrashReport=$APP_ENABLE_CRASH_REPORT$\r$\n"
-    FileWrite $INI_FILE "AppAllowDowngrade=$APP_ALLOW_DOWNGRADE$\r$\n"
-    FileWrite $INI_FILE "CleanInstallPreferredTitle=$\r$\n"
-    FileWrite $INI_FILE "CleanInstallPreferredMessage=$\r$\n"
-    FileWrite $INI_FILE "CleanInstallRequiredTitle=$\r$\n"
-    FileWrite $INI_FILE "CleanInstallRequiredMessage=$\r$\n"
-    FileWrite $INI_FILE "FxEnabledSearchPlugins=$FX_ENABLED_SEARCH_PLUGINS$\r$\n"
-    FileWrite $INI_FILE "FxDisabledSearchPlugins=$FX_DISABLED_SEARCH_PLUGINS$\r$\n"
-    FileWrite $INI_FILE "$\r$\n"
+    FileWrite $FILE_HANDLER "[fainstall]$\r$\n"
+    FileWrite $FILE_HANDLER "AppMinVersion=$APP_MIN_VERSION$\r$\n"
+    FileWrite $FILE_HANDLER "AppMaxVersion=$APP_MAX_VERSION$\r$\n"
+    FileWrite $FILE_HANDLER "AppDownloadPath=$APP_DOWNLOAD_PATH$\r$\n"
+    FileWrite $FILE_HANDLER "AppDownloadUrl=$APP_DOWNLOAD_URL$\r$\n"
+    FileWrite $FILE_HANDLER "AppEulaPath=$APP_EULA_PATH$\r$\n"
+    FileWrite $FILE_HANDLER "AppEulaUrl=$APP_EULA_URL$\r$\n"
+    FileWrite $FILE_HANDLER "AppHash=$APP_HASH$\r$\n"
+    FileWrite $FILE_HANDLER "AppEnableCrashReport=$APP_ENABLE_CRASH_REPORT$\r$\n"
+    FileWrite $FILE_HANDLER "AppAllowDowngrade=$APP_ALLOW_DOWNGRADE$\r$\n"
+    FileWrite $FILE_HANDLER "CleanInstallPreferredTitle=$\r$\n"
+    FileWrite $FILE_HANDLER "CleanInstallPreferredMessage=$\r$\n"
+    FileWrite $FILE_HANDLER "CleanInstallRequiredTitle=$\r$\n"
+    FileWrite $FILE_HANDLER "CleanInstallRequiredMessage=$\r$\n"
+    FileWrite $FILE_HANDLER "FxEnabledSearchPlugins=$FX_ENABLED_SEARCH_PLUGINS$\r$\n"
+    FileWrite $FILE_HANDLER "FxDisabledSearchPlugins=$FX_DISABLED_SEARCH_PLUGINS$\r$\n"
+    FileWrite $FILE_HANDLER "$\r$\n"
 
     ${Locate} "$EXEDIR\..\resources" "/L=F /M=*.xpi" "AddFileEntry"
-    FileClose $INI_FILE
+    FileClose $FILE_HANDLER
+
+    FileOpen $FILE_HANDLER "${PRODUCT_NAME_PATH}" w
+    FileWrite $FILE_HANDLER "$PRODUCT_NAME"
+    FileClose $FILE_HANDLER
 SectionEnd
 
 Var LINE
@@ -110,7 +119,9 @@ Function "ReadConfigurations"
     ${WordFind} "$TEMP_STRING" " " "+2*}" $CONFIG_VALUE
     ${WordFind} "$CONFIG_VALUE" '"' "+1" $CONFIG_VALUE
 
-    ${If} $CONFIG_KEY == "APP_MIN_VERSION"
+    ${If} $CONFIG_KEY == "PRODUCT_NAME"
+      StrCpy $PRODUCT_NAME "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "APP_MIN_VERSION"
       StrCpy $APP_MIN_VERSION "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "APP_MAX_VERSION"
       StrCpy $APP_MAX_VERSION "$CONFIG_VALUE"
@@ -141,7 +152,7 @@ FunctionEnd
 Function "AddFileEntry"
     StrCpy $ADDON_FILE "$R7"
 
-    FileWrite $INI_FILE "[$ADDON_FILE]$\r$\n"
+    FileWrite $FILE_HANDLER "[$ADDON_FILE]$\r$\n"
 
     ZipDLL::extractfile "$R9" "$EXEDIR" "install.rdf"
     ${xml::LoadFile} "install.rdf" $0
@@ -188,7 +199,7 @@ Function "AddFileEntry"
     ${xml::Unload}
     Delete "$EXEDIR\install.rdf"
 
-    FileWrite $INI_FILE "AddonId=$ADDON_NAME$\r$\n"
-    FileWrite $INI_FILE "$\r$\n"
+    FileWrite $FILE_HANDLER "AddonId=$ADDON_NAME$\r$\n"
+    FileWrite $FILE_HANDLER "$\r$\n"
 
 FunctionEnd
