@@ -52,6 +52,7 @@ Var FINISH_TITLE
 Var FINISH_MESSAGE
 Var REQUIRE_ADMIN_PRIVILEGE
 Var ADMIN_PRIVILEGE_CHECK_DIR
+Var DEFAULT_CLIENT
 Var DISABLED_CLIENTS
 Var INSTALL_ADDONS
 Var EXTRA_INSTALLERS
@@ -73,6 +74,10 @@ Section "Make INI File" MakeINI
     ${If} ${FileExists} "${PRODUCT_NAME_PATH}"
       Delete "${PRODUCT_NAME_PATH}"
     ${EndIf}
+
+    StrCpy $APP_ENABLE_CRASH_REPORT "false"
+    StrCpy $APP_ALLOW_DOWNGRADE "false"
+    StrCpy $REQUIRE_ADMIN_PRIVILEGE "true"
 
     ${LineFind} "..\config.nsh" "NUL" "1:-1" "ReadConfigurations"
 
@@ -98,6 +103,7 @@ Section "Make INI File" MakeINI
     FileWrite $FILE_HANDLER "FxDisabledSearchPlugins=$FX_DISABLED_SEARCH_PLUGINS$\r$\n"
     FileWrite $FILE_HANDLER "RequireAdminPrivilege=$REQUIRE_ADMIN_PRIVILEGE$\r$\n"
     FileWrite $FILE_HANDLER "AdminPrivilegeCheckDirectory=$ADMIN_PRIVILEGE_CHECK_DIR$\r$\n"
+    FileWrite $FILE_HANDLER "DefaultClient=$DEFAULT_CLIENT$\r$\n"
     FileWrite $FILE_HANDLER "DisabledClients=$DISABLED_CLIENTS$\r$\n"
     FileWrite $FILE_HANDLER "Addons=$INSTALL_ADDONS$\r$\n"
     FileWrite $FILE_HANDLER "Installers=$EXTRA_INSTALLERS$\r$\n"
@@ -120,11 +126,8 @@ Function "ReadConfigurations"
     StrCpy $LINE "$R9"
 
     ; Ignore blank lines
-    ${If} $LINE == "$\r$\n"
-    ${OrIf} $LINE == "$\n"
-    ${OrIf} $LINE == "$\r"
-      GoTo RETURN
-    ${EndIf}
+    ${TrimNewLines} "$LINE" $LINE
+    ${IfThen} $LINE == "" ${|} GoTo RETURN ${|}
 
     ; Ignore comments
     ${WordFind} "$LINE" ";" "+1*}" $TEMP_STRING
@@ -134,6 +137,7 @@ Function "ReadConfigurations"
     ${WordFind} "$TEMP_STRING" " " "+1{*" $CONFIG_KEY
     ${WordFind} "$TEMP_STRING" " " "+2*}" $CONFIG_VALUE
     ${WordFind} "$CONFIG_VALUE" '"' "+1" $CONFIG_VALUE
+    ${IfThen} "$CONFIG_VALUE" == '""' ${|} StrCpy $CONFIG_VALUE "" ${|}
 
     ${If} $CONFIG_KEY == "PRODUCT_NAME"
       StrCpy $PRODUCT_NAME "$CONFIG_VALUE"
@@ -167,6 +171,8 @@ Function "ReadConfigurations"
       StrCpy $REQUIRE_ADMIN_PRIVILEGE "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "ADMIN_PRIVILEGE_CHECK_DIR"
       StrCpy $ADMIN_PRIVILEGE_CHECK_DIR "$CONFIG_VALUE"
+    ${ElseIf} $CONFIG_KEY == "DEFAULT_CLIENT"
+      StrCpy $DEFAULT_CLIENT "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "DISABLED_CLIENTS"
       StrCpy $DISABLED_CLIENTS "$CONFIG_VALUE"
     ${ElseIf} $CONFIG_KEY == "INSTALL_ADDONS"

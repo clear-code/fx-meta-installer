@@ -73,6 +73,7 @@ CleanInstallRequiredTitle=
 CleanInstallRequiredMessage=
 RequireAdminPrivilege=$(read_config "REQUIRE_ADMIN_PRIVILEGE$")
 AdminPrivilegeCheckDirectory=$(read_config "ADMIN_PRIVILEGE_CHECK_DIR")
+DefaultClient=$(read_config "DEFAULT_CLIENT$")
 DisabledClients$(read_config "DISABLED_CLIENTS")
 Addons$(read_config "INSTALL_ADDONS")
 Installers$(read_config "EXTRA_INSTALLERS")
