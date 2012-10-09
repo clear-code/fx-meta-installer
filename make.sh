@@ -27,12 +27,12 @@ fi
 
 sed='sed -r -e'
 
-installer_name=`grep 'INSTALLER_NAME=' config.bat | $sed 's/[^=]+=|[ \t\r\n]+$//g'`
-echo installer_name
+product_name=`grep 'PRODUCT_NAME' config.nsh | $sed 's/^[^"]*"//' | $sed 's/".*$\r?\n?//'`
+echo product_name
 
 rm fainstall.exe
 rm fainstall.ini
-rm "$installer_name.exe"
+rm "$product_name.exe"
 
 # build NSIS
 
@@ -74,23 +74,33 @@ CleanInstallRequiredMessage=$(read_config "CLEAN_REQUIRED_MESSAGE")
 RequireAdminPrivilege=$(read_config "REQUIRE_ADMIN_PRIVILEGE$")
 AdminPrivilegeCheckDirectory=$(read_config "ADMIN_PRIVILEGE_CHECK_DIR")
 DefaultClient=$(read_config "DEFAULT_CLIENT$")
-DisabledClients$(read_config "DISABLED_CLIENTS")
-Addons$(read_config "INSTALL_ADDONS")
-Installers$(read_config "EXTRA_INSTALLERS")
-Shortcuts$(read_config "EXTRA_SHORTCUTS")
+DisabledClients=$(read_config "DISABLED_CLIENTS")
+Addons=<addon_files>
+Installers=$(read_config "EXTRA_INSTALLERS")
+Shortcuts=$(read_config "EXTRA_SHORTCUTS")
 FxEnabledSearchPlugins=$(read_config "FX_ENABLED_SEARCH_PLUGINS")
 FxDisabledSearchPlugins=$(read_config "FX_DISABLEd_SEARCH_PLUGINS")
 
 EOS
 
+addon_files=""
 for filename in ../resources/*.xpi
 do
-  echo reading $filename
-  echo $filename | $sed 's/.+\/([^\/]+)$/[\1]/' >> $inifile
-  install_rdf=`unzip -p $filename install.rdf`
-  echo AddonId=`echo $install_rdf | $sed 's/.*em:id="([^"]+)".*(em:name|<em:targetApplication>).*/\1/'` >> $inifile
-  echo '' >> $inifile
+  if [ -f $filename ]
+  then
+    echo reading $filename
+    addon_file=$(echo $filename | $sed 's/.+\/([^\/]+)$/\1/')
+    addon_files="$addon_files|$addon_file"
+    echo "[$addon_file]" >> $inifile
+    install_rdf=`unzip -p $filename install.rdf`
+    echo AddonId=`echo $install_rdf | $sed 's/.*em:id="([^"]+)".*(em:name|<em:targetApplication>).*/\1/'` >> $inifile
+    echo '' >> $inifile
+  fi
 done
+
+addon_files=$(echo "$addon_files" | $sed 's/^\|//')
+$sed "s/<addon_files>/$addon_files/" -i $inifile
+
 
 makensis fainstall.nsi
 cd ..
@@ -98,22 +108,22 @@ cd ..
 
 # create package sources
 
-rm -r "$installer_name-source"
-mkdir "$installer_name-source"
-mkdir "$installer_name-source/resources"
+rm -r "$product_name-source"
+mkdir "$product_name-source"
+mkdir "$product_name-source/resources"
 
-mv fainstall.exe "./$installer_name-source/"
-mv fainstall.ini "./$installer_name-source/"
+mv fainstall.exe "./$product_name-source/"
+mv fainstall.ini "./$product_name-source/"
 
-tar -c -f- --exclude-vcs -C resources . | tar -x -C "./$installer_name-source/resources"
-cp ./7z/pack.list "./$installer_name-source/"
-cat ./7z/7zS.sfx ./7z/FxMetaInstaller.tag > "./$installer_name-source/fainstall.sfx"
-cp ./7z/7zr.exe "./$installer_name-source/"
-cp ./7z/pack.bat "./$installer_name-source/$installer_name.bat"
-cp ./7z/pack.sh "./$installer_name-source/$installer_name.sh"
-cd "$installer_name-source"
+tar -c -f- --exclude-vcs -C resources . | tar -x -C "./$product_name-source/resources"
+cp ./7z/pack.list "./$product_name-source/"
+cat ./7z/7zS.sfx ./7z/FxMetaInstaller.tag > "./$product_name-source/fainstall.sfx"
+cp ./7z/7zr.exe "./$product_name-source/"
+cp ./7z/pack.bat "./$product_name-source/$product_name.bat"
+cp ./7z/pack.sh "./$product_name-source/$product_name.sh"
+cd "$product_name-source"
 
-# bash ./$installer_name.sh
+# bash ./$product_name.sh
 
 cd ..
 
