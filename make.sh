@@ -69,6 +69,8 @@ CleanInstallPreferredTitle=
 CleanInstallPreferredMessage=
 CleanInstallRequiredTitle=
 CleanInstallRequiredMessage=
+FinishTitle=
+FinishMessage=
 FxEnabledSearchPlugins=$(read_config "FX_ENABLED_SEARCH_PLUGINS")
 FxDisabledSearchPlugins=$(read_config "FX_DISABLEd_SEARCH_PLUGINS")
 

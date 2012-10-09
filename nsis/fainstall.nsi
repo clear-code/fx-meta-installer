@@ -795,7 +795,7 @@ Section "Set Default Client" SetDefaultClient
     !ifdef NSIS_CONFIG_LOG
       LogSet on
     !endif
-    ReadINIStr $ITEM_NAME "${INIPATH}" "${INSTALLER_NAME}" "DefaultClient"
+    ${ReadINIStrWithDefault} $ITEM_NAME "${INIPATH}" "${INSTALLER_NAME}" "DefaultClient" "${DEFAULT_CLIENT}"
     ${Unless} "$ITEM_NAME" == ""
       !ifdef NSIS_CONFIG_LOG
         LogText "*** SetDefaultClient: $ITEM_NAME"
@@ -843,7 +843,7 @@ Section "Disable Clients" DisableClients
       LogSet on
     !endif
     StrCpy $ITEM_INDEX 0
-    ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "DisabledClients"
+    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "DisabledClients" "${DISABLED_CLIENTS}"
     ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
@@ -1018,7 +1018,7 @@ Section "Install Add-ons" InstallAddons
       LogSet on
     !endif
     StrCpy $ITEM_INDEX 0
-    ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons"
+    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons" "${INSTALL_ADDONS}"
     ${If} "$ITEMS_LIST" == ""
       ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
     ${EndIf}
@@ -1111,7 +1111,7 @@ Function "InstallAddon"
 FunctionEnd
 
 Section "Install Shortcuts" InstallShortcuts
-    ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Shortcuts"
+    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Shortcuts" "${EXTRA_SHORTCUTS}"
     StrCpy $ITEM_INDEX 0
     ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
@@ -1203,7 +1203,7 @@ Section "Install Extra Installers" InstallExtraInstallers
       LogSet on
       LogText "*** InstallExtraInstallers"
     !endif
-    ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Installers"
+    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Installers" "${EXTRA_INSTALLERS}"
     ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
@@ -1510,8 +1510,8 @@ Section -Post
 SectionEnd
 
 Section "Show Finish Message" ShowFinishMessage
-    ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FinishMessage"
-    ReadINIStr $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "FinishTitle"
+    ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FinishMessage" "${FINISH_MESSAGE}"
+    ${ReadINIStrWithDefault} $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "FinishTitle" "${FINISH_TITLE}"
     ${Unless} "$INI_TEMP" == ""
       ${WordReplace} "$INI_TEMP" "\n" "$\n" "+*" $INI_TEMP
       ${If} "$INI_TEMP2" == ""
@@ -1756,9 +1756,9 @@ Function CheckCleanInstall
 
   ${If} ${FileExists} "${APP_PROFILE_PATH}"
     ${If} "$CLEAN_INSTALL" == "REQUIRED"
-      ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage"
+      ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage" "${CLEAN_INSTALL_REQUIRED_MESSAGE}"
       ${WordReplace} "$INI_TEMP" "\n" "$\n" "+*" $INI_TEMP
-      ReadINIStr $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredTitle"
+      ${ReadINIStrWithDefault} $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredTitle" "${CLEAN_INSTALL_REQUIRED_TITLE}"
       ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "$(MSG_CLEAN_INSTALL_REQUIRED)" ${|}
       ${If} "$INI_TEMP2" == ""
         MessageBox MB_OK|MB_ICONEXCLAMATION "$INI_TEMP" /SD IDOK
@@ -1767,9 +1767,10 @@ Function CheckCleanInstall
       ${EndIf}
       Abort
     ${ElseIf} "$CLEAN_INSTALL" == "PREFERRED"
-      ReadINIStr $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredMessage"
+      ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredMessage" "${CLEAN_INSTALL_PREFERRED_MESSAGE}"
       ${WordReplace} "$INI_TEMP" "\n" "$\n" "+*" $INI_TEMP
-      ReadINIStr $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredTitle"
+      ReadINIStr $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" ""
+      ${ReadINIStrWithDefault} $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallPreferredTitle" "${CLEAN_INSTALL_PREFERRED_TITLE}"
       ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "$(MSG_CLEAN_INSTALL_PREFERRED)" ${|}
       ${If} "$INI_TEMP2" == ""
         MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$INI_TEMP" IDYES +2
@@ -1786,7 +1787,7 @@ FunctionEnd
 
 Var REQUIRE_ADMIN_PRIVILEGE
 Function CheckAdminPrivilege
-    ReadINIStr $REQUIRE_ADMIN_PRIVILEGE "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege"
+    ${ReadINIStrWithDefault} $REQUIRE_ADMIN_PRIVILEGE "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege" "${REQUIRE_ADMIN_PRIVILEGE}"
     ${If} "$REQUIRE_ADMIN_PRIVILEGE" == "false"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
@@ -1810,7 +1811,7 @@ Function CheckAdminPrivilege
     ${EndIf}
 
     ; check by file writing
-    ReadINIStr $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory"
+    ${ReadINIStrWithDefault} $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory" "${ADMIN_PRIVILEGE_CHECK_DIR}"
     Call ResolveItemLocation
     ${IfThen} "$ITEM_LOCATION" == "" ${|} StrCpy $ITEM_LOCATION "$PROGRAMFILES" ${|}
     ${Unless} "$ITEM_LOCATION" == ""

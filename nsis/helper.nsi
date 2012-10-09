@@ -84,6 +84,8 @@ Section "Make INI File" MakeINI
     FileWrite $FILE_HANDLER "CleanInstallPreferredMessage=$\r$\n"
     FileWrite $FILE_HANDLER "CleanInstallRequiredTitle=$\r$\n"
     FileWrite $FILE_HANDLER "CleanInstallRequiredMessage=$\r$\n"
+    FileWrite $FILE_HANDLER "FinishTitle=$\r$\n"
+    FileWrite $FILE_HANDLER "FinishMessage=$\r$\n"
     FileWrite $FILE_HANDLER "FxEnabledSearchPlugins=$FX_ENABLED_SEARCH_PLUGINS$\r$\n"
     FileWrite $FILE_HANDLER "FxDisabledSearchPlugins=$FX_DISABLED_SEARCH_PLUGINS$\r$\n"
     FileWrite $FILE_HANDLER "$\r$\n"
