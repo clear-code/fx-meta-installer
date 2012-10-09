@@ -20,6 +20,7 @@
 ;  QUIET   : Silent install
 !define PRODUCT_INSTALL_MODE "NORMAL"
 
+; These can be overridden by fainstall.ini
 !define APP_NAME            "Firefox"
 !define APP_MIN_VERSION     "3.5"
 !define APP_MAX_VERSION     "99.99"
@@ -35,15 +36,18 @@
 ;  SKIP   : Do not install Firefox/Thunderbird
 !define APP_INSTALL_MODE    "QUIET"
 
+; This can be overridden by fainstall.ini
 ;!define APP_ALLOW_DOWNGRADE
 
 ;!define APP_EXE             "something.exe"
 ;!define APP_KEY             "Vendor\Something"
 
+; These can be overridden by fainstall.ini
 !define FX_ENABLED_SEARCH_PLUGINS  "*"
 !define FX_DISABLED_SEARCH_PLUGINS ""
 
 ; Requirement of a clean environment with no existing profile
+; This can be overridden by fainstall.ini
 ;  REQUIRED  : Requires a clean environment. If there is any existing
 ;              Firefox/Thunderbird profile, then cancels the installation
 ;              process automatically.
