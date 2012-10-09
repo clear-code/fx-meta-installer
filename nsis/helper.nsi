@@ -2,7 +2,7 @@
 
 !define PRODUCT_FULL_NAME   "FxMetaInstaller build helper"
 !define PRODUCT_NAME        "helper"
-!define PRODUCT_VERSION     "0.1.0.2"
+!define PRODUCT_VERSION     "0.1.0.3"
 !define PRODUCT_YEAR        "2012"
 !define PRODUCT_PUBLISHER   "ClearCode Inc."
 !define PRODUCT_DOMAIN      "clear-code.com"
