@@ -1,9 +1,16 @@
+@echo off
 rem Copyright (C) 2008-2012 ClearCode Inc.
 
-@IF NOT EXIST config.bat GOTO ENDBATCH
+:PREPARE_CONFIG_BAT
+IF EXIST config.bat GOTO PREPARE_CONFIG_NSH
+copy config.bat.sample config.bat
 
+:PREPARE_CONFIG_NSH
+IF EXIST config.nsh GOTO PREPARE_RESOURCES
+copy config.nsh.sample config.nsh
 
-@IF EXIST resources GOTO CONFIG
+:PREPARE_RESOURCES
+IF EXIST resources GOTO CONFIG
 mkdir "resources"
 xcopy _resources\*.sample resources\ /i /s
 
@@ -18,11 +25,11 @@ del "%INSTALLER_NAME%.exe"
 
 :NSIS
 
-@IF NOT EXIST "%NSIS_PATH%" GOTO ENDBATCH
+IF NOT EXIST "%NSIS_PATH%" GOTO ENDBATCH
 
 cd nsis
 
-@IF NOT EXIST helper.exe (
+IF NOT EXIST helper.exe (
   "%NSIS_PATH%\makensis.exe" helper.nsi
 )
 start /WAIT helper.exe
@@ -33,7 +40,7 @@ cd ..
 
 :SIGN_TO_INSALLER
 
-@IF NOT EXIST "%SIGN_PFX%" GOTO CREATE_PACKAGE_SOURCES
+IF NOT EXIST "%SIGN_PFX%" GOTO CREATE_PACKAGE_SOURCES
 "%SIGNTOOL_PATH%\signtool.exe" sign /f "%SIGN_PFX%" /p "%SIGN_PASSWORD%" /t "%SIGN_TIMESTAMP%" /d "%SIGN_DESC%" /du "%SIGN_DESC_URL%" fainstall.exe
 
 
