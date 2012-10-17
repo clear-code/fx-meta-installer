@@ -91,3 +91,16 @@ This repository includes binaries of 7-Zip self extraction: 7zSD.sfx and
  2. Replace old .sfx files with new one.
  3. Replace icon resources in those .sfx files with fainstal.ico, by
     [IconReset](http://www.geocities.jp/iconsetjp/) or similar tool.
+
+
+## Legal notes
+
+### 最終生成物のライセンス
+
+Fx Meta Installerによって生成された、インストールを行うモジュール（fainstall.exe）は、無保証にて自由に利用できます。
+
+fainstall.exeを含める形で作成した最終生成物の実行ファイル（以下、メタインストーラ）の使用および利用の許諾条件は、そのメタインストーラによってインストールされるソフトウェアの使用および利用の許諾条件に依存します。例えば、以下のような制限があり得ます。
+
+ * 同梱したアドオンやプラグインの利用許諾条件として、非営利での利用が必須条件となっている場合、メタインストーラを有償で販売することはできません。
+ * Firefoxを自動的にインストールするように設定した場合、メタインストーラを不特定多数に向けて無断で一般公開することはできません。一般公開のためにはMozillaの許諾を得る必要があります。詳しくは[法人向けFAQの「製品をカスタマイズして配布しても構わないのですか？」の項](http://www.mozilla.jp/business/faq/#sec-licensing)を参照して下さい。
+   （なお、公式のFirefoxのバイナリではなく、Firefoxのロゴなどを含まない独自ビルドのバイナリであれば、この限りではありません。）
