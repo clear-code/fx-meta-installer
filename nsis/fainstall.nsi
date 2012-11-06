@@ -370,11 +370,15 @@ Var CLEAN_INSTALL
             LogText "*** AppEULAPageCheck: Application does not exist so show EULA"
           !endif
           StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
-          ${If} ${FileExists} "$APP_EULA_PATH"
-            StrCpy $APP_EULA_FINAL_PATH "$APP_EULA_PATH"
-            GoTo EULADownloadDone
+          ${Unless} ${FileExists} "$APP_EULA_PATH"
+            StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\resources\${APP_NAME}-eula.txt"
           ${EndIf}
-          ${Unless} ${FileExists} "$EXEDIR\EULA"
+          ${Unless} ${FileExists} "$APP_EULA_FINAL_PATH"
+            StrCpy $APP_EULA_FINAL_PATH "$APP_EULA_PATH"
+          ${EndIf}
+          ${If} ${FileExists} "$APP_EULA_FINAL_PATH"
+            GoTo EULADownloadDone
+          ${Else}
             FindWindow $0 "#32770" "" $HWNDPARENT
             EnableWindow $HWNDPARENT 0
             InetLoad::load /SILENT " " /NOCANCEL \
@@ -385,10 +389,10 @@ Var CLEAN_INSTALL
               StrCpy $APP_EULA_DL_FAILED "1"
               Abort
             ${EndUnless}
-          ${EndUnless}
+          ${EndIf}
           EULADownloadDone:
           !ifdef NSIS_CONFIG_LOG
-            LogText "*** AppEULAPageCheck: EULA = &APP_EULA_FINAL_PATH"
+            LogText "*** AppEULAPageCheck: EULA = $APP_EULA_FINAL_PATH"
           !endif
         ${EndIf}
     FunctionEnd
