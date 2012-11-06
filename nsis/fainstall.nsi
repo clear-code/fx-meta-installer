@@ -371,7 +371,7 @@ Var CLEAN_INSTALL
           !endif
           StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
           ${Unless} ${FileExists} "$APP_EULA_PATH"
-            StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\resources\${APP_NAME}-eula.txt"
+            StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\resources\${APP_NAME}-EULA.txt"
           ${EndIf}
           ${Unless} ${FileExists} "$APP_EULA_FINAL_PATH"
             StrCpy $APP_EULA_FINAL_PATH "$APP_EULA_PATH"
