@@ -75,8 +75,6 @@ Windowsでのみ、メタインストーラの作成および署名に使用す�
 
 NSIS_PATH：
   NSISのインストール先パス。
-SEVENZIP_PATH：
-  7-Zipのインストール先パス。
 SIGNTOOL_PATH：
   Microsoft Platform SDKのインストール先パス。
   （署名ツールのみ使用）
@@ -548,12 +546,20 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
   デフォルト値             ：なし。
 
 
+■Mozillaアプリケーションのインストーラの同梱
+
+メタインストーラにMozillaアプリケーションのインストーラを含める場合、
+インストーラのファイル名を「<Mozillaアプリケーション名>-setup.exe」に変更して
+resourcesフォルダ内に置く。例えば以下の要領である。
+
+ * Firefox    ：Firefox-setup.exe
+ * Thunderbird：Thunderbird-setup.exe
+
 ■COPYING.txt
 
 メタインストーラを対話モードでビルドすると、resourcesフォルダ内に置かれた
 COPYING.txt（テキストファイル）の内容が、インストールウィザードにおいて
 利用許諾書として表示される。
-
 
 ■同梱アドオンのインストール
 
@@ -672,7 +678,6 @@ TargetLocation：（省略可能）
   Options=-p
   TargetLocation=%Desktop%
 
-
 ■Firefoxをコンピュータの既定のブラウザに設定する/設定しない
 
 初期状態では、Firefoxのインストールが完了した後に、Firefoxが自動的にコンピュー
@@ -711,7 +716,6 @@ Opera            ：StartMenuInternet\Opera.exe
 Google Chrome    ：StartMenuInternet\Google Chrome
 Thunderbird      ：Mail\Mozilla Thunderbird
 
-
 ■専用のユーザープロファイルのインストール
 
 fainstall.iniに[profile]セクションを定義すると、インストール時に専用のユーザ
@@ -725,7 +729,6 @@ Name：
 RootPath：
   プロファイルやプロファイル一覧のINIファイルが置かれるフォルダのパス。
   プレースホルダを使用可能。
-
 
 ■Mozillaアプリケーションのサイレントインストールの挙動の変更
 
