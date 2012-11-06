@@ -73,5 +73,6 @@ rem call "%INSTALLER_NAME%.bat
 cd ..
 
 :ENDBATCH
+echo "Success"
 exit /b 0
 

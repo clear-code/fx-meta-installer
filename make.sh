@@ -114,7 +114,7 @@ cd ..
 
 if [ ! -f ./fainstall.exe ]
 then
-  echo "Failed to build fainstall.exe!"
+  echo -e "\033[1;31mFailed to build fainstall.exe!\033[0m"
   exit 1
 fi
 
@@ -140,3 +140,4 @@ cd "$product_name-source"
 
 cd ..
 
+echo -e "\033[1;32mSuccess\033[0m"
