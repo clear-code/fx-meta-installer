@@ -67,8 +67,13 @@ environments at first.
 ### Build the binary
 
  1. Run "make.bat" (Windows) or "make.sh" (Linux).
- 2. If you are on Linux, the built installer is broken.
-    You have to run "FxMetaInstaller.bat" on Windows again.
+ 2. Then, the kit to generate the final installer executable is saved as
+    a new directory "FxMetaInstaller-source".
+ 3. Copy the directory "FxMetaInstaller-source" to a local disk of Windows
+    environment.
+ 4. Confirm files in the "resources" directory and the "fainstall.ini".
+    If there is no problem, run the batch file "FxMetaInstaller.bat".
+    Then, the final installer executable "FxMetaInstaller.exe" is generated.
 
 ## Notes for developers
 
