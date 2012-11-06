@@ -38,6 +38,12 @@ start /WAIT helper.exe
 cd ..
 
 
+:CHECK_RESULT
+IF EXIST fainstall.exe GOTO SIGN_TO_INSALLER
+echo "Failed to build fainstall.exe!"
+exit /b 1
+
+
 :SIGN_TO_INSALLER
 
 IF NOT EXIST "%SIGN_PFX%" GOTO CREATE_PACKAGE_SOURCES
@@ -62,8 +68,10 @@ copy 7z\pack.bat "%INSTALLER_NAME%-source\%INSTALLER_NAME%.bat"
 copy 7z\pack.sh "%INSTALLER_NAME%-source\%INSTALLER_NAME%.sh"
 cd "%INSTALLER_NAME%-source\"
 
-call "%INSTALLER_NAME%.bat
+rem call "%INSTALLER_NAME%.bat
 
 cd ..
 
 :ENDBATCH
+exit /b 0
+

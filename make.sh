@@ -112,6 +112,12 @@ $sed "s/<addon_files>/$addon_files/" -i $inifile
 makensis fainstall.nsi
 cd ..
 
+if [ ! -f ./fainstall.exe ]
+then
+  echo "Failed to build fainstall.exe!"
+  exit 1
+fi
+
 
 # create package sources
 
