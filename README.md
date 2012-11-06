@@ -45,14 +45,12 @@ environments at first.
  2. Install plugins. Download zip files, decompress them,
     move "*.dll" files to "c:\Program Files\NSIS\Plugins\", and
     move "*.nsh" files to "c:\Program Files\NSIS\Include\".
- 3. Download the installer of 7-Zip and install it.
-    See [7-Zip project page](http://www.7-zip.org/ja/).
 
 #### Linux (Debian, Ubuntu)
 
- 1. Install required packages "nsis" and "p7zip".
+ 1. Install required a package "nsis".
     
-        $ sudo apt-get install nsis p7zip
+        $ sudo apt-get install nsis
     
  2. Install plugins. Download zip files, decompress them,
     move "*.dll" files to "/usr/share/nsis/Plugins/", and
