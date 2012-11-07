@@ -93,8 +93,10 @@ do
     addon_files="$addon_files|$addon_file"
     echo "[$addon_file]" >> $inifile
     install_rdf=`unzip -p $filename install.rdf`
-    echo AddonId=`echo $install_rdf | $sed 's/.*em:id="([^"]+)".*(em:name|<em:targetApplication>).*/\1/'` >> $inifile
-    echo '' >> $inifile
+    addon_id=`echo $install_rdf | $sed "s%(em:id=['\"]|<em:id>)([^'\"<]+).*%\1\2%g" | $sed "s%.*(em:id=['\"]|<em:id>)%%"`
+    echo "id = $addon_id"
+    echo "AddonId=$addon_id" >> $inifile
+    echo "" >> $inifile
   fi
 done
 
