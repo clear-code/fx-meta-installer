@@ -25,7 +25,10 @@ then
   cp ./config.nsh.sample ./config.nsh
 fi
 
-sed='sed -r -e'
+case $(uname) in
+  Darwin|*BSD) sed="sed -E -e" ;;
+  *)           sed="sed -r -e" ;;
+esac
 
 product_name=`grep 'PRODUCT_NAME' config.nsh | $sed 's/^[^"]*"//' | $sed 's/".*$\r?\n?//'`
 echo product_name
