@@ -17,6 +17,12 @@ FunctionEnd
 !endif
 ;===================================================================
 
+!define DefineDefaultValue "!insertmacro DefineDefaultValue"
+!macro DefineDefaultValue Name Value
+  !ifndef ${Name}
+    !define ${Name} ${Value}
+  !endif
+!macroend
 
 ;=== Libraries
 !include "LogicLib.nsh"
@@ -58,18 +64,10 @@ FunctionEnd
   !define APP_PROFILE_PATH "$APPDATA\Mozilla\Netscape"
 !endif
 
-!ifndef APP_EXE
-  !define APP_EXE "${APP_NAME}.exe"
-!endif
-!ifndef APP_FULL_NAME
-  !define APP_FULL_NAME "${APP_NAME}"
-!endif
-!ifndef APP_KEY
-  !define APP_KEY "${APP_NAME}"
-!endif
-!ifndef APP_DIRECTORY_NAME
-  !define APP_DIRECTORY_NAME "${APP_NAME}"
-!endif
+${DefineDefaultValue} APP_EXE            "${APP_NAME}.exe"
+${DefineDefaultValue} APP_FULL_NAME      "${APP_NAME}"
+${DefineDefaultValue} APP_KEY            "${APP_NAME}"
+${DefineDefaultValue} APP_DIRECTORY_NAME "${APP_NAME}"
 
 !define INSTALLER_NAME      "fainstall"
 !define PRODUCT_UNINST_KEY  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -89,39 +87,28 @@ FunctionEnd
 !define APP_CONFIG_DIR      "$APP_DIR\defaults\pref"
 !define APP_REG_KEY         "Software\${APP_KEY}"
 
-!ifndef APP_DOWNLOAD_PATH
-  !define APP_DOWNLOAD_PATH ""
-!endif
-!ifndef APP_EULA_PATH
-  !define APP_EULA_PATH ""
-!endif
-!ifndef APP_DOWNLOAD_URL
-  !define APP_DOWNLOAD_URL ""
-!endif
-!ifndef APP_EULA_URL
-  !define APP_EULA_URL ""
-!endif
-!ifndef APP_HASH
-  !define APP_HASH ""
-!endif
+${DefineDefaultValue} APP_DOWNLOAD_PATH ""
+${DefineDefaultValue} APP_EULA_PATH     ""
+${DefineDefaultValue} APP_DOWNLOAD_URL  ""
+${DefineDefaultValue} APP_EULA_URL      ""
+${DefineDefaultValue} APP_APP_HASH      ""
 
-!ifndef FX_ENABLED_SEARCH_PLUGINS
-  !define FX_ENABLED_SEARCH_PLUGINS "*"
-!endif
-!ifndef FX_DISABLED_SEARCH_PLUGINS
-  !define FX_DISABLED_SEARCH_PLUGINS ""
-!endif
+${DefineDefaultValue} FINISH_MESSAGE          ""
+${DefineDefaultValue} FINISH_TITLE            ""
+${DefineDefaultValue} CLEAN_REQUIRED_MESSAGE  ""
+${DefineDefaultValue} CLEAN_REQUIRED_TITLE    ""
+${DefineDefaultValue} CLEAN_PREFERRED_MESSAGE ""
+${DefineDefaultValue} CLEAN_PREFERRED_TITLE   ""
+
+${DefineDefaultValue} FX_ENABLED_SEARCH_PLUGINS  "*"
+${DefineDefaultValue} FX_DISABLED_SEARCH_PLUGINS ""
 
 ; for backward compatibility
 !ifdef PRODUCT_SILENT_INSTALL
-  !ifndef PRODUCT_INSTALL_MODE
-    !define PRODUCT_INSTALL_MODE "QUIET"
-  !endif
+  ${DefineDefaultValue} PRODUCT_INSTALL_MODE "QUIET"
 !endif
 !ifdef APP_SILENT_INSTALL
-  !ifndef APP_INSTALL_MODE
-    !define APP_INSTALL_MODE "QUIET"
-  !endif
+  ${DefineDefaultValue} APP_INSTALL_MODE "QUIET"
 !endif
 
 ; fallback to default value
