@@ -20,7 +20,7 @@ FunctionEnd
 !define DefineDefaultValue "!insertmacro DefineDefaultValue"
 !macro DefineDefaultValue Name Value
   !ifndef ${Name}
-    !define ${Name} ${Value}
+    !define ${Name} "${Value}"
   !endif
 !macroend
 
@@ -43,6 +43,46 @@ FunctionEnd
 
 ;== Basic Information
 !include "..\config.nsh"
+
+${DefineDefaultValue} PRODUCT_FULL_NAME    "Fx Meta Installer"
+${DefineDefaultValue} PRODUCT_NAME         "FxMetaInstaller"
+${DefineDefaultValue} PRODUCT_VERSION      "0.0.0.0"
+${DefineDefaultValue} PRODUCT_YEAR         "2012"
+${DefineDefaultValue} PRODUCT_PUBLISHER    "ClearCode Inc."
+${DefineDefaultValue} PRODUCT_DOMAIN       "clear-code.com"
+${DefineDefaultValue} PRODUCT_WEB_SITE     "http://www.clear-code.com/"
+${DefineDefaultValue} PRODUCT_WEB_LABEL    "Go to Clear Code Inc."
+${DefineDefaultValue} PRODUCT_LANGUAGE     "English"
+${DefineDefaultValue} ADMIN_CHECK_DIR      ""
+${DefineDefaultValue} PRODUCT_INSTALL_MODE "NORMAL"
+
+${DefineDefaultValue} APP_NAME          "Firefox"
+${DefineDefaultValue} APP_MIN_VERSION   "10.0"
+${DefineDefaultValue} APP_MAX_VERSION   "99.99"
+${DefineDefaultValue} APP_DOWNLOAD_PATH ""
+${DefineDefaultValue} APP_EULA_PATH     ""
+${DefineDefaultValue} APP_DOWNLOAD_URL  ""
+${DefineDefaultValue} APP_EULA_URL      ""
+${DefineDefaultValue} APP_APP_HASH      ""
+${DefineDefaultValue} APP_INSTALL_MODE  "QUIET"
+
+${DefineDefaultValue} FX_ENABLED_SEARCH_PLUGINS  "*"
+${DefineDefaultValue} FX_DISABLED_SEARCH_PLUGINS ""
+
+${DefineDefaultValue} DEFAULT_CLIENT   ""
+${DefineDefaultValue} DISABLED_CLIENTS ""
+${DefineDefaultValue} INSTALL_ADDONS   ""
+${DefineDefaultValue} EXTRA_INSTALLERS ""
+${DefineDefaultValue} EXTRA_SHORTCUTS  ""
+
+${DefineDefaultValue} CLEAN_INSTALL           ""
+${DefineDefaultValue} CLEAN_REQUIRED_MESSAGE  ""
+${DefineDefaultValue} CLEAN_REQUIRED_TITLE    ""
+${DefineDefaultValue} CLEAN_PREFERRED_MESSAGE ""
+${DefineDefaultValue} CLEAN_PREFERRED_TITLE   ""
+
+${DefineDefaultValue} FINISH_MESSAGE          ""
+${DefineDefaultValue} FINISH_TITLE            ""
 
 !if ${APP_NAME} == "Firefox"
   !define APP_EXE "firefox.exe"
@@ -86,22 +126,6 @@ ${DefineDefaultValue} APP_DIRECTORY_NAME "${APP_NAME}"
 !define APP_BUNDLES_DIR      "${APP_DISTRIBUTION_DIR}\bundles"
 !define APP_CONFIG_DIR      "$APP_DIR\defaults\pref"
 !define APP_REG_KEY         "Software\${APP_KEY}"
-
-${DefineDefaultValue} APP_DOWNLOAD_PATH ""
-${DefineDefaultValue} APP_EULA_PATH     ""
-${DefineDefaultValue} APP_DOWNLOAD_URL  ""
-${DefineDefaultValue} APP_EULA_URL      ""
-${DefineDefaultValue} APP_APP_HASH      ""
-
-${DefineDefaultValue} FINISH_MESSAGE          ""
-${DefineDefaultValue} FINISH_TITLE            ""
-${DefineDefaultValue} CLEAN_REQUIRED_MESSAGE  ""
-${DefineDefaultValue} CLEAN_REQUIRED_TITLE    ""
-${DefineDefaultValue} CLEAN_PREFERRED_MESSAGE ""
-${DefineDefaultValue} CLEAN_PREFERRED_TITLE   ""
-
-${DefineDefaultValue} FX_ENABLED_SEARCH_PLUGINS  "*"
-${DefineDefaultValue} FX_DISABLED_SEARCH_PLUGINS ""
 
 ; for backward compatibility
 !ifdef PRODUCT_SILENT_INSTALL
@@ -2136,12 +2160,12 @@ FunctionEnd
 
 !define FillPlaceHolder "!insertmacro FillPlaceHolder"
 !macro FillPlaceHolder Name Value
-  ${WordReplace} "$ITEM_LOCATION" "%${Name}%" ${Value} "+*" $ITEM_LOCATION
+  ${WordReplace} "$ITEM_LOCATION" "%${Name}%" "${Value}" "+*" $ITEM_LOCATION
 !macroend
 
 !define un.FillPlaceHolder "!insertmacro un.FillPlaceHolder"
 !macro un.FillPlaceHolder Name Value
-  ${un.WordReplace} "$ITEM_LOCATION" "%${Name}%" ${Value} "+*" $ITEM_LOCATION
+  ${un.WordReplace} "$ITEM_LOCATION" "%${Name}%" "${Value}" "+*" $ITEM_LOCATION
 !macroend
 
 !define FillPlaceHolderWithATerm "!insertmacro FillPlaceHolderWithATerm"
