@@ -1028,6 +1028,10 @@ Function "InstallProfile"
     ${EndIf}
 FunctionEnd
 
+Section "Install Additional Files" DoInstallAdditionalFiles
+  Call InstallAdditionalFiles
+SectionEnd
+
 Section "Install Add-ons" InstallAddons
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1260,7 +1264,7 @@ Function "InstallExtraInstaller"
     !endif
 FunctionEnd
 
-Section "Install Additional Files" InstallAdditionalFiles
+Function InstallAdditionalFiles
     !ifdef NSIS_CONFIG_LOG
       LogSet on
     !endif
@@ -1311,7 +1315,7 @@ Section "Install Additional Files" InstallAdditionalFiles
   ;  ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
   ;  StrCpy $DIST_DIR "$SMPROGRAMS"
   ;  ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
-SectionEnd
+FunctionEnd
 
 Function "InstallNormalFile"
     !ifdef NSIS_CONFIG_LOG
