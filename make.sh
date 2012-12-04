@@ -106,7 +106,7 @@ done
 addon_files=$(echo "$addon_files" | $sed 's/^\|//')
 
 given_addon_files=$(read_config "INSTALL_ADDONS")
-if [ "x${given_addon_files}" != "x" ]
+if [ -n "${given_addon_files}" ]
 then
   addon_files=$given_addon_files
 fi
