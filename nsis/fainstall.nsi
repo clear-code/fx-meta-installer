@@ -301,11 +301,11 @@ Var FX_DISABLED_SEARCH_PLUGINS
 Var SEARCH_PLUGINS_PATH
 Var CLEAN_INSTALL
 
+!include "${PRODUCT_LANGUAGE}.nsh"
 !if ${PRODUCT_INSTALL_MODE} != "QUIET"
   ;=== MUI: Modern UI
   !include "MUI2.nsh"
   !include "Sections.nsh"
-  !include "${PRODUCT_LANGUAGE}.nsh"
 
   ; hide the footer "Nullsoft Install System v*.*"
   BrandingText " "
