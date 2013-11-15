@@ -681,6 +681,7 @@ TargetLocation：（省略可能）
 
 例えば、デスクトップ上にFirefoxのプロファイルマネージャを起動するショート
 カットを作成する場合は、以下の通り記述する。
+（※非ASCII文字を使う場合、ファイルの文字エンコーディングはShift_JISで保存する必要がある。）
 
   [fainstall]
   Shortcuts=profile-manager
