@@ -742,6 +742,9 @@ Name：
 RootPath：
   プロファイルやプロファイル一覧のINIファイルが置かれるフォルダのパス。
   プレースホルダを使用可能。
+  例えば "RootPath=%AppData%\Customized Firefox" と指定した場合、
+  プロファイルは以下の位置に作られる。
+  %AppData%\Customized Firefox\Profilex\(Name)
 
 ■Mozillaアプリケーションのサイレントインストールの挙動の変更
 
