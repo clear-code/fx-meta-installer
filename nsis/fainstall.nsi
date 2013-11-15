@@ -974,7 +974,8 @@ Function "InstallProfile"
     !endif
 
     StrCpy $1 "$ITEM_LOCATION"
-    StrCpy $REQUIRED_DIRECTORY "$1\Profiles\$INI_TEMP"
+    ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
+    StrCpy $REQUIRED_DIRECTORY "$ITEM_LOCATION\Profiles\$INI_TEMP"
     Call SetUpRequiredDirectories
     StrCpy $ITEM_LOCATION "$1"
 
