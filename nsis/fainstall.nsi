@@ -1,4 +1,4 @@
-;Copyright (C) 2008-2012 ClearCode Inc.
+;Copyright (C) 2008-2013 ClearCode Inc.
 
 ;===================== SETUP NSIS-DBG FOR DEBUGGING ================
 
@@ -39,6 +39,7 @@ FunctionEnd
 !insertmacro VersionCompare
 !insertmacro VersionConvert
 !include "native_message_box.nsh"
+!include "NTProfiles.nsh"
 
 
 ;== Basic Information
@@ -249,6 +250,9 @@ Var APP_ALLOW_DOWNGRADE
 Var APP_EULA_DL_FAILED
 Var APP_WRONG_VERSION
 
+Var ALL_USERS_PROFILE
+Var DEFAULT_USER_PROFILE
+
 Var PROCESSING_FILE
 Var DIST_DIR
 Var DIST_PATH
@@ -435,6 +439,10 @@ Section "Initialize Variables" InitializeVariables
     !endif
     StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
     SetOutPath $INSTDIR
+
+    StrCpy $ALL_USERS_PROFILE "${ProfilePathAllUsers}"
+    StrCpy $DEFAULT_USER_PROFILE "${ProfilePathDefaultUser}"
+
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InitializeVariables: install to $INSTDIR"
     !endif
@@ -2223,7 +2231,8 @@ Function "ResolveItemLocationBasic"
     ${FillPlaceHolderWithATerm} Tmp tmp TMP "$TEMP"
     ${FillPlaceHolderWithATerm} Temp temp TEMP "$TEMP"
     ${FillPlaceHolderWithTerms} ComputerName Computername computername COMPUTERNAME "$%computername%"
-    ${FillPlaceHolderWithTerms} AllUsersProfile Allusersprofile allusersprofile ALLUSERSPROFILE "$%allusersprofile%"
+    ${FillPlaceHolderWithTerms} AllUsersProfile Allusersprofile allusersprofile ALLUSERSPROFILE "${ALL_USERS_PROFILE}"
+    ${FillPlaceHolderWithTerms} DefaultUserProfile DefaultuserProfile Defaultuserprofile defaultuserprofile DEFAULTUSERPROFILE "${DEFAULT_USER_PROFILE}"
 
     ; custom
     ${FillPlaceHolderWithATerm} Home home HOME "$PROFILE"
@@ -2260,7 +2269,6 @@ Function "un.ResolveItemLocationBasic"
     ${un.FillPlaceHolderWithATerm} Tmp tmp TMP "$TEMP"
     ${un.FillPlaceHolderWithATerm} Temp temp TEMP "$TEMP"
     ${un.FillPlaceHolderWithTerms} ComputerName Computername computername COMPUTERNAME "$%computername%"
-    ${un.FillPlaceHolderWithTerms} AllUsersProfile Allusersprofile allusersprofile ALLUSERSPROFILE "$%allusersprofile%"
 
     ; custom
     ${un.FillPlaceHolderWithATerm} Home home HOME "$PROFILE"
