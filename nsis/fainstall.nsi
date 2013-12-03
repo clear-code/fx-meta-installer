@@ -440,10 +440,8 @@ Section "Initialize Variables" InitializeVariables
     StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
     SetOutPath $INSTDIR
 
-    ${ProfilePathAllUsers} $0
-    StrCpy $ALL_USERS_PROFILE "$0"
-    ${ProfilePathDefaultUser}
-    StrCpy $DEFAULT_USER_PROFILE "$0"
+    StrCpy $ALL_USERS_PROFILE "${ProfilePathAllUsers}"
+    StrCpy $DEFAULT_USER_PROFILE "${ProfilePathDefaultUser}"
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InitializeVariables: install to $INSTDIR"
