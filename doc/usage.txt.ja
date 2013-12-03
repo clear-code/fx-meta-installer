@@ -667,6 +667,10 @@ Options：（省略可能）
 IconIndex：（省略可能）
   Pathで示されたファイルにアイコンが複数含まれている場合に、ショートカットの
   アイコンとして使うアイコンの番号を示す。
+TargetUser：（省略可能）
+  ショートカットの作成先ユーザ。以下のいずれかを指定可能。
+    current : 現在のユーザ
+    all     : All Users（パブリック）
 TargetLocation：（省略可能）
   ショートカットの作成先フォルダのパス。以下のプレースホルダを使用可能。
     %AppDir%    : Firefoxのインストール先フォルダ
@@ -679,8 +683,8 @@ TargetLocation：（省略可能）
     %StartUp%   : スタートメニュー内の「スタートアップ」
   省略時は「%Desktop%」として扱われる。
 
-例えば、デスクトップ上にFirefoxのプロファイルマネージャを起動するショート
-カットを作成する場合は、以下の通り記述する。
+例えば、All Users（パブリック）のデスクトップ上にFirefoxのプロファイルマネージャを
+起動するショートカットを作成する場合は、以下の通り記述する。
 （※非ASCII文字を使う場合、ファイルの文字エンコーディングはShift_JISで保存する必要がある。）
 
   [fainstall]
@@ -690,6 +694,7 @@ TargetLocation：（省略可能）
   Name=プロファイルマネージャ
   Path=%AppDir%\firefox.exe
   Options=-p
+  TargetUser=all
   TargetLocation=%Desktop%
 
 ■Firefoxをコンピュータの既定のブラウザに設定する/設定しない
