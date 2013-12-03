@@ -677,10 +677,12 @@ TargetLocation：（省略可能）
     %StartMenu% : スタートメニュー直下
     %Programs%  : スタートメニュー内の「すべてのプログラム」
     %StartUp%   : スタートメニュー内の「スタートアップ」
+    %AllUsersProfile% : All Users（パブリック）のホーム
+    %DefaultProfile%  : Default Userのホーム
   省略時は「%Desktop%」として扱われる。
 
-例えば、デスクトップ上にFirefoxのプロファイルマネージャを起動するショート
-カットを作成する場合は、以下の通り記述する。
+例えば、All Users（パブリック）のデスクトップ上にFirefoxのプロファイルマネージャを
+起動するショートカットを作成する場合は、以下の通り記述する。
 （※非ASCII文字を使う場合、ファイルの文字エンコーディングはShift_JISで保存する必要がある。）
 
   [fainstall]
@@ -690,7 +692,7 @@ TargetLocation：（省略可能）
   Name=プロファイルマネージャ
   Path=%AppDir%\firefox.exe
   Options=-p
-  TargetLocation=%Desktop%
+  TargetLocation=%AllUsersProfile%\Desktop
 
 ■Firefoxをコンピュータの既定のブラウザに設定する/設定しない
 
