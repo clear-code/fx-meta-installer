@@ -2232,7 +2232,7 @@ Function "ResolveItemLocationBasic"
     ${FillPlaceHolderWithATerm} Temp temp TEMP "$TEMP"
     ${FillPlaceHolderWithTerms} ComputerName Computername computername COMPUTERNAME "$%computername%"
     ${FillPlaceHolderWithTerms} AllUsersProfile Allusersprofile allusersprofile ALLUSERSPROFILE "${ALL_USERS_PROFILE}"
-    ${FillPlaceHolderWithTerms} DefaultUserProfile DefaultuserProfile Defaultuserprofile defaultuserprofile DEFAULTUSERPROFILE "${DEFAULT_USER_PROFILE}"
+    ${FillPlaceHolderWithTerms} DefaultUserProfile Defaultuserprofile defaultuserprofile DEFAULTUSERPROFILE "${DEFAULT_USER_PROFILE}"
 
     ; custom
     ${FillPlaceHolderWithATerm} Home home HOME "$PROFILE"
