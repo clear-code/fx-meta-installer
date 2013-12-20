@@ -10,6 +10,7 @@ rem
 rem  * Install Firefox or Thunderbird silently.
 rem  * Install configuration file for MCD (AutoConfig) automatically.
 rem 
+rem Copyright (C) 2013 ClearCode Inc.
 rem ==================================================================
 
 rem =========== CONFIGURATIONS ===========
