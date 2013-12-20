@@ -15,7 +15,7 @@ rem ==================================================================
 rem =========== CONFIGURATIONS ===========
 
 rem Path to the installer of Firefox itself
-set   INSTALLER_PATH="C:\Users\Public\Firefox Setup 24.2.exe"
+set   INSTALLER_PATH="C:\Users\Public\Firefox Setup 24.2esr.exe"
 
 rem Path to the configuration file
 set   AUTOCONFIG_PATH="C:\Users\Public\autoconfig.cfg"
@@ -30,6 +30,14 @@ set   StartMenuDirectoryName=
 
 rem =========== /CONFIGURATIONS ==========
 
+
+:CHECK_FILES_EXISTENCE
+if exist %INSTALLER_PATH% goto END_CHECK_FILES_EXISTENCE
+
+echo ERROR: File not found: %INSTALLER_PATH%
+exit 1
+
+:END_CHECK_FILES_EXISTENCE
 
 
 rem =========== INITIALIZATION ==========
