@@ -45,6 +45,7 @@ resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向
                     インストールされる。
   ・*.cfg         ：AutoConfigファイルとして、%AppDir%\ にインストールされる。
   ・override.ini  ：%AppDir%\ にインストールされる。
+                    （Firefoxの場合は %AppDir%\browser にもインストールされる。）
   ・*.properties  ：%AppDir%\ にインストールされる。（*.jsなどからの参照用）
   ・bookmarks.html：新規プロファイルの初期ブックマークの内容として
                     %AppDir%\defaults\profile\ にインストールされる。

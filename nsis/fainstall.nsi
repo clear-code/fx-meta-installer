@@ -1276,6 +1276,11 @@ Function InstallAdditionalFiles
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cfg" "InstallNormalFile"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.properties" "InstallNormalFile"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
+    !if ${APP_NAME} == "Firefox"
+      ; Firefox 21 and later, override.ini must be placed into the "browser" directory. 
+      StrCpy $DIST_DIR "$APP_DIR\browser"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
+    !endif
 
     StrCpy $DIST_DIR "$APP_DIR\defaults"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer" "InstallNormalFile"
