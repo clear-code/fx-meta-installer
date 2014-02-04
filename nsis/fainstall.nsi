@@ -1276,11 +1276,6 @@ Function InstallAdditionalFiles
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cfg" "InstallNormalFile"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.properties" "InstallNormalFile"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
-    !if ${APP_NAME} == "Firefox"
-      ; Firefox 21 and later, override.ini must be placed into the "browser" directory. 
-      StrCpy $DIST_DIR "$APP_DIR\browser"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
-    !endif
 
     StrCpy $DIST_DIR "$APP_DIR\defaults"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer" "InstallNormalFile"
@@ -1292,8 +1287,8 @@ Function InstallAdditionalFiles
 
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
-    StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
+
     StrCpy $DIST_DIR "$APP_DIR\isp"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xml" "InstallNormalFile"
 
@@ -1310,6 +1305,19 @@ Function InstallAdditionalFiles
 
     StrCpy $DIST_DIR "$APP_DIR\plugins"
     ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
+
+    !if ${APP_NAME} == "Firefox"
+      ; Firefox 21 and later, these files must be placed into the "browser" directory. 
+      StrCpy $DIST_DIR "$APP_DIR\browser"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
+
+      StrCpy $DIST_DIR "$APP_DIR\browser\defaults\profile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
+
+      StrCpy $DIST_DIR "$APP_DIR\browser\plugins"
+      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
+    !endif
 
     !if ${APP_NAME} == "Netscape"
       ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=installed-chrome.txt" "AppendTextFile"

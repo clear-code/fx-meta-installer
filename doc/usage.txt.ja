@@ -48,9 +48,11 @@ resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向
                     （Firefoxの場合は %AppDir%\browser にもインストールされる。）
   ・*.properties  ：%AppDir%\ にインストールされる。（*.jsなどからの参照用）
   ・bookmarks.html：新規プロファイルの初期ブックマークの内容として
-                    %AppDir%\defaults\profile\ にインストールされる。
+                    %AppDir%\defaults\profile\ および
+                    %AppDir%\browser\defaults\profile\ にインストールされる。
   ・*.rdf         ：新規プロファイルの初期設定として
-                    %AppDir%\defaults\profile\ にインストールされる。
+                    %AppDir%\defaults\profile\ および
+                    %AppDir%\browser\defaults\profile\ にインストールされる。
   ・*.xml         ：ThunderbirdのAutoConfiguration用設定ファイルとして
                     %AppDir%\isp\ にインストールされる。
   ・*.jar         ：Mozillaアプリケーションの追加モジュールとして、
@@ -63,6 +65,8 @@ resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向
                   ：%AppDir%\defaults\ にインストールされる。（certimporter用）
   ・*.xpt         ：%AppDir%\components\ にインストールされる。
   ・*.dll         ：%AppDir%\plugins\ にインストールされる。
+                    （Firefoxの場合は %AppDir%\browser\plugins にも
+                      インストールされる。）
   ・*.lnk         ：デスクトップ上にインストールされる。
 
 ■ビルド方法
