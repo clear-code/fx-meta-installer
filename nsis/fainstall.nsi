@@ -119,8 +119,6 @@ ${DefineDefaultValue} APP_DIRECTORY_NAME "${APP_NAME}"
 !define LANG_ENGLISH        "1033"
 !define LANG_JAPANESE       "1041"
 
-!define APP_INSTALLER_PATH  "$EXEDIR\resources\${APP_NAME}-setup.exe"
-!define APP_INSTALLER_INI   "$EXEDIR\resources\${APP_NAME}-setup.ini"
 !define APP_EXTENSIONS_DIR  "$APP_DIR\extensions"
 !define APP_DISTRIBUTION_DIR "$APP_DIR\distribution"
 !define APP_BUNDLES_DIR      "${APP_DISTRIBUTION_DIR}\bundles"
@@ -240,6 +238,8 @@ Var SHORTCUT_PATH_QUICKLAUNCH
   Var SHORTCUT_PATH_DESKTOP_MAIL
   Var SHORTCUT_PATH_QUICKLAUNCH_MAIL
 !endif
+Var APP_INSTALLER_PATH
+Var APP_INSTALLER_INI
 Var APP_EXISTS
 Var APP_INSTALLED
 Var NORMALIZED_VERSION
@@ -250,6 +250,7 @@ Var APP_EULA_DL_FAILED
 Var APP_WRONG_VERSION
 
 Var PROCESSING_FILE
+Var RES_DIR
 Var DIST_DIR
 Var DIST_PATH
 Var DIST_FILE
@@ -382,7 +383,7 @@ Var CLEAN_INSTALL
           !endif
           StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
           ${Unless} ${FileExists} "$APP_EULA_PATH"
-            StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\resources\${APP_NAME}-EULA.txt"
+            StrCpy $APP_EULA_FINAL_PATH "$RES_DIR\${APP_NAME}-EULA.txt"
           ${EndIf}
           ${Unless} ${FileExists} "$APP_EULA_FINAL_PATH"
             StrCpy $APP_EULA_FINAL_PATH "$APP_EULA_PATH"
@@ -425,6 +426,7 @@ Section "Initialize Variables" InitializeVariables
     !ifdef NSIS_CONFIG_LOG
       LogSet on
     !endif
+
     !if ${APP_INSTALL_MODE} == "SKIP"
       Call GetAppPath
       Call CheckAppVersion
@@ -433,8 +435,23 @@ Section "Initialize Variables" InitializeVariables
         Abort
       ${EndUnless}
     !endif
+
     StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
     SetOutPath $INSTDIR
+
+    ${ReadINIStrWithDefault} $RES_DIR "${INIPATH}" "${INSTALLER_NAME}" "Resources" "resources"
+    ${If} "$RES_DIR" == ""
+      StrCpy $RES_DIR "$EXEDIR"
+    ${Else}
+      StrCpy $RES_DIR "$EXEDIR\$RES_DIR"
+    ${EndIf}
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InitializeVariables: resources is $RES_DIR"
+    !endif
+
+    StrCpy $APP_INSTALLER_PATH "$RES_DIR\${APP_NAME}-setup.exe"
+    StrCpy $APP_INSTALLER_INI  "$RES_DIR\${APP_NAME}-setup.ini"
+
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InitializeVariables: install to $INSTDIR"
     !endif
@@ -457,7 +474,7 @@ SectionEnd
         !ifdef NSIS_CONFIG_LOG
           LogText "*** DownloadApp: Application not exist so do installation"
         !endif
-        StrCpy $APP_INSTALLER_FINAL_PATH "${APP_INSTALLER_PATH}"
+        StrCpy $APP_INSTALLER_FINAL_PATH "$APP_INSTALLER_PATH"
 
         ${IfThen} ${FileExists} "$APP_INSTALLER_FINAL_PATH" ${|} GoTo AppDownloadDone ${|}
 
@@ -540,11 +557,11 @@ SectionEnd
         !ifdef NSIS_CONFIG_LOG
           LogText "*** InstallApp: Let's run installer"
         !endif
-        ${If} ${FileExists} "${APP_INSTALLER_INI}"
+        ${If} ${FileExists} "$APP_INSTALLER_INI"
           !if ${APP_NAME} == "Netscape"
             ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
           !else
-            ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="${APP_INSTALLER_INI}"'
+            ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
           !endif
         ${Else}
           !if ${APP_INSTALL_MODE} == "QUIET"
@@ -611,9 +628,9 @@ Function "CheckShortcutsExistence"
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
-    ${If} ${FileExists} "${APP_INSTALLER_INI}"
-      ReadINIStr $SHORTCUT_NAME "${APP_INSTALLER_INI}" "Install" "ShortcutName"
-      ReadINIStr $PROGRAM_FOLDER_NAME "${APP_INSTALLER_INI}" "Install" "StartMenuDirectoryName"
+    ${If} ${FileExists} "$APP_INSTALLER_INI"
+      ReadINIStr $SHORTCUT_NAME "$APP_INSTALLER_INI" "Install" "ShortcutName"
+      ReadINIStr $PROGRAM_FOLDER_NAME "$APP_INSTALLER_INI" "Install" "StartMenuDirectoryName"
     ${EndIf}
     !if ${APP_NAME} == "Netscape"
       ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "$SHORTCUT_DEFAULT_NAME" ${|}
@@ -680,8 +697,8 @@ Function "UpdateShortcutsExistence"
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
 
-    ${If} ${FileExists} "${APP_INSTALLER_INI}"
-      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "DesktopShortcut"
+    ${If} ${FileExists} "$APP_INSTALLER_INI"
+      ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "DesktopShortcut"
       !ifdef NSIS_CONFIG_LOG
         LogText "*** DesktopShortcut: $1"
       !endif
@@ -711,7 +728,7 @@ Function "UpdateShortcutsExistence"
     !endif
       ${EndIf}
 
-      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "StartMenuShortcuts"
+      ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "StartMenuShortcuts"
       !ifdef NSIS_CONFIG_LOG
         LogText "*** StartMenuShortcuts: $1"
       !endif
@@ -735,8 +752,8 @@ Function "UpdateShortcutsExistence"
     !endif
       ${EndIf}
 
-      ReadINIStr $1 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcutAllUsers"
-      ReadINIStr $2 "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
+      ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcutAllUsers"
+      ReadINIStr $2 "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcut"
       !ifdef NSIS_CONFIG_LOG
         LogText "*** QuickLaunchShortcutAllUsers: $1"
       !endif
@@ -751,7 +768,7 @@ Function "UpdateShortcutsExistence"
           LogText "*** ITEM_LOCATION_BASE: $ITEM_LOCATION_BASE"
         !endif
         StrCpy $ITEM_INDEX 0
-        ReadINIStr $INI_TEMP "${APP_INSTALLER_INI}" "Install" "QuickLaunchShortcut"
+        ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcut"
         ${Locate} "$1" "/L=D /G=0 /M=*" "UpdateQuickLaunchShortcutForOneUser"
         SetShellVarContext current
       ${ElseIf} "$2" == "false"
@@ -946,7 +963,7 @@ Section "Install Profiles" InstallProfiles
       ${EndWhile}
     ${EndUnless}
 
-    ${If} ${FileExists} "$EXEDIR\resources\profile.zip"
+    ${If} ${FileExists} "$RES_DIR\profile.zip"
       !ifdef NSIS_CONFIG_LOG
         LogText "*** Install Default Profile"
       !endif
@@ -960,7 +977,7 @@ Section "Install Profiles" InstallProfiles
       Rename "$DIST_PATH" "$BACKUP_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackups$ITEM_INDEX" "$BACKUP_PATH"
 
-      ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$DIST_PATH"
+      ZipDLL::extractall "$RES_DIR\profile.zip" "$DIST_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX" "$DIST_PATH"
     ${EndIf}
 
@@ -1022,9 +1039,9 @@ Function "InstallProfile"
 
     ${EndIf}
 
-    ${If} ${FileExists} "$EXEDIR\resources\profile.zip"
+    ${If} ${FileExists} "$RES_DIR\profile.zip"
       ${Unless} ${FileExists} "$ITEM_LOCATION\Profiles\$INI_TEMP"
-        ZipDLL::extractall "$EXEDIR\resources\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
+        ZipDLL::extractall "$RES_DIR\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
       ${EndUnless}
     ${EndIf}
 FunctionEnd
@@ -1040,7 +1057,7 @@ Section "Install Add-ons" InstallAddons
     StrCpy $ITEM_INDEX 0
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons" "${INSTALL_ADDONS}"
     ${If} "$ITEMS_LIST" == ""
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
     ${EndIf}
     !ifdef NSIS_CONFIG_LOG
       LogText "*** ADDONS: $ITEMS_LIST"
@@ -1115,7 +1132,7 @@ Function "InstallAddon"
 
     SetOutPath $ITEM_LOCATION
 
-    ZipDLL::extractall "$EXEDIR\resources\$ITEM_NAME" "$ITEM_LOCATION"
+    ZipDLL::extractall "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
 
     ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Uninstall"
@@ -1258,7 +1275,7 @@ Function "InstallExtraInstaller"
       LogText "*** EXTRA_INSTALLER_OPTIONS from INI: $EXTRA_INSTALLER_OPTIONS"
     !endif
 
-    ExecWait '"$EXEDIR\resources\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
+    ExecWait '"$RES_DIR\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallExtraInstaller: $ITEM_NAME successfully installed"
@@ -1273,62 +1290,62 @@ Function InstallAdditionalFiles
     StrCpy $ITEM_INDEX 0
 
     StrCpy $DIST_DIR "$APP_DIR"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cfg" "InstallNormalFile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.properties" "InstallNormalFile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cfg" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.properties" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer" "InstallNormalFile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.crt" "InstallNormalFile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.pem" "InstallNormalFile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.cer.override" "InstallNormalFile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.crt.override" "InstallNormalFile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.pem.override" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cer" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.crt" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.pem" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cer.override" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.crt.override" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.pem.override" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\isp"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xml" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xml" "InstallNormalFile"
 
     StrCpy $DIST_DIR "${APP_CONFIG_DIR}"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.js" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.js" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\chrome"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.css" "InstallNormalFile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.jar" "InstallNormalFile"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.manifest" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.css" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.jar" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.manifest" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\components"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xpt" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xpt" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\plugins"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
 
     !if ${APP_NAME} == "Firefox"
       ; Firefox 21 and later, these files must be placed into the "browser" directory. 
       StrCpy $DIST_DIR "$APP_DIR\browser"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
 
       StrCpy $DIST_DIR "$APP_DIR\browser\defaults\profile"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
 
       StrCpy $DIST_DIR "$APP_DIR\browser\plugins"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
     !endif
 
     !if ${APP_NAME} == "Netscape"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=installed-chrome.txt" "AppendTextFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=installed-chrome.txt" "AppendTextFile"
     !endif
 
     StrCpy $DIST_DIR "$DESKTOP"
-    ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
   ;  StrCpy $DIST_DIR "$QUICKLAUNCH"
-  ;  ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+  ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
   ;  StrCpy $DIST_DIR "$SMPROGRAMS"
-  ;  ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+  ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
 FunctionEnd
 
 Function "InstallNormalFile"
@@ -1357,7 +1374,7 @@ Function "InstallNormalFile"
 
     SetOutPath $DIST_DIR
 
-    CopyFiles /SILENT "$EXEDIR\resources\$PROCESSING_FILE" "$DIST_PATH"
+    CopyFiles /SILENT "$RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
     ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
@@ -1390,7 +1407,7 @@ FunctionEnd
 
       ClearErrors
       FileOpen $DIST_FILE "$DIST_PATH" a
-      FileOpen $PROCESSING_FILE "$EXEDIR\resources\$PROCESSING_FILE" r
+      FileOpen $PROCESSING_FILE "$RES_DIR\$PROCESSING_FILE" r
       MOVE_TO_END:
         FileRead $DIST_FILE $1
         IfErrors READ_AND_WRITE
@@ -1450,8 +1467,8 @@ Section "Initialize Search Plugins" InitSearchPlugins
 
     ; install additional engines
     StrCpy $DIST_DIR "$APP_DIR\searchplugins"
-    ${If} ${FileExists} "$EXEDIR\resources\*.xml"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=*.xml" "InstallNormalFile"
+    ${If} ${FileExists} "$RES_DIR\*.xml"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xml" "InstallNormalFile"
     ${EndIf}
 SectionEnd
 
@@ -1513,7 +1530,7 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
     ${EndWhile}
 
     StrCpy $DIST_DIR "$DIST_PATH"
-    ${If} ${FileExists} "$EXEDIR\resources\distribution.*"
+    ${If} ${FileExists} "$RES_DIR\distribution.*"
       ${If} ${FileExists} "$DIST_PATH"
         WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup" "$BACKUP_PATH"
         Rename "$DIST_PATH" "$BACKUP_PATH"
@@ -1524,7 +1541,7 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
       CreateDirectory "$DIST_PATH"
       ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
-      ${Locate} "$EXEDIR\resources" "/L=F /G=0 /M=distribution.*" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=distribution.*" "InstallNormalFile"
     ${EndIf}
 SectionEnd
 
@@ -1980,9 +1997,9 @@ Function GetAppPath
       LogText "*** GetAppPath: APP_DIR = $APP_DIR"
     !endif
 
-    ${If} ${FileExists} "${APP_INSTALLER_INI}"
-      ReadINIStr $INI_TEMP "${APP_INSTALLER_INI}" "Install" "InstallDirectoryName"
-      ReadINIStr $INI_TEMP2 "${APP_INSTALLER_INI}" "Install" "InstallDirectoryPath"
+    ${If} ${FileExists} "$APP_INSTALLER_INI"
+      ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"
+      ReadINIStr $INI_TEMP2 "$APP_INSTALLER_INI" "Install" "InstallDirectoryPath"
       ${If} $INI_TEMP != ""
       ${OrIf} $INI_TEMP2 != ""
         ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_DIRECTORY_NAME}" ${|}
