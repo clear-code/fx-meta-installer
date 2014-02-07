@@ -103,12 +103,27 @@
 
 ・インストール直後の初期状態のブックマークの内容を変更するには？
 　→resourcesフォルダ内にbookmarks.htmlを置く。
+　  （実際にFirefoxでブックマークを編集してエクスポートした物を使うと良い）
 
 
 ■ヘルパーアプリケーション
 
 ・特定の形式のファイルをダウンロードする際の挙動をカスタマイズするには？
 　→resourcesフォルダ内に編集済みのmimeTypes.rdfを置く。
+
+
+■アドオン
+
+・インストール先を「extensions」以下にして、普通のアドオンとして
+　見えるようにするには？
+　→fainstall.iniで各アドオンのセクションに
+　　「TargetLocation=%AppDir%\extensions」の指定を加える。例：
+　　> [force-addon-status.xpi]
+　　> AddonId=force-addon-status@clear-code.com
+　　> TargetLocation=%AppDir%\extensions
+　　その上で、MCD用設定ファイルなどを使い以下の設定を適用し、
+　　初回起動時の警告を表示しないようにする。
+　　> defaultPref("extensions.autoDisableScopes", 0);
 
 
 ■検索エンジン
