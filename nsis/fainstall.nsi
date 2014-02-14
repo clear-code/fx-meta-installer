@@ -2000,13 +2000,17 @@ Function GetAppPath
     ${If} ${FileExists} "$APP_INSTALLER_INI"
       ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"
       ReadINIStr $INI_TEMP2 "$APP_INSTALLER_INI" "Install" "InstallDirectoryPath"
-      ${If} $INI_TEMP != ""
-      ${OrIf} $INI_TEMP2 != ""
-        ${IfThen} "$INI_TEMP" == "" ${|} StrCpy $INI_TEMP "${APP_DIRECTORY_NAME}" ${|}
-        ${IfThen} "$INI_TEMP2" == "" ${|} StrCpy $INI_TEMP2 "$PROGRAMFILES" ${|}
-        ${If} "$APP_DIR" != "$INI_TEMP2\$INI_TEMP"
+      ${If} $INI_TEMP2 != ""
+        ${If} "$APP_DIR" != "$INI_TEMP2"
           !ifdef NSIS_CONFIG_LOG
-            LogText "*** GetAppPath: APP_DIR must be $INI_TEMP2\$INI_TEMP"
+            LogText "*** GetAppPath: APP_DIR must be $INI_TEMP2"
+          !endif
+          GoTo ERR
+        ${EndIf}
+      ${ElseIf} $INI_TEMP != ""
+        ${If} "$APP_DIR" != "$PROGRAMFILES\$INI_TEMP"
+          !ifdef NSIS_CONFIG_LOG
+            LogText "*** GetAppPath: APP_DIR must be $PROGRAMFILES\$INI_TEMP"
           !endif
           GoTo ERR
         ${EndIf}
