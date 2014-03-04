@@ -1433,7 +1433,11 @@ Section "Initialize Search Plugins" InitSearchPlugins
       LogSet on
     !endif
 
-    StrCpy $DIST_PATH   "$APP_DIR\searchplugins"
+    StrCpy $DIST_PATH "$APP_DIR\browser\searchplugins"
+    ${Unless} ${FileExists} "$DIST_PATH"
+      StrCpy $DIST_PATH "$APP_DIR\searchplugins"
+    ${EndUnless}
+
     StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
     StrCpy $BACKUP_COUNT 0
     !ifdef NSIS_CONFIG_LOG
@@ -1451,16 +1455,16 @@ Section "Initialize Search Plugins" InitSearchPlugins
 
     ${If} "$FX_ENABLED_SEARCH_PLUGINS" != ""
     ${AndIf} "$FX_ENABLED_SEARCH_PLUGINS" != "*"
-      ${Locate} "$APP_DIR\searchplugins" "/L=F /G=0 /M=*.xml" "CheckDisableSearchPlugin"
+      ${Locate} "$DIST_PATH" "/L=F /G=0 /M=*.xml" "CheckDisableSearchPlugin"
     ${EndIf}
     ${If} "$FX_DISABLED_SEARCH_PLUGINS" == "*"
     ${OrIf} "$FX_DISABLED_SEARCH_PLUGINS" != ""
-      ${Locate} "$APP_DIR\searchplugins" "/L=F /G=0 /M=*.xml" "CheckDisableSearchPlugin"
+      ${Locate} "$DIST_PATH" "/L=F /G=0 /M=*.xml" "CheckDisableSearchPlugin"
     ${EndIf}
 
     ${If} ${FileExists} "$BACKUP_PATH\*.xml"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisabledSearchPlugins" "$BACKUP_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "EnabledSearchPlugins" "$APP_DIR\searchplugins"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "EnabledSearchPlugins" "$DIST_PATH"
     ${Else}
       RMDir /r "$BACKUP_PATH"
     ${EndIf}
