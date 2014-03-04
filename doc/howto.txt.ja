@@ -53,6 +53,14 @@
 　　------------
 　　と記述する。
 
+・Mozilla Maintenance Serviceのインストールを禁止するには？
+　→resourcesフォルダ内に<アプリケーション名>-setup.iniを作成して
+　　[Install] セクションに
+　　------------
+　　MaintenanceService=false
+　　------------
+　　と記述する。
+
 ・Talkback（障害報告ツール）のインストールを禁止するには？
 　→fainstall.ini の [fainstall] セクションに
 　　------------

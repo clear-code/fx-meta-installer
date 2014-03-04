@@ -818,6 +818,11 @@ QuickLaunchShortcutAllUsers：（省略可能）
   true：全ユーザのクイックランチに適用する。
   false：現在のユーザのクイックランチにのみ適用する。
   省略時はfalseとして扱う。
+MaintenanceService：（省略可能）
+  Mozilla Maintenance Serviceのインストールを行うかどうか。
+  true：インストールする。
+  false：インストールしない。
+  省略時はtrueとして扱う。
 
 クラッシュ報告機能の有効・無効、特定の検索プラグインのみの有効化・特定の
 検索プラグインのみの無効化は、config.nshまたはfainstall.iniにて設定する。
