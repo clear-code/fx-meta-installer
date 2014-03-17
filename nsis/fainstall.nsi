@@ -1846,12 +1846,13 @@ Function CheckAdminPrivilege
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
+    ; check by sid (administrator ends with -500)
     AccessControl::GetCurrentUserName
     Pop $0
-    AccessControl::IsUserTheAdministrator $0
+    AccessControl::NameToSid $0
     Pop $0
-    Pop $1
-    ${If} "$1" == "yes"
+    ${WordFind} $0 "-" "-1" $1
+    ${If} $1 == "500"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
