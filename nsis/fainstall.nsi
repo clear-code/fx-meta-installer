@@ -2214,32 +2214,32 @@ FunctionEnd
 
 !define FillPlaceHolderWithATerm "!insertmacro FillPlaceHolderWithATerm"
 !macro FillPlaceHolderWithATerm Name1 Name2 Name3 Value
-    ${FillPlaceHolder} ${Name1} ${Value}
-    ${FillPlaceHolder} ${Name2} ${Value}
-    ${FillPlaceHolder} ${Name3} ${Value}
+    ${FillPlaceHolder} ${Name1} "${Value}"
+    ${FillPlaceHolder} ${Name2} "${Value}"
+    ${FillPlaceHolder} ${Name3} "${Value}"
 !macroend
 
 !define un.FillPlaceHolderWithATerm "!insertmacro un.FillPlaceHolderWithATerm"
 !macro un.FillPlaceHolderWithATerm Name1 Name2 Name3 Value
-    ${un.FillPlaceHolder} ${Name1} ${Value}
-    ${un.FillPlaceHolder} ${Name2} ${Value}
-    ${un.FillPlaceHolder} ${Name3} ${Value}
+    ${un.FillPlaceHolder} ${Name1} "${Value}"
+    ${un.FillPlaceHolder} ${Name2} "${Value}"
+    ${un.FillPlaceHolder} ${Name3} "${Value}"
 !macroend
 
 !define FillPlaceHolderWithTerms "!insertmacro FillPlaceHolderWithTerms"
 !macro FillPlaceHolderWithTerms Name1 Name2 Name3 Name4 Value
-    ${FillPlaceHolder} ${Name1} ${Value}
-    ${FillPlaceHolder} ${Name2} ${Value}
-    ${FillPlaceHolder} ${Name3} ${Value}
-    ${FillPlaceHolder} ${Name4} ${Value}
+    ${FillPlaceHolder} ${Name1} "${Value}"
+    ${FillPlaceHolder} ${Name2} "${Value}"
+    ${FillPlaceHolder} ${Name3} "${Value}"
+    ${FillPlaceHolder} ${Name4} "${Value}"
 !macroend
 
 !define un.FillPlaceHolderWithTerms "!insertmacro un.FillPlaceHolderWithTerms"
 !macro un.FillPlaceHolderWithTerms Name1 Name2 Name3 Name4 Value
-    ${un.FillPlaceHolder} ${Name1} ${Value}
-    ${un.FillPlaceHolder} ${Name2} ${Value}
-    ${un.FillPlaceHolder} ${Name3} ${Value}
-    ${un.FillPlaceHolder} ${Name4} ${Value}
+    ${un.FillPlaceHolder} ${Name1} "${Value}"
+    ${un.FillPlaceHolder} ${Name2} "${Value}"
+    ${un.FillPlaceHolder} ${Name3} "${Value}"
+    ${un.FillPlaceHolder} ${Name4} "${Value}"
 !macroend
 
 Function "ResolveItemLocation"
