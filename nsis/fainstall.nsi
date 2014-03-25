@@ -601,14 +601,14 @@ SectionEnd
       ${EndUnless}
 
       ${If} "$APP_ENABLE_CRASH_REPORT" == "false"
-        ; disable crash reporter for Firefox 3.6
+        ; disable crash reporter for the current user
         WriteRegDWORD HKCU "Software\Mozilla\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
         WriteRegDWORD HKCU "Software\Mozilla\${APP_NAME}\Crash Reporter" "Enabled" 0
         ; on Windows 7, vendor part is missing.
         WriteRegDWORD HKCU "Software\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
         WriteRegDWORD HKCU "Software\${APP_NAME}\Crash Reporter" "Enabled" 0
 
-        ; disable crash reporter for Firefox 4
+        ; disable crash reporter for all users
         WriteRegDWORD HKLM "Software\Mozilla\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
         WriteRegDWORD HKLM "Software\Mozilla\${APP_NAME}\Crash Reporter" "Enabled" 0
         ; on Windows 7, vendor part is missing.
