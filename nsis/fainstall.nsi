@@ -615,7 +615,8 @@ SectionEnd
         WriteRegDWORD HKLM "Software\${APP_NAME}\Crash Reporter" "SubmitCrashReport" 0
         WriteRegDWORD HKLM "Software\${APP_NAME}\Crash Reporter" "Enabled" 0
 
-        WriteIniStr "$APP_DIR\application.ini" "Crash Reporter" "Enabled" "0"
+        ; this change blocks auto-update of the application itself unexpectedly...
+        ; WriteIniStr "$APP_DIR\application.ini" "Crash Reporter" "Enabled" "0"
       ${EndIf}
   SectionEnd
 !endif
