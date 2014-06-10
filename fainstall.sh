@@ -57,7 +57,7 @@ then
 fi
 
 
-DRY_RUN=no
+# DRY_RUN=no
 
 try_run() {
   if [ "$DRY_RUN" = "yes" ]
