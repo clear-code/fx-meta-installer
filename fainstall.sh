@@ -4,11 +4,11 @@
 
 # Enable/disable crash report
 
-# Update existing shortcuts
+# Update existing shortcuts (not implemented)
 
-# Set default client / disable client
+# Set default client / disable client (not implemented)
 
-# Install custom profiles
+# Install custom profiles (not implemented)
 
 # Install additional files
 
@@ -36,7 +36,7 @@
 
 ## Install *.xpt => appdir/components/
 
-## Install *.dll => appdir/plugins/
+## Install *.dll => appdir/plugins/ (not implemented)
 
 ## Install distribution.* => appdir/distribution/
 
@@ -44,21 +44,21 @@
 ### Install override.ini => appdir/browser/
 ### Install bookmarks.html => appdir/browser/defaults/profile/
 ### Install *.rdf => appdir/browser/defaults/profile/
-### Install *.dll => appdir/browser/plugins/
+### Install *.dll => appdir/browser/plugins/ (not implemented)
 
 ## for Netscape
-### Install installed-chrome.txt => appdir/
+### Install installed-chrome.txt => appdir/ (not implemented)
 
-## Install *.lnk => desktop/
+## Install *.lnk => desktop/ (not implemented)
 
 # Install addons
 
-# Install shortcuts
+# Install shortcuts (not implemented)
 
-# Run extra installers
+# Run extra installers (not implemented)
 
-# Install search plugins
+# Install search plugins (not implemented)
 
-## Install searchplugins => appdir/browser/searchplugins/ or appdir/searchplugins/
+## Install searchplugins => appdir/browser/searchplugins/ or appdir/searchplugins/ (not implemented)
 
-## Disable searchplugins
+## Disable searchplugins (not implemented)
