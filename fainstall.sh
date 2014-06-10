@@ -39,10 +39,10 @@ application="$1"
 if [ "$application" = "" ]; then application="firefox"; fi
 application=$(echo "$application" | tr "[A-Z]" "[a-z]")
 
-detect_target_location() {
+detect_application_dir() {
   local application=$1
-  possible_target_locations="/usr/lib64/$application /usr/lib/$application"
-  for location in $possible_target_locations
+  possible_application_dirs="/usr/lib64/$application /usr/lib/$application"
+  for location in $possible_application_dirs
   do
     if [ -d "$location" -a -f "$location/$application" ]
     then
@@ -53,19 +53,19 @@ detect_target_location() {
   echo ""
   return 0
 }
-target_location=$(detect_target_location "$application")
+application_dir=$(detect_application_dir "$application")
 
 echo "Target Application: $application"
-echo "Target Location:    $target_location"
+echo "Target Location:    $application_dir"
 echo ""
 
-if [ "$target_location" = "" ]
+if [ "$application_dir" = "" ]
 then
   echo "ERROR: The target location is not found."
   exit 1
 fi
 
-if [ ! -d "$target_location" ]
+if [ ! -d "$application_dir" ]
 then
   echo "ERROR: The target location does not exist."
   exit 1
@@ -110,48 +110,53 @@ install_files() {
       then
         echo "Creating directory: $target_location"
         try_run mkdir -p "$target_location"
+        try_run chown root:root "$target_location"
+        try_run chmod 755 "$target_location"
       fi
 
       if [ ! -d "$target_location" ]; then return 0; fi
 
       echo "Installing: $file => $target_location/"
       try_run cp "$file" "$target_location/"
+      installed_file="$target_location/$(basename "$file")"
+      try_run chown root:root "$installed_file"
+      try_run chmod 644 "$installed_file"
     fi
   done
 }
 
-install_files "$target_location" "*.cfg"
-install_files "$target_location" "*.properties"
-install_files "$target_location" "override.ini"
+install_files "$application_dir" "*.cfg"
+install_files "$application_dir" "*.properties"
+install_files "$application_dir" "override.ini"
 
-install_files "$target_location/defaults" "*.cer"
-install_files "$target_location/defaults" "*.crt"
-install_files "$target_location/defaults" "*.pem"
-install_files "$target_location/defaults" "*.cer.override"
-install_files "$target_location/defaults" "*.crt.override"
-install_files "$target_location/defaults" "*.pem.override"
+install_files "$application_dir/defaults" "*.cer"
+install_files "$application_dir/defaults" "*.crt"
+install_files "$application_dir/defaults" "*.pem"
+install_files "$application_dir/defaults" "*.cer.override"
+install_files "$application_dir/defaults" "*.crt.override"
+install_files "$application_dir/defaults" "*.pem.override"
 
-install_files "$target_location/defaults/profile" "bookmarks.html" "create"
-install_files "$target_location/defaults/profile" "*.rdf" "create"
+install_files "$application_dir/defaults/profile" "bookmarks.html" "create"
+install_files "$application_dir/defaults/profile" "*.rdf" "create"
 
-install_files "$target_location/isp" "*.xml" "create"
+install_files "$application_dir/isp" "*.xml" "create"
 
-install_files "$target_location/defaults/pref" "*.js"
-install_files "$target_location/defaults/preferences" "*.js"
+install_files "$application_dir/defaults/pref" "*.js"
+install_files "$application_dir/defaults/preferences" "*.js"
 
-install_files "$target_location/chrome" "*.css"
-install_files "$target_location/chrome" "*.jar"
-install_files "$target_location/chrome" "*.manifest"
+install_files "$application_dir/chrome" "*.css"
+install_files "$application_dir/chrome" "*.jar"
+install_files "$application_dir/chrome" "*.manifest"
 
-install_files "$target_location/components" "*.xpt"
+install_files "$application_dir/components" "*.xpt"
 
 ## Install *.dll => appdir/plugins/ (not implemented)
 
-install_files "$target_location/distribution" "distribution.*" "create"
+install_files "$application_dir/distribution" "distribution.*" "create"
 
 ## for Firefox
-install_files "$target_location/browser" "override.ini"
-install_files "$target_location/browser/defaults/profile" "bookmarks.html"
+install_files "$application_dir/browser" "override.ini"
+install_files "$application_dir/browser/defaults/profile" "bookmarks.html"
 install_files "$target_location/browser/defaults/profile" "*.rdf"
 ### Install *.dll => appdir/browser/plugins/ (not implemented)
 
