@@ -110,7 +110,7 @@ fi
 # ================================================================
 
 
-# Enable/disable crash report
+# Enable/disable crash report (not implemented)
 
 # Update existing shortcuts (not implemented)
 
