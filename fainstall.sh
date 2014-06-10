@@ -28,6 +28,10 @@ try_run() {
   fi
 }
 
+case $(uname) in
+  Darwin|*BSD) sed="sed -E" ;;
+  *)           sed="sed -r" ;;
+esac
 
 
 # ================================================================
@@ -170,7 +174,95 @@ install_files "$target_location/browser/defaults/profile" "*.rdf"
 # Install addons
 # ================================================================
 
+install_addon() {
+  local file=$1
 
+  local basename=$(basename "$file")
+  local tmpdir="/tmp/$basename"
+
+  rm -rf "$tmpdir"
+  mkdir -p "$tmpdir"
+  unzip "$file" -d "$tmpdir" > /dev/null
+
+  local id=$(grep "em:id" "$tmpdir/install.rdf" | head -n 1 | \
+               $sed -e "s/ *<[^>]+> *//g" \
+                    -e "s/[^=]+= *\"([^\"]+)\"/\1/" \
+                    -e "s/[^=]+= *'([^\"]+)'/\1/" | \
+               tr -d "\r" | tr -d "\n")
+  local target_location=$(get_addon_install_location "$file" "$id")
+
+  echo "Installing addon $basename => $target_location"
+
+  try_run rm -rf "$target_location"
+  try_run mkdir -p "$target_location"
+  try_run mv "$tmpdir/*" "$target_location/"
+  rm -rf "$tmpdir"
+}
+
+get_addon_install_location() {
+  local file=$1
+  local basename=$(basename "$1")
+  local id=$2
+
+  if [ -f "$fainstall_ini" ]
+  then
+    local id_from_ini=$(grep --after-context=5 "\[$basename\]" "$fainstall_ini" | \
+                          grep "AddonId=" | head -n 1 | cut -d "=" -f 2 | \
+                          tr -d "\r" | tr -d "\n")
+    if [ "$id_from_ini" != "" ]
+    then
+      local id="$id_from_ini"
+    fi
+
+    local target_location=$(grep --after-context=5 "\[$basename\]" "$fainstall_ini" | \
+                              grep "TargetLocation=" | head -n 1 | cut -d "=" -f 2 | \
+                              $sed -e 's#\\#/#g' | tr -d "\r" | tr -d "\n" )
+    local target_location=$(resolve_place_holders "$target_location")
+    if [ "$target_location" != "" ]
+    then
+      echo "$target_location/$id"
+      return 0
+    fi
+  fi
+
+  echo "$application_dir/distribution/bundles/$id"
+  return 0
+}
+
+resolve_place_holders() {
+  echo "$1" | \
+    $sed -e "s;\%AppData\%;$HOME;i" \
+         -e "s;\%HomePath\%;$HOME;i" \
+         -e "s;\%UserName\%;$USER;i" \
+         -e "s;\%Tmp\%;/tmp;i" \
+         -e "s;\%Temp\%;/tmp;i" \
+         -e "s;\%ComputerName\%;$(cat /etc/hostname | tr -d "\n" | tr -d "\r");i" \
+         -e "s;\%Home\%;$HOME;i" \
+         -e "s;\%DeskTop\%;$HOME/Desktop;i" \
+         -e "s;\%AppDir\%;$application_dir;i"
+         # not implemented:
+         # -e "s;\%HomeDrive\%;???;i" \
+         # -e "s;\%SystemDrive\%;???;i" \
+         # -e "s;\%SystemRoot\%;???;i" \
+         # -e "s;\%WinDir\%;???;i" \
+         # -e "s;\%ProgramFiles\%;???;i" \
+         # -e "s;\%CommonProgramFiles\%;???;i" \
+         # -e "s;\%AllUsersProfile\%;???;i" \
+         # -e "s;\%SysDir\%;???;i" \
+         # -e "s;\%ProgramFiles32\%;???;i" \
+         # -e "s;\%ProgramFiles64\%;???;i" \
+         # -e "s;\%CommonFiles\%;???;i" \
+         # -e "s;\%CommonFiles32\%;???;i" \
+         # -e "s;\%CommonFiles64\%;???;i" \
+         # -e "s;\%StartMenu\%;???;i" \
+         # -e "s;\%Programs\%;???;i" \
+  return 0
+}
+
+find $resources -name "*.xpi" | while read file
+do
+  install_addon "$file"
+done
 
 
 # Install shortcuts (not implemented)
