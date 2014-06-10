@@ -3,19 +3,44 @@
 # ================================================================
 # Fx Meta Installer (easy edition)
 #
-# このファイルは、メタインストーラ作成キット一式のファイル群と
-# 組み合わせて使用します。
+# このファイルは、メタインストーラのファイル群と組み合わせて
+# 使用します。
 #
 # 使用方法:
-#  1. メタインストーラ作成キット一式のファイル群を
-#     インストール対象のLinux環境にコピーする。
-#  2. このファイルをメタインストーラ作成キット一式のディレクトリ
+#  1. メタインストーラのファイル群（fainstall.ini、resources
+#     など）をインストール対象のLinux環境にコピーする。
+#     例えば /tmp/FxMetaInstaller-soruce など。
+#
+#       % scp -r fileserver:/shared/FxMetaInstaller-soruce /tmp/
+#
+#  2. このファイルをメタインストーラのディレクトリ
 #     （fainstall.ini があるディレクトリ）に設置する。
-#  3. このファイルを管理者権限で実行する。
+#     例えば /tmp/FxMetaInstaller-soruce/fainstall.sh など。
+#
+#       % scp fainstall.sh /tmp/FxMetaInstaller-soruce/
+#
+#  3. 2.でファイルをコピーした先のディレクトリに cd する。
+#
+#       % cd /tmp/FxMetaInstaller-soruce
+#
+#  4. 2.でコピーした fainstall.sh を管理者権限で実行する。
+#
+#       % sudo ./fainstall.sh
+#
 #
 # 注意事項:
-#  このコマンドの実行時には、以下のコマンドが必要です。
-#   * unzip
+#  * このコマンドの実行時には、以下のコマンドが必要です。
+#    - bash
+#    - unzip
+#  * 未知の環境で実行する場合、事前にテスト実行して、実行予定の
+#    コマンドが正しいかどうかを確認してください。
+#    以下のように環境変数「DRY_RUN」に「yes」を指定すると、
+#    テスト実行モードになります：
+#      % env DRY_RUN=yes ./fainstall.sh
+#  * メタインストーラ作成キット一式のファイル構成によっては、
+#    インストール対象のアプリケーション名を明示する必要が
+#    あります。例えばFirefoxを対象にする場合は以下のようにします：
+#      % ./fainstall.sh firefox
 # ================================================================
 
 echo "Fx Meta Installer (easy edition)"
@@ -53,6 +78,9 @@ then
   echo "Possible values:"
   echo " - \"firefox\""
   echo " - \"thunderbird\""
+  echo ""
+  echo "You can test this script without actual installations, by:"
+  echo "  env DRY_RUN=yes ./fainstall.sh APPNAME"
   exit 0
 fi
 
