@@ -43,9 +43,9 @@ DRY_RUN=yes
 try_run() {
   if [ "$DRY_RUN" = "yes" ]
   then
-    echo "> Run: $@"
+    echo "> Run: $*"
   else
-    exec "$@"
+    $*
   fi
 }
 
