@@ -3,7 +3,28 @@
 
 echo "Fx Meta Installer (easy edition)"
 
-if [ "$1" = "--help" ]
+# ================================================================
+# Initialize self
+# ================================================================
+
+fainstall_ini="./fainstall.ini"
+
+resources="."
+if [ -d "./resources" ]; then resources="./resources"; fi
+
+application="$1"
+if [ -f "$resources/Firefox-setup.ini" -o -f "$resources/Firefox-setup.exe" ]
+then
+  application="firefox"
+fi
+if [ -f "$resources/Thunderbird-setup.ini" -o -f "$resources/Thunderbird-setup.exe" ]
+then
+  application="thunderbird"
+fi
+application=$(echo "$application" | tr "[A-Z]" "[a-z]")
+
+
+if [ "$1" = "--help" -o "$application" = "" ]
 then
   echo ""
   echo "Usage:"
@@ -11,7 +32,7 @@ then
   echo ""
   echo "The argument APPNAME is the target application."
   echo "Possible values:"
-  echo " - \"firefox\" (default)"
+  echo " - \"firefox\""
   echo " - \"thunderbird\""
   exit 0
 fi
@@ -49,11 +70,6 @@ fi
 # Initialize variables
 # ================================================================
 
-application="$1"
-
-if [ "$application" = "" ]; then application="firefox"; fi
-application=$(echo "$application" | tr "[A-Z]" "[a-z]")
-
 detect_application_dir() {
   local application=$1
   possible_application_dirs="/usr/lib64/$application /usr/lib/$application"
@@ -86,11 +102,6 @@ then
   exit 1
 fi
 
-
-resources="."
-if [ -d "./resources" ]; then resources="./resources"; fi
-
-fainstall_ini="./fainstall.ini"
 
 
 
@@ -131,7 +142,7 @@ install_files() {
 
       if [ ! -d "$target_location" ]; then return 0; fi
 
-      echo "Installing: $file => $target_location/"
+      echo "Installing file: $file => $target_location/"
       try_run cp "$file" "$target_location/"
       installed_file="$target_location/$(basename "$file")"
       try_run chown root:root "$installed_file"
@@ -202,7 +213,7 @@ install_addon() {
                tr -d "\r" | tr -d "\n")
   local target_location=$(get_addon_install_location "$file" "$id")
 
-  echo "Installing addon $basename => $target_location"
+  echo "Installing addon: $basename => $target_location"
 
   try_run rm -rf "$target_location"
   try_run mkdir -p "$target_location"
