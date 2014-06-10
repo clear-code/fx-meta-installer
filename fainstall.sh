@@ -3,7 +3,7 @@
 # ================================================================
 # Fx Meta Installer (easy edition)
 #
-# このファイルは、メタインストーラのファイル群と組み合わせて
+# このスクリプトは、メタインストーラのファイル群と組み合わせて
 # 使用します。
 #
 # 使用方法:
@@ -13,13 +13,13 @@
 #
 #       % scp -r fileserver:/shared/FxMetaInstaller-soruce /tmp/
 #
-#  2. このファイルをメタインストーラのディレクトリ
+#  2. このスクリプトをメタインストーラのディレクトリ
 #     （fainstall.ini があるディレクトリ）に設置する。
 #     例えば /tmp/FxMetaInstaller-soruce/fainstall.sh など。
 #
 #       % scp fainstall.sh /tmp/FxMetaInstaller-soruce/
 #
-#  3. 2.でファイルをコピーした先のディレクトリに cd する。
+#  3. 2.でスクリプトをコピーした先のディレクトリに cd する。
 #
 #       % cd /tmp/FxMetaInstaller-soruce
 #
@@ -29,7 +29,7 @@
 #
 #
 # 注意事項:
-#  * このコマンドの実行時には、以下のコマンドが必要です。
+#  * このスクリプトの実行時には、以下のコマンドが必要です。
 #
 #    - bash
 #    - unzip
