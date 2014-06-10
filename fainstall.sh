@@ -35,6 +35,17 @@ esac
 
 
 # ================================================================
+# Check required commands
+# ================================================================
+
+if [ ! -f "$(which unzip)" ]
+then
+  echo "ERROR: Required command \"unzip\" is not available."
+  exit 1
+fi
+
+
+# ================================================================
 # Initialize variables
 # ================================================================
 
@@ -274,3 +285,8 @@ done
 ## Install searchplugins => appdir/browser/searchplugins/ or appdir/searchplugins/ (not implemented)
 
 ## Disable searchplugins (not implemented)
+
+
+echo ""
+echo "Done."
+exit 0
