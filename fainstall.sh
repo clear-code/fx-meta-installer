@@ -222,7 +222,11 @@ install_addon() {
   try_run rm -rf "$target_location"
   try_run mkdir -p "$target_location"
   try_run mv "$tmpdir/*" "$target_location/"
+  try_run chown -R root:root "$target_location"
+  try_run find "$target_location" -type d -exec chmod 755 {} +
+  try_run find "$target_location" -type f -exec chmod 644 {} +
   rm -rf "$tmpdir"
+  echo "$target_location" >> "$log_file"
 }
 
 get_addon_install_location() {
