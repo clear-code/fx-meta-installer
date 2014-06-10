@@ -1,6 +1,88 @@
 #!/bin/bash
 # Copyright (C) 2014 ClearCode Inc.
 
+echo "Fx Meta Installer (easy edition)"
+
+if [ "$1" = "--help" ]
+then
+  echo ""
+  echo "Usage:"
+  echo "  ./fainstall.sh APPNAME"
+  echo ""
+  echo "The argument APPNAME is the target application."
+  echo "Possible values:"
+  echo " - \"firefox\" (default)"
+  echo " - \"thunderbird\""
+  exit 0
+fi
+
+
+DRY_RUN=yes
+
+try_run() {
+  if [ "$DRY_RUN" = "yes" ]
+  then
+    echo "> Run: $@"
+  else
+    exec "$@"
+  fi
+}
+
+
+
+# ================================================================
+# Initialize variables
+# ================================================================
+
+application="$1"
+
+if [ "$application" = "" ]; then application="firefox"; fi
+application=$(echo "$application" | tr "[A-Z]" "[a-z]")
+
+detect_target_location() {
+  local application=$1
+  possible_target_locations="/usr/lib64/$application /usr/lib/$application"
+  for location in $possible_target_locations
+  do
+    if [ -d "$location" -a -f "$location/$application" ]
+    then
+      echo "$location"
+      return 0
+    fi
+  done
+  echo ""
+  return 0
+}
+target_location=$(detect_target_location "$application")
+
+echo "Target Application: $application"
+echo "Target Location:    $target_location"
+echo ""
+
+if [ "$target_location" = "" ]
+then
+  echo "ERROR: The target location is not found."
+  exit 1
+fi
+
+if [ ! -d "$target_location" ]
+then
+  echo "ERROR: The target location does not exist."
+  exit 1
+fi
+
+
+resources="."
+if [ -d "./resources" ]; then resources="./resources"; fi
+
+fainstall_ini="./fainstall.ini"
+
+
+
+# ================================================================
+# Installation
+# ================================================================
+
 
 # Enable/disable crash report
 
@@ -10,40 +92,67 @@
 
 # Install custom profiles (not implemented)
 
+
+# ================================================================
 # Install additional files
+# ================================================================
 
-## Install *.cfg => appdir/
-## Install *.properties => appdir/
-## Install override.ini => appdir/
+install_files() {
+  local target_location=$1
+  local files=$2
+  local option=$3
 
-## Install *.cer => appdir/defaults/
-## Install *.crt => appdir/defaults/
-## Install *.pem => appdir/defaults/
-## Install *.cer.override => appdir/defaults/
-## Install *.crt.override => appdir/defaults/
-## Install *.pem.override => appdir/defaults/
+  find $resources -name "$files" | while read file
+  do
+    if [ -f "$file" ]
+    then
+      if [ ! -d "$target_location" -a "$option" = "create" ]
+      then
+        echo "Creating directory: $target_location"
+        try_run mkdir -p "$target_location"
+      fi
 
-## Install bookmarks.html => appdir/defaults/profile/
-## Install *.rdf => appdir/defaults/profile/
+      if [ ! -d "$target_location" ]; then return 0; fi
 
-## Install *.xml => appdir/isp/
+      echo "Installing: $file => $target_location/"
+      try_run cp "$file" "$target_location/"
+    fi
+  done
+}
 
-## Install *.js => appdir/defaults/pref or appdir/defaults/preferences/
+install_files "$target_location" "*.cfg"
+install_files "$target_location" "*.properties"
+install_files "$target_location" "override.ini"
 
-## Install *.css => appdir/chrome/
-## Install *.jar => appdir/chrome/
-## Install *.manifest => appdir/chrome/
+install_files "$target_location/defaults" "*.cer"
+install_files "$target_location/defaults" "*.crt"
+install_files "$target_location/defaults" "*.pem"
+install_files "$target_location/defaults" "*.cer.override"
+install_files "$target_location/defaults" "*.crt.override"
+install_files "$target_location/defaults" "*.pem.override"
 
-## Install *.xpt => appdir/components/
+install_files "$target_location/defaults/profile" "bookmarks.html" "create"
+install_files "$target_location/defaults/profile" "*.rdf" "create"
+
+install_files "$target_location/isp" "*.xml" "create"
+
+install_files "$target_location/defaults/pref" "*.js"
+install_files "$target_location/defaults/preferences" "*.js"
+
+install_files "$target_location/chrome" "*.css"
+install_files "$target_location/chrome" "*.jar"
+install_files "$target_location/chrome" "*.manifest"
+
+install_files "$target_location/components" "*.xpt"
 
 ## Install *.dll => appdir/plugins/ (not implemented)
 
-## Install distribution.* => appdir/distribution/
+install_files "$target_location/distribution" "distribution.*" "create"
 
 ## for Firefox
-### Install override.ini => appdir/browser/
-### Install bookmarks.html => appdir/browser/defaults/profile/
-### Install *.rdf => appdir/browser/defaults/profile/
+install_files "$target_location/browser" "override.ini"
+install_files "$target_location/browser/defaults/profile" "bookmarks.html"
+install_files "$target_location/browser/defaults/profile" "*.rdf"
 ### Install *.dll => appdir/browser/plugins/ (not implemented)
 
 ## for Netscape
@@ -51,7 +160,13 @@
 
 ## Install *.lnk => desktop/ (not implemented)
 
+
+# ================================================================
 # Install addons
+# ================================================================
+
+
+
 
 # Install shortcuts (not implemented)
 
