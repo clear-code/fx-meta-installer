@@ -1,5 +1,22 @@
 #!/bin/bash
 # Copyright (C) 2014 ClearCode Inc.
+# ================================================================
+# Fx Meta Installer (easy edition)
+#
+# このファイルは、メタインストーラ作成キット一式のファイル群と
+# 組み合わせて使用します。
+#
+# 使用方法:
+#  1. メタインストーラ作成キット一式のファイル群を
+#     インストール対象のLinux環境にコピーする。
+#  2. このファイルをメタインストーラ作成キット一式のディレクトリ
+#     （fainstall.ini があるディレクトリ）に設置する。
+#  3. このファイルを管理者権限で実行する。
+#
+# 注意事項:
+#  このコマンドの実行時には、以下のコマンドが必要です。
+#   * unzip
+# ================================================================
 
 echo "Fx Meta Installer (easy edition)"
 
@@ -29,6 +46,8 @@ then
   echo ""
   echo "Usage:"
   echo "  ./fainstall.sh APPNAME"
+  echo ""
+  echo "Put this file to the directory which includes \"fainstall.ini\" and run."
   echo ""
   echo "The argument APPNAME is the target application."
   echo "Possible values:"
