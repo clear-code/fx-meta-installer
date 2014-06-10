@@ -102,6 +102,8 @@ then
   exit 1
 fi
 
+log_file="$PWD/fainstall.$(date +%Y-%m-%d.%H-%M-%S).log"
+
 
 
 
@@ -138,6 +140,7 @@ install_files() {
         try_run mkdir -p "$target_location"
         try_run chown root:root "$target_location"
         try_run chmod 755 "$target_location"
+        echo "$target_location" >> "$log_file"
       fi
 
       if [ ! -d "$target_location" ]; then return 0; fi
@@ -147,6 +150,7 @@ install_files() {
       installed_file="$target_location/$(basename "$file")"
       try_run chown root:root "$installed_file"
       try_run chmod 644 "$installed_file"
+      echo "$installed_file" >> "$log_file"
     fi
   done
 }
@@ -300,4 +304,12 @@ done
 
 echo ""
 echo "Done."
+echo ""
+echo "Installed fires and directories are listed in the file:"
+echo ""
+echo "  $log_file"
+echo ""
+echo "You can uninstall all installed files with:"
+echo ""
+echo "  cat $log_file | xargs rm -rf"
 exit 0
