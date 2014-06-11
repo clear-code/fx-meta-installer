@@ -55,10 +55,10 @@ echo "Fx Meta Installer (easy edition)"
 # Initialize self
 # ================================================================
 
-fainstall_ini="./fainstall.ini"
+fainstall_ini="$PWD/fainstall.ini"
 
-resources="."
-if [ -d "./resources" ]; then resources="./resources"; fi
+resources="$PWD"
+if [ -d "$PWD/resources" ]; then resources="$PWD/resources"; fi
 
 application="$1"
 if [ -f "$resources/Firefox-setup.ini" -o -f "$resources/Firefox-setup.exe" ]
