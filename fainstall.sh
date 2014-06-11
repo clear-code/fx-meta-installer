@@ -112,7 +112,7 @@ esac
 # Check required commands
 # ================================================================
 
-if [ ! -f "$(which unzip)" ]
+if ! which unzip > /dev/null
 then
   echo "ERROR: Required command \"unzip\" is not available."
   exit 1
