@@ -772,7 +772,7 @@ InstallDirectoryName：（省略可能）
 InstallDirectoryPath：（省略可能）
   Firefoxのインストール先フォルダをフルパスで指定する。
   初期値は無し。
-  この指定は、InstallDirectoryNameが空でない場合にのみ利用される。
+  この指定は、InstallDirectoryNameが空の場合にのみ利用される。
   こちらの指定を優先させる場合、InstallDirectoryNameは明示的に
   空にする必要がある。
   例えば「C:\Firefox」にインストールさせる場合は以下のように記述する。
