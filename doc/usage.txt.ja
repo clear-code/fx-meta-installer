@@ -669,6 +669,14 @@ Options：（省略可能）
     %StartMenu% : スタートメニュー直下
     %Programs%  : スタートメニュー内の「すべてのプログラム」
     %StartUp%   : スタートメニュー内の「スタートアップ」
+IconPath：（省略可能）
+  ショートカットのアイコンファイルのパス。
+  省略時はPath（リンク先実行ファイルのパス）と同じ値が指定されたものとして扱う。
+  以下のプレースホルダを使用可能。
+    %AppDir%  : Firefoxのインストール先フォルダ
+    %AppData% : Windowsのアプリケーション情報保存先フォルダ
+                （C:\Users\<username>\AppData\Roaming など）
+    %Home%    : ユーザのホーム（C:\Users\<username> など）
 IconIndex：（省略可能）
   Pathで示されたファイルにアイコンが複数含まれている場合に、ショートカットの
   アイコンとして使うアイコンの番号を示す。
