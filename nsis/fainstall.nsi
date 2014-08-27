@@ -123,7 +123,6 @@ ${DefineDefaultValue} APP_DIRECTORY_NAME "${APP_NAME}"
 !define APP_DISTRIBUTION_DIR "$APP_DIR\distribution"
 !define APP_BUNDLES_DIR      "${APP_DISTRIBUTION_DIR}\bundles"
 !define APP_CONFIG_DIR      "$APP_DIR\defaults\pref"
-!define APP_REG_KEY         "Software\${APP_KEY}"
 
 ; for backward compatibility
 !ifdef PRODUCT_SILENT_INSTALL
@@ -2001,9 +2000,9 @@ Function GetCurrentAppRegKey
   ${If} "$APP_IS_ESR" == "1"
   ${OrIf} "$APP_IS_ESR" == "yes"
   ${OrIf} "$APP_IS_ESR" == "true"
-    StrCpy $APP_REG_KEY "${APP_REG_KEY} ESR"
+    StrCpy $APP_REG_KEY "Software\${APP_KEY} ESR"
   ${Else}
-    StrCpy $APP_REG_KEY "${APP_REG_KEY}"
+    StrCpy $APP_REG_KEY "Software\${APP_KEY}"
   ${EndIf}
 FunctionEnd
 
