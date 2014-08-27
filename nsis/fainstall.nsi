@@ -212,6 +212,7 @@ Icon "${INSTALLER_NAME}.ico"
 
 ;=== Variables
 Var APP_VERSION
+Var APP_REG_KEY
 Var NORMALIZED_APP_VERSION
 Var APP_VERSION_NUM
 Var APP_EXE_PATH
@@ -1570,6 +1571,7 @@ Section -Post
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "URLInfoAbout"    "${PRODUCT_WEB_SITE}"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "Publisher"       "${PRODUCT_PUBLISHER}"
     ${If} "$APP_INSTALLED" == "1"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppRegKey"  "$APP_REG_KEY"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion" "$APP_VERSION"
     ${EndIf}
 SectionEnd
@@ -1778,7 +1780,7 @@ Function un.onUninstSuccess
     ${AndIf} "$APP_VERSION" != ""
       Call un.GetCurrentAppVersion
       ${IfThen} "$APP_VERSION" == "" ${|} GoTo RETURN ${|}
-      StrCpy $0 "${APP_REG_KEY}\$APP_VERSION\Main"
+      StrCpy $0 "$APP_REG_KEY\$APP_VERSION\Main"
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
       ${IfThen} "$APP_DIR" == "" ${|} GoTo RETURN ${|}
 
@@ -1982,13 +1984,22 @@ Function un.CheckAppProc
     ${EndIf}
 FunctionEnd
 
+Function GetCurrentAppRegKey
+  !ifdef APP_IS_ESR
+    StrCpy $APP_REG_KEY "${APP_REG_KEY} ESR"
+  !else
+    StrCpy $APP_REG_KEY "${APP_REG_KEY}"
+  !endif
+FunctionEnd
+
+Function un.GetCurrentAppRegKey
+  ReadRegStr $APP_REG_KEY HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppRegKey"
+FunctionEnd
+
 !macro GetCurrentAppVersion un
   Function ${un}GetCurrentAppVersion
-    !ifdef APP_IS_ESR
-      ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY} ESR" "CurrentVersion"
-    !else
-      ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY}" "CurrentVersion"
-    !endif
+    Call ${un}GetCurrentAppRegKey
+    ReadRegStr $APP_VERSION HKLM "$APP_REG_KEY" "CurrentVersion"
   FunctionEnd
 !macroend
 !insertmacro GetCurrentAppVersion ""
@@ -2007,7 +2018,7 @@ Function GetAppPath
 
     Call GetCurrentAppVersion
     ${IfThen} "$APP_VERSION" == "" ${|} GoTo ERR ${|}
-    StrCpy $0 "${APP_REG_KEY}\$APP_VERSION\Main"
+    StrCpy $0 "$APP_REG_KEY\$APP_VERSION\Main"
 
     ; EXE path
     ReadRegStr $APP_EXE_PATH HKLM $0 "PathToExe"
