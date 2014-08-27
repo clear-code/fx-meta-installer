@@ -150,6 +150,7 @@ Firefox/Thunderbirdのインストールに関する設定
 レジストリキー                     | APP_KEY                    |
 対応する最小のバージョン           | APP_MIN_VERSION            | AppMinVersion
 対応する最大のバージョン           | APP_MAX_VERSION            | AppMaxVersion
+ESR版かどうか                      | APP_IS_ESR                 | AppIsESR
 ダウングレードの可否               | APP_ALLOW_DOWNGRADE        | AppAllowDowngrade
 インストーラの設置場所のパス       | APP_DOWNLOAD_PATH          | AppDownloadPath
 インストーラのダウンロード元URL    | APP_DOWNLOAD_URL           | AppDownloadUrl
@@ -366,6 +367,14 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
                              うなワイルドカードは利用できない。その場合は代わ
                              りとして「2.0.0.99」を用いる。
   デフォルト値             ：なし。
+■■ESR版かどうか（省略可能）
+  config.nshでの設定キー   ：APP_IS_ESR
+  fainstall.iniでの設定キー：[fainstall] > AppIsESR
+　説明                     ：インストール対象のFirefoxがESR版かどうかを示す。
+　取り得る値               ：APP_IS_ESRを定義すると真、未定義だと偽。
+　                           AppIsESRは、true/false/yes/no/1/0のいずれかで
+　                           指定する。
+  デフォルト値             ：false
 ■■ダウングレードの可否（省略可能）
   config.nshでの設定キー   ：APP_ALLOW_DOWNGRADE
   fainstall.iniでの設定キー：[fainstall] > AppAllowDowngurade
