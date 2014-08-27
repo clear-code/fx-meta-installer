@@ -12,6 +12,10 @@
     AppMaxVersion=<入れ替え後の新しいバージョン>
 　　------------
 　　と記述する。
+　　ESR版Firefoxをインストールする場合は、さらに以下を加える。
+　　------------
+　　AppIsESR=true
+　　------------
 
 
 ■Mozillaアプリケーション（FirefoxまたはThunderbird）の
