@@ -1776,7 +1776,7 @@ Function un.onUninstSuccess
     ${un.GetOptions} "$0" "/AddonOnly" $1
     ${If} ${Errors}
     ${AndIf} "$APP_VERSION" != ""
-      ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY}" "CurrentVersion"
+      Call un.GetCurrentAppVersion
       ${IfThen} "$APP_VERSION" == "" ${|} GoTo RETURN ${|}
       StrCpy $0 "${APP_REG_KEY}\$APP_VERSION\Main"
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
@@ -1982,6 +1982,18 @@ Function un.CheckAppProc
     ${EndIf}
 FunctionEnd
 
+!macro GetCurrentAppVersion un
+  Function ${un}GetCurrentAppVersion
+    !ifdef APP_IS_ESR
+      ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY} ESR" "CurrentVersion"
+    !else
+      ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY}" "CurrentVersion"
+    !endif
+  FunctionEnd
+!macroend
+!insertmacro GetCurrentAppVersion ""
+!insertmacro GetCurrentAppVersion "un."
+
 Function GetAppPath
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1993,7 +2005,7 @@ Function GetAppPath
       LogText "*** GetAppPath: Application installed"
     !endif
 
-    ReadRegStr $APP_VERSION HKLM "${APP_REG_KEY}" "CurrentVersion"
+    Call GetCurrentAppVersion
     ${IfThen} "$APP_VERSION" == "" ${|} GoTo ERR ${|}
     StrCpy $0 "${APP_REG_KEY}\$APP_VERSION\Main"
 
