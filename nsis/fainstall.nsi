@@ -1987,10 +1987,10 @@ FunctionEnd
 
 Function GetCurrentAppRegKey
   ReadINIStr $APP_IS_ESR ${INIPATH} ${INSTALLER_NAME} "AppIsESR"
-  ${If} "$RAPP_IS_ESR" == ""
+  ${If} "$APP_IS_ESR" == ""
     ReadINIStr $APP_IS_ESR ${INIPATH} ${INSTALLER_NAME} "AppIsEsr"
   ${EndIf}
-  ${If} "$RAPP_IS_ESR" == ""
+  ${If} "$APP_IS_ESR" == ""
     !ifdef APP_IS_ESR
       StrCpy $APP_IS_ESR "yes"
     !else
