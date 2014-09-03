@@ -36,6 +36,7 @@ echo product_name
 rm fainstall.exe
 rm fainstall.ini
 rm "$product_name.exe"
+rm "$product_name-*.exe"
 
 # build NSIS
 

@@ -1,4 +1,4 @@
-rem Copyright (C) 2008 ClearCode Inc.
+rem Copyright (C) 2008-2014 ClearCode Inc.
 
 rem ====================== CUSTOMIZABLE SECTION =======================
 
@@ -17,8 +17,13 @@ set INSTALLER_NAME=%~n0
 
 del "packed.7z"
 del "%INSTALLER_NAME%.exe"
+del "%INSTALLER_NAME%-*.exe"
 
 7zr.exe a -t7z packed.7z @pack.list -mx=9 -xr!*.svn -xr!*.sample
+
+for /f "tokens=*" %%i in ('findstr DisplayVersion fainstall.ini') do set VERSION_LINE=%%i
+set VERSION=%VERSION_LINE:~15%
+if not "%VERSION%" == "" set INSTALLER_NAME=%INSTALLER_NAME%-%VERSION%
 
 copy /b fainstall.sfx + packed.7z "%INSTALLER_NAME%.exe"
 
