@@ -127,7 +127,7 @@ config.nshでの設定よりもfainstall.iniでの設定の方が優先的に適
 サイレントインストールの設定       | PRODUCT_INSTALL_MODE       |
 長い名前                           | PRODUCT_FULL_NAME          |
 短い名前                           | PRODUCT_NAME               |
-バージョン                         | PRODUCT_VERSION            |
+バージョン                         | PRODUCT_VERSION            | DisplayVersion
 発表年                             | PRODUCT_YEAR               |
 配布者名                           | PRODUCT_PUBLISHER          |
 配布元のドメイン名                 | PRODUCT_DOMAIN             |
@@ -196,7 +196,14 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
   デフォルト値             ："FxMetaInstaller"
 ■■製品のバージョン
   config.nshでの設定キー   ：PRODUCT_VERSION
+  fainstall.iniでの設定キー：[fainstall] > DisplayVersion
 　説明                     ：製品のバージョン番号。"0.0.0.0" 形式で指定。
+　                           fainstall.ini でバージョン番号を指定した場合、
+　                           Windowsのコントロールパネルのアンインストール対象一覧に
+　                           表示されるバージョン番号としてのみ反映される。
+　                           （バイナリファイルのメタ情報にはPRODUCT_VERSIONの値が
+　                             固定で埋め込まれているため、これは fainstall.ini では
+　                             制御できない。）
   デフォルト値             ："0.0.0.0"
 ■■製品の発表年
   config.nshでの設定キー   ：PRODUCT_YEAR

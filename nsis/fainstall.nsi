@@ -210,6 +210,7 @@ ShowUnInstDetails nevershow
 Icon "${INSTALLER_NAME}.ico"
 
 ;=== Variables
+Var DISPLAY_VERSION
 Var APP_VERSION
 Var APP_IS_ESR
 Var APP_REG_KEY
@@ -452,6 +453,8 @@ Section "Initialize Variables" InitializeVariables
 
     StrCpy $APP_INSTALLER_PATH "$RES_DIR\${APP_NAME}-setup.exe"
     StrCpy $APP_INSTALLER_INI  "$RES_DIR\${APP_NAME}-setup.ini"
+
+    ${ReadINIStrWithDefault} $DISPLAY_VERSION "${INIPATH}" "${INSTALLER_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InitializeVariables: install to $INSTDIR"
@@ -1567,7 +1570,7 @@ Section -Post
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayName"     "${PRODUCT_FULL_NAME}"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "UninstallString" "${PRODUCT_UNINST_PATH}"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayIcon"     "${PRODUCT_UNINST_PATH}"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayVersion"  "${PRODUCT_VERSION}"
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayVersion"  "$DISPLAY_VERSION"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "URLInfoAbout"    "${PRODUCT_WEB_SITE}"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "Publisher"       "${PRODUCT_PUBLISHER}"
     ${If} "$APP_INSTALLED" == "1"
