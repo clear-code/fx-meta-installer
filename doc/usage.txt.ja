@@ -60,6 +60,9 @@ resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向
   ・*.manifest    ：Mozillaアプリケーションの追加モジュールの定義ファイルとして、
                     %AppDir%\chrome\ にインストールされる。
   ・*.css         ：%AppDir%\chrome\ にインストールされる。（globalChrome.css用）
+  ・*.ico         ：%AppDir%\chrome\icons\default\ および
+                    %AppDir%\browser\chrome\icons\default\main-window.ico
+                    にインストールされる。
   ・*.cer, *.pem, *.crt,
     *.cer.override, *.pem.override, *.crt.override
                   ：%AppDir%\defaults\ にインストールされる。（certimporter用）

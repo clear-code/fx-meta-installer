@@ -1332,6 +1332,9 @@ Function InstallAdditionalFiles
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.jar" "InstallNormalFile"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.manifest" "InstallNormalFile"
 
+    StrCpy $DIST_DIR "$APP_DIR\chrome\icons\default"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.ico" "InstallNormalFile"
+
     StrCpy $DIST_DIR "$APP_DIR\components"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xpt" "InstallNormalFile"
 
@@ -1346,6 +1349,9 @@ Function InstallAdditionalFiles
       StrCpy $DIST_DIR "$APP_DIR\browser\defaults\profile"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
+
+      StrCpy $DIST_DIR "$APP_DIR\browser\chrome\icons\default"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.ico" "InstallNormalFile"
 
       StrCpy $DIST_DIR "$APP_DIR\browser\plugins"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
