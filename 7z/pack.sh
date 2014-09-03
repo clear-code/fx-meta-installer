@@ -12,7 +12,7 @@ rm "$installer_name.exe"
 version=$(cat fainstall.ini | grep "DisplayVersion" | cut -d "=" -f 2)
 if [ "$version" != "" ]
 then
-  installer_name=$installer_name-$version
+  installer_name="$installer_name-$version"
 fi
 
 cat ./fainstall.sfx ./packed.7z > "$installer_name.exe"
