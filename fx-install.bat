@@ -10,13 +10,13 @@ rem
 rem  * Install Firefox or Thunderbird silently.
 rem  * Install configuration file for MCD (AutoConfig) automatically.
 rem 
-rem Copyright (C) 2013 ClearCode Inc.
+rem Copyright (C) 2013-2014 ClearCode Inc.
 rem ==================================================================
 
 rem =========== CONFIGURATIONS ===========
 
 rem Path to the installer of Firefox itself
-set   INSTALLER_PATH="C:\Users\Public\Firefox Setup 24.2esr.exe"
+set   INSTALLER_PATH="C:\Users\Public\Firefox Setup 31.1.0esr.exe"
 
 rem Path to the configuration file
 set   AUTOCONFIG_PATH="C:\Users\Public\autoconfig.cfg"
