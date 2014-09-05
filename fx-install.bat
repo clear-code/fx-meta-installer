@@ -28,6 +28,7 @@ set   QuickLaunchShortcut=
 set   DesktopShortcut=
 set   StartMenuShortcuts=
 set   StartMenuDirectoryName=
+set   MaintenanceService=true
 
 rem =========== /CONFIGURATIONS ==========
 
@@ -86,6 +87,7 @@ set INIFILE=%TEMP%\Firefox-setup.ini
 >> "%INIFILE%" echo DesktopShortcut=%DesktopShortcut%
 >> "%INIFILE%" echo StartMenuShortcuts=%StartMenuShortcuts%
 >> "%INIFILE%" echo StartMenuDirectoryName=%StartMenuDirectoryName%
+>> "%INIFILE%" echo MaintenanceService=%MaintenanceService%
 
 %INSTALLER_PATH% /INI=%INIFILE%
 
