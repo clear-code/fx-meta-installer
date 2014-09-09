@@ -8,6 +8,7 @@ LangString MSG_APP_INSTALL_ERROR   ${LANG_ENGLISH} "Installation of ${APP_NAME} 
 LangString MSG_APP_NOT_INSTALLED_ERROR  ${LANG_ENGLISH} "${APP_NAME} is not installed. ${PRODUCT_FULL_NAME} requires ${APP_NAME}."
 LangString MSG_APP_VERSION_TOO_LOW_CONFIRM ${LANG_ENGLISH} "${PRODUCT_FULL_NAME} requires ${APP_NAME} version ${APP_MIN_VERSION} or later.$\nDo you want the new version of ${APP_NAME} to be installed?"
 LangString MSG_APP_VERSION_TOO_LOW_ERROR ${LANG_ENGLISH} "Installation of ${APP_NAME} failed. Installation of ${PRODUCT_FULL_NAME} is canceled."
+LangString MSG_APP_VERSION_TOO_HIGH_CONFIRM ${LANG_JAPANESE} "${PRODUCT_FULL_NAME} requires ${APP_NAME} version ${APP_MAX_VERSION} or older/$\nDo you want the old version of ${APP_NAME} to be installed?"
 LangString MSG_APP_VERSION_TOO_HIGH_ERROR   ${LANG_ENGLISH} "Installation of ${PRODUCT_FULL_NAME} is canceled.$\n${PRODUCT_FULL_NAME} doesn't work with ${APP_NAME} version $APP_VERSION."
 LangString MSG_PRODUCT_INSTALLING  ${LANG_ENGLISH} "Installing ${PRODUCT_FULL_NAME}. Wait a while."
 LangString MSG_APP_RUN_TEXT        ${LANG_ENGLISH} "Start ${APP_NAME}"
