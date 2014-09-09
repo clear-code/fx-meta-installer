@@ -1379,9 +1379,10 @@ Function "InstallNormalFile"
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$PROCESSING_FILE" "TargetLocation"
     ${Unless} "$ITEM_LOCATION" == ""
       Call ResolveItemLocation
-      StrCpy $DIST_DIR "$ITEM_LOCATION"
+    ${Else}
+      StrCpy $ITEM_LOCATION "$DIST_DIR"
     ${EndUnless}
-    StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
+    StrCpy $DIST_PATH "$ITEM_LOCATION\$PROCESSING_FILE"
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallNormalFile: install $PROCESSING_FILE to $DIST_PATH"
@@ -1401,7 +1402,7 @@ Function "InstallNormalFile"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup" "$BACKUP_PATH"
     ${EndIf}
 
-    SetOutPath $DIST_DIR
+    SetOutPath $ITEM_LOCATION
 
     CopyFiles /SILENT "$RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
     ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
