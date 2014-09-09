@@ -1377,11 +1377,15 @@ Function "InstallNormalFile"
     StrCpy $PROCESSING_FILE "$R7"
 
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$PROCESSING_FILE" "TargetLocation"
+    ClearErrors
+    ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
+    ;       otherwise only the first found file will be installed and others are ignored.
     ${Unless} "$ITEM_LOCATION" == ""
       Call ResolveItemLocation
-    ${Else}
-      StrCpy $ITEM_LOCATION "$DIST_DIR"
     ${EndUnless}
+    ${If} "$ITEM_LOCATION" == ""
+      StrCpy $ITEM_LOCATION "$DIST_DIR"
+    ${EndIf}
     StrCpy $DIST_PATH "$ITEM_LOCATION\$PROCESSING_FILE"
 
     !ifdef NSIS_CONFIG_LOG
