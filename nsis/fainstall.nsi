@@ -1375,10 +1375,19 @@ Function "InstallNormalFile"
     !endif
 
     StrCpy $PROCESSING_FILE "$R7"
-    StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
+
+    ReadINIStr $ITEM_LOCATION "${INIPATH}" "$PROCESSING_FILE" "TargetLocation"
+    ${Unless} "$ITEM_LOCATION" == ""
+      Call ResolveItemLocation
+      StrCpy $DIST_PATH "$ITEM_LOCATION\$PROCESSING_FILE"
+    ${Else}
+      StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
+    ${EndUnless}
+
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallNormalFile: install $PROCESSING_FILE to $DIST_PATH"
     !endif
+
     ${If} ${FileExists} "$DIST_PATH"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
       StrCpy $BACKUP_COUNT 0

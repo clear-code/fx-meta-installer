@@ -72,6 +72,25 @@ resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向
                       インストールされる。）
   ・*.lnk         ：デスクトップ上にインストールされる。
 
+ただし、fainstall.iniにおいて、ファイル名に対応するセクションを定義することで、
+ファイルのインストール先をカスタマイズすることができる。
+各[ファイル名]セクションでは以下のキーを指定できる。
+
+TargetLocation：（省略可能）
+  ファイルのインストール先フォルダのパス。以下のプレースホルダを使用可能。
+    %AppDir%  : Firefoxのインストール先フォルダ
+    %AppData% : Windowsのアプリケーション情報保存先フォルダ
+                （C:\Users\<username>\AppData\Roaming など）
+    %Home%    : ユーザのホーム（C:\Users\<username> など）
+  省略時は、上記のインストール先にインストールされる。
+
+例えば「templates.xml」をThunderbirdのインストール先の
+「\defaults\profile\quicktext\」以下に置きたいのであれば、
+以下のように設定する。
+
+  [templates.xml]
+  TargetLocation=%AppDir%\defaults\profile\quicktext\
+
 ■ビルド方法
 
 README.txtを参照。
