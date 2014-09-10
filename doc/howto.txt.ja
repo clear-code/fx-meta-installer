@@ -5,7 +5,7 @@
 　アップデート
 
 ・同梱のMozillaアプリケーションを新しいバージョンに入れ替えるには？
-　→resourcesフォルダ内の<アプリケーション名>-setup.exeを入れ替えて、
+　→resourcesフォルダ内のアプリケーションのインストーラの実行ファイルを入れ替えて、
 　　fainstall.ini の [fainstall] セクションに
 　　------------
     AppMinVersion=<入れ替え後の新しいバージョン>

@@ -451,8 +451,21 @@ Section "Initialize Variables" InitializeVariables
       LogText "*** InitializeVariables: resources is $RES_DIR"
     !endif
 
-    StrCpy $APP_INSTALLER_PATH "$RES_DIR\${APP_NAME}-setup.exe"
-    StrCpy $APP_INSTALLER_INI  "$RES_DIR\${APP_NAME}-setup.ini"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.exe" "DetectAppInstallerPath"
+    ${If} "$APP_INSTALLER_PATH" == ""
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*setup*${APP_NAME}*.exe" "DetectAppInstallerPath"
+    ${EndIf}
+    ${If} "$APP_INSTALLER_PATH" == ""
+      StrCpy $APP_INSTALLER_PATH "$RES_DIR\${APP_NAME}-setup.exe"
+    ${EndIf}
+
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.ini" "DetectAppInstallerIni"
+    ${If} "$APP_INSTALLER_INI" == ""
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*setup*${APP_NAME}*.ini" "DetectAppInstallerIni"
+    ${EndIf}
+    ${If} "$APP_INSTALLER_INI" == ""
+      StrCpy $APP_INSTALLER_INI "$RES_DIR\${APP_NAME}-setup.ini"
+    ${EndIf}
 
     ${ReadINIStrWithDefault} $DISPLAY_VERSION "${INIPATH}" "${INSTALLER_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
 
@@ -460,6 +473,20 @@ Section "Initialize Variables" InitializeVariables
       LogText "*** InitializeVariables: install to $INSTDIR"
     !endif
 SectionEnd
+
+Function "DetectAppInstallerPath"
+    StrCpy $PROCESSING_FILE "$R7"
+    StrCpy $APP_INSTALLER_PATH "$RES_DIR\$PROCESSING_FILE"
+    StrCpy $0 StopLocate
+	Push $0
+FunctionEnd
+
+Function "DetectAppInstallerIni"
+    StrCpy $PROCESSING_FILE "$R7"
+    StrCpy $APP_INSTALLER_INI "$RES_DIR\$PROCESSING_FILE"
+    StrCpy $0 StopLocate
+	Push $0
+FunctionEnd
 
 !if ${APP_INSTALL_MODE} != "SKIP"
   Section "Download Application" DownloadApp

@@ -592,11 +592,17 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
 ■Mozillaアプリケーションのインストーラの同梱
 
 メタインストーラにMozillaアプリケーションのインストーラを含める場合、
-インストーラのファイル名を「<Mozillaアプリケーション名>-setup.exe」に変更して
-resourcesフォルダ内に置く。例えば以下の要領である。
+インストーラをresourcesフォルダ内に置く。
 
- * Firefox    ：Firefox-setup.exe
- * Thunderbird：Thunderbird-setup.exe
+メタインストーラは、アプリケーション名（FirefoxまたはThunderbird）と
+「setup」の文字列を大文字小文字の違いを問わず両方とも名前に含む実行ファイルを、
+Mozillaアプリケーションのインストーラとして自動認識する。
+例えば以下のファイル名はすべて有効である。
+
+ * Firefox Setup 32.0.exe
+ * Thunderbird Setup 31.1.exe
+ * Firefox-setup.exe
+ * setup-thunderbird-ja.exe
 
 ファイルをresourcesフォルダに含めなかった場合、メタインストーラは設定に従って、
 ネットワーク経由でのファイルの取得を試みる。
@@ -806,8 +812,21 @@ RootPath：
 ■Mozillaアプリケーションのサイレントインストールの挙動の変更
 
 Mozillaアプリケーションをサイレントインストールする際の挙動は、resources
-フォルダ内に置いた <Mozillaアプリケーション名>-setup.ini において、
-[Install]セクションで以下の指定を行うことにより変更できる。
+フォルダ内に「Firefox-setup.ini」のような名前で置いた
+「サイレントインストール用INIファイル」で変更できる。
+
+メタインストーラは、アプリケーション名（FirefoxまたはThunderbird）と
+「setup」の文字列を大文字小文字の違いを問わず両方とも名前に含むINIファイルを、
+サイレントインストール用INIファイルファイルとして自動認識する。
+例えば以下のファイル名はすべて有効である。
+
+ * Firefox Setup 32.0.ini
+ * Thunderbird Setup 31.1.ini
+ * firefox-setup.ini
+ * setup-thunderbird-ja.ini
+
+サイレントインストール用INIファイルは、[Install]セクションで
+以下の各キーを指定できる。
 
 InstallDirectoryName：（省略可能）
   通常、Firefoxは「C:\Program Files\Mozilla Firefox」または
