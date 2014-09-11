@@ -1660,7 +1660,7 @@ Section "Confirm to Restart" ConfirmRestart
         MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON1 "$INI_TEMP" IDYES +2
         GoTo RETURN
       ${Else}
-        !insertmacro NativeMessageBox ${NATIVE_MB_YESNO}|${NATIVE_MB_ICONQUESTION}|${NATIVE_MB_DEFBUTTON1} "$INI_TEMP2" "$INI_TEMP" $0
+        !insertmacro NativeMessageBox ${NATIVE_MB_ICONQUESTION}|${NATIVE_MB_YESNO} "$INI_TEMP2" "$INI_TEMP" $0
         ${Unless} $0 == ${NATIVE_MB_BUTTON_YES}
           GoTo RETURN
         ${EndUnless}
