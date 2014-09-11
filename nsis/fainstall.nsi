@@ -1657,7 +1657,7 @@ Section "Confirm to Restart" ConfirmRestart
     ${Unless} "$INI_TEMP" == ""
       ${WordReplace} "$INI_TEMP" "\n" "$\n" "+*" $INI_TEMP
       ${If} "$INI_TEMP2" == ""
-        MessageBox MB_YESNO|MB_ICONQUESTION||MB_DEFBUTTON1 "$INI_TEMP" IDYES +2
+        MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON1 "$INI_TEMP" IDYES +2
         GoTo RETURN
       ${Else}
         !insertmacro NativeMessageBox ${NATIVE_MB_YESNO}|${NATIVE_MB_ICONQUESTION}|${NATIVE_MB_DEFBUTTON1} "$INI_TEMP2" "$INI_TEMP" $0
