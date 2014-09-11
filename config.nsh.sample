@@ -69,4 +69,7 @@
 ;!define FINISH_TITLE   ""
 ;!define FINISH_MESSAGE ""
 
+;!define CONFIRM_RESTART_TITLE   ""
+;!define CONFIRM_RESTART_MESSAGE ""
+
 ;===================================================================

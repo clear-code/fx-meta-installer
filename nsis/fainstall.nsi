@@ -84,6 +84,10 @@ ${DefineDefaultValue} CLEAN_PREFERRED_TITLE   ""
 ${DefineDefaultValue} FINISH_MESSAGE          ""
 ${DefineDefaultValue} FINISH_TITLE            ""
 
+${DefineDefaultValue} CONFIRM_RESTART_MESSAGE ""
+${DefineDefaultValue} CONFIRM_RESTART_TITLE   ""
+
+
 !if ${APP_NAME} == "Firefox"
   !define APP_EXE "firefox.exe"
   !define APP_FULL_NAME "Mozilla Firefox"
@@ -1646,6 +1650,29 @@ Section "Show Finish Message" ShowFinishMessage
       ${EndIf}
     ${EndUnless}
 SectionEnd
+
+Section "Confirm to Restart" ConfirmRestart
+    ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "ConfirmRestartMessage" "${CONFIRM_RESTART_MESSAGE}"
+    ${ReadINIStrWithDefault} $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "ConfirmRestartTitle" "${CONFIRM_RESTART_TITLE}"
+    ${Unless} "$INI_TEMP" == ""
+      ${WordReplace} "$INI_TEMP" "\n" "$\n" "+*" $INI_TEMP
+      ${If} "$INI_TEMP2" == ""
+        MessageBox MB_YESNO|MB_ICONQUESTION||MB_DEFBUTTON1 "$INI_TEMP" IDYES +2
+        GoTo RETURN
+      ${Else}
+        !insertmacro NativeMessageBox ${NATIVE_MB_YESNO}|${NATIVE_MB_ICONQUESTION}|${NATIVE_MB_DEFBUTTON1} "$INI_TEMP2" "$INI_TEMP" $0
+        ${Unless} $0 == ${NATIVE_MB_BUTTON_YES}
+          GoTo RETURN
+        ${EndUnless}
+      ${EndIf}
+      Reboot
+    ${EndUnless}
+  RETURN:
+SectionEnd
+
+Function .onRebootFailed
+    MessageBox MB_OK|MB_ICONSTOP "$(MSG_REQUIRE_RESTART_MANUALLY)" /SD IDOK
+FunctionEnd
 
 Var UNINSTALL_FAILED
 Section Uninstall
