@@ -1324,12 +1324,14 @@ Function "InstallExtraInstaller"
     !endif
 FunctionEnd
 
+Var INSTALLING_APPLICATION_SPECIFIC_FILES
 Function InstallAdditionalFiles
     !ifdef NSIS_CONFIG_LOG
       LogSet on
     !endif
 
     StrCpy $ITEM_INDEX 0
+    StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
 
     StrCpy $DIST_DIR "$APP_DIR"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cfg" "InstallNormalFile"
@@ -1368,6 +1370,15 @@ Function InstallAdditionalFiles
     StrCpy $DIST_DIR "$APP_DIR\plugins"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
 
+    StrCpy $DIST_DIR "$DESKTOP"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+  ;  StrCpy $DIST_DIR "$QUICKLAUNCH"
+  ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+  ;  StrCpy $DIST_DIR "$SMPROGRAMS"
+  ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+
+    StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 1
+
     !if ${APP_NAME} == "Firefox"
       ; Firefox 21 and later, these files must be placed into the "browser" directory. 
       StrCpy $DIST_DIR "$APP_DIR\browser"
@@ -1387,13 +1398,6 @@ Function InstallAdditionalFiles
     !if ${APP_NAME} == "Netscape"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=installed-chrome.txt" "AppendTextFile"
     !endif
-
-    StrCpy $DIST_DIR "$DESKTOP"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
-  ;  StrCpy $DIST_DIR "$QUICKLAUNCH"
-  ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
-  ;  StrCpy $DIST_DIR "$SMPROGRAMS"
-  ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
 FunctionEnd
 
 Function "InstallNormalFile"
@@ -1408,6 +1412,10 @@ Function "InstallNormalFile"
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
     ;       otherwise only the first found file will be installed and others are ignored.
     ${Unless} "$ITEM_LOCATION" == ""
+      ${If} $INSTALLING_APPLICATION_SPECIFIC_FILES == 1
+        ; Don't install normal file twice to the location specified by "TargetLocation".
+        GoTo RETURN
+      ${EndIf}
       Call ResolveItemLocation
     ${EndUnless}
     ${If} "$ITEM_LOCATION" == ""
@@ -1444,6 +1452,7 @@ Function "InstallNormalFile"
       LogText "*** InstallNormalFile: $PROCESSING_FILE is successfully installed"
     !endif
 
+  RETURN:
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
