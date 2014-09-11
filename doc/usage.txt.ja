@@ -164,6 +164,8 @@ PRODUCT_WEB_SITEのアンカーテキスト | PRODUCT_WEB_LABEL          |
 作成するショートカット             | EXTRA_SHORTCUTS            | Shortcuts
 正常終了時メッセージ               | FINISH_MESSAGE             | FinishMessage
 正常終了時タイトル                 | FINISH_TITLE               | FinishTitle
+再起動確認メッセージ               | CONFIRM_RESTART_MESSAGE    | ConfirmRestartMessage
+再起動確認タイトル                 | CONFIRM_RESTART_TITLE      | ConfirmRestartTitle
 -----------------------------------+----------------------------+-----------------------------
 Firefox/Thunderbirdのインストールに関する設定
 -----------------------------------+----------------------------+-----------------------------
@@ -299,6 +301,26 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
   fainstall.iniでの設定キー：[fainstlal] > FinishTitle
 　説明                     ：インストール処理が完了した後に表示するメッセージ
 　                           ダイアログのタイトル。
+                             省略時は、メタインストーラのアプリケーション名が
+                             タイトルになる。
+　取り得る値               ：文字列。
+  デフォルト値             ：メタインストーラのアプリケーション名。 
+■■再起動確認メッセージ
+  config.nshでの設定キー   ：CONFIRM_RESTART_MESSAGE
+  fainstall.iniでの設定キー：[fainstlal] > ConfirmRestartMessage
+　説明                     ：正常終了メッセージの後に表示する、コンピュータの
+　                           再起動を促すメッセージダイアログの内容。
+　                           「\n」と書くとその位置で改行する。
+　                           ダイアログはYes/No形式のボタンを伴って表示され、
+　                           Yesが選択されるとコンピュータを即座に再起動する。
+                             省略時は、メッセージダイアログ自体を表示しない。
+　取り得る値               ：文字列。
+  デフォルト値             ：なし。
+■■再起動確認メッセージのタイトル 
+  config.nshでの設定キー   ：CONFIRM_RESTART_TITLE
+  fainstall.iniでの設定キー：[fainstlal] > ConfirmRestartTitle
+　説明                     ：正常終了メッセージの後に表示する、コンピュータの
+　                           再起動を促すメッセージダイアログのタイトル。
                              省略時は、メタインストーラのアプリケーション名が
                              タイトルになる。
 　取り得る値               ：文字列。
