@@ -21,6 +21,7 @@ del "%INSTALLER_NAME%-*.exe"
 
 7zr.exe a -t7z packed.7z @pack.list -mx=9 -xr!*.svn -xr!*.sample
 
+set VERSION_LINE=""
 for /f "tokens=*" %%i in ('findstr DisplayVersion fainstall.ini') do set VERSION_LINE=%%i
 set VERSION=%VERSION_LINE:~15%
 if not "%VERSION%" == "" set INSTALLER_NAME=%INSTALLER_NAME%-%VERSION%
