@@ -400,7 +400,7 @@ Var CLEAN_INSTALL
             FindWindow $0 "#32770" "" $HWNDPARENT
             EnableWindow $HWNDPARENT 0
             InetLoad::load /SILENT " " /NOCANCEL \
-                "$APP_EULA_URL" "$APP_EULA_FINAL_PATH"
+              "$APP_EULA_URL" "$APP_EULA_FINAL_PATH"
             Pop $R0
             EnableWindow $HWNDPARENT 1
             ${Unless} "$R0" == "OK"
