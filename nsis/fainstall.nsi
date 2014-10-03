@@ -2335,6 +2335,14 @@ Function "SetUpRequiredDirectories"
     ${EndWhile}
 FunctionEnd
 
+Function "NormalizePathDelimiter"
+  ${WordReplace} "$ITEM_LOCATION" "/" "\" "+*" $ITEM_LOCATION
+FunctionEnd
+
+Function "un.NormalizePathDelimiter"
+  ${un.WordReplace} "$ITEM_LOCATION" "/" "\" "+*" $ITEM_LOCATION
+FunctionEnd
+
 !define FillPlaceHolder "!insertmacro FillPlaceHolder"
 !macro FillPlaceHolder Name Value
   ${WordReplace} "$ITEM_LOCATION" "%${Name}%" "${Value}" "+*" $ITEM_LOCATION
@@ -2383,6 +2391,8 @@ Function "ResolveItemLocation"
     ${FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH     "$PROFILE"
     ${FillPlaceHolderWithTerms} HomeDrive Homedrive homedrive HOMEDRIVE "$%homedrive%"
     ${FillPlaceHolderWithTerms} UserName Username username USERNAME     "$%username%"
+
+    Call NormalizePathDelimiter
 FunctionEnd
 
 Function "ResolveItemLocationBasic"
@@ -2410,6 +2420,8 @@ Function "ResolveItemLocationBasic"
     ${FillPlaceHolderWithTerms} StartMenu Startmenu startmenu STARTMENU "$STARTMENU"
     ${FillPlaceHolderWithATerm} Programs programs PROGRAMS "$SMPROGRAMS"
     ${FillPlaceHolderWithTerms} Startup StartUp startup STARTUP "$SMSTARTUP"
+
+    Call NormalizePathDelimiter
 FunctionEnd
 
 Function "un.ResolveItemLocation"
@@ -2420,6 +2432,8 @@ Function "un.ResolveItemLocation"
     ${un.FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH     "$PROFILE"
     ${un.FillPlaceHolderWithTerms} HomeDrive Homedrive homedrive HOMEDRIVE "$%homedrive%"
     ${un.FillPlaceHolderWithTerms} UserName Username username USERNAME     "$%username%"
+
+    Call un.NormalizePathDelimiter
 FunctionEnd
 
 Function "un.ResolveItemLocationBasic"
@@ -2447,4 +2461,6 @@ Function "un.ResolveItemLocationBasic"
     ${un.FillPlaceHolderWithTerms} StartMenu Startmenu startmenu STARTMENU "$STARTMENU"
     ${un.FillPlaceHolderWithATerm} Programs programs PROGRAMS "$SMPROGRAMS"
     ${un.FillPlaceHolderWithTerms} Startup StartUp startup STARTUP "$SMSTARTUP"
+
+    Call un.NormalizePathDelimiter
 FunctionEnd
