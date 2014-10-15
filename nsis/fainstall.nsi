@@ -38,6 +38,9 @@ FunctionEnd
 !insertmacro WordReplace
 !insertmacro VersionCompare
 !insertmacro VersionConvert
+!include "StrFunc.nsh"
+${StrStrAdv} ; activate macro for installation
+${UnStrStrAdv} ; activate macro for uninstallation
 !include "native_message_box.nsh"
 
 
@@ -1200,6 +1203,8 @@ Section "Install Shortcuts" InstallShortcuts
 SectionEnd
 
 Var SHORTCUT_OPTIONS
+Var UPDATED_SHORTCUT_OPTIONS
+Var SHORTCUT_OPTIONS_INDEX
 Var SHORTCUT_ICON_PATH
 Var SHORTCUT_ICON_INDEX
 Function "InstallShortcut"
@@ -1224,9 +1229,21 @@ Function "InstallShortcut"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndUnless}
 
-    ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "Options"
-    Call ResolveItemLocationBasic
-    StrCpy $SHORTCUT_OPTIONS "$ITEM_LOCATION"
+    ReadINIStr $SHORTCUT_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
+    ${Unless} "$SHORTCUT_OPTIONS" == ""
+      StrCpy $UPDATED_SHORTCUT_OPTIONS ""
+      StrCpy $SHORTCUT_OPTIONS_INDEX 0
+      ${While} 1 == 1
+        IntOp $SHORTCUT_OPTIONS_INDEX $SHORTCUT_OPTIONS_INDEX + 1
+        ${WordFind} $SHORTCUT_OPTIONS " " "+$SHORTCUT_OPTIONS_INDEX" $ITEM_LOCATION
+        ${If} $SHORTCUT_OPTIONS_INDEX > 1
+          ${IfThen} "$ITEM_LOCATION" == "$SHORTCUT_OPTIONS" ${|} ${Break} ${|}
+        ${EndIf}
+        Call ResolveItemLocationBasic
+        StrCpy $UPDATED_SHORTCUT_OPTIONS "$UPDATED_SHORTCUT_OPTIONS $ITEM_LOCATION"
+      ${EndWhile}
+      StrCpy $SHORTCUT_OPTIONS "$UPDATED_SHORTCUT_OPTIONS"
+    ${EndUnless}
 
     ReadINIStr $SHORTCUT_ICON_INDEX "${INIPATH}" "$ITEM_NAME" "IconIndex"
 
@@ -2336,11 +2353,21 @@ Function "SetUpRequiredDirectories"
 FunctionEnd
 
 Function "NormalizePathDelimiter"
-  ${WordReplace} "$ITEM_LOCATION" "/" "\" "+*" $ITEM_LOCATION
+  ${StrStrAdv} $0 "$ITEM_LOCATION" "://" ">" "<" "1" "0" "0"
+  ; Don't normalize as a local file path, if it is an URI.
+  ${If} "$0" == ""
+  ${OrIf} "$0" == "://"
+    ${WordReplace} "$ITEM_LOCATION" "/" "\" "+*" $ITEM_LOCATION
+  ${EndIf}
 FunctionEnd
 
 Function "un.NormalizePathDelimiter"
-  ${un.WordReplace} "$ITEM_LOCATION" "/" "\" "+*" $ITEM_LOCATION
+  ${UnStrStrAdv} $0 "$ITEM_LOCATION" "://" ">" "<" "1" "0" "0"
+  ; Don't normalize as a local file path, if it is an URI.
+  ${If} "$0" == ""
+  ${OrIf} "$0" == "://"
+    ${un.WordReplace} "$ITEM_LOCATION" "/" "\" "+*" $ITEM_LOCATION
+  ${EndIf}
 FunctionEnd
 
 !define FillPlaceHolder "!insertmacro FillPlaceHolder"
