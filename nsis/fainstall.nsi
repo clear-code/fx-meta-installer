@@ -379,6 +379,7 @@ Var CLEAN_INSTALL
         StrCpy $APP_EULA_DL_FAILED "0"
 
         Call GetAppPath
+        Call GetAppActualVersion
         Call CheckAppVersionWithMessage
 
         ${If} "$APP_EXISTS" == "1"
@@ -2183,6 +2184,10 @@ Function GetAppPath
     ${EndIf}
 
   ERR:
+FunctionEnd
+
+Function GetAppActualVersion
+    ReadINIStr $APP_VERSION "$APP_DIR\application.ini" "App" "Version"
 FunctionEnd
 
 Function GetFirstStrPart
