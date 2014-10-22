@@ -2115,10 +2115,7 @@ FunctionEnd
 !macro GetCurrentAppVersion un
   Function ${un}GetCurrentAppVersion
     Call ${un}GetCurrentAppRegKey
-    ReadRegStr $APP_VERSION HKLM "$APP_REG_KEY" ""
-    ${If} "$APP_VERSION" == ""
-      ReadRegStr $APP_VERSION HKLM "$APP_REG_KEY" "CurrentVersion"
-    ${EndIf}
+    ReadRegStr $APP_VERSION HKLM "$APP_REG_KEY" "CurrentVersion"
   FunctionEnd
 !macroend
 !insertmacro GetCurrentAppVersion ""
