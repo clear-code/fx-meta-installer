@@ -2115,7 +2115,10 @@ FunctionEnd
 !macro GetCurrentAppVersion un
   Function ${un}GetCurrentAppVersion
     Call ${un}GetCurrentAppRegKey
-    ReadRegStr $APP_VERSION HKLM "$APP_REG_KEY" "CurrentVersion"
+    ReadRegStr $APP_VERSION HKLM "$APP_REG_KEY" ""
+    ${If} "$APP_VERSION" == ""
+      ReadRegStr $APP_VERSION HKLM "$APP_REG_KEY" "CurrentVersion"
+    ${EndIf}
   FunctionEnd
 !macroend
 !insertmacro GetCurrentAppVersion ""
@@ -2179,35 +2182,13 @@ Function GetAppPath
           LogText "*** GetAppPath: Application exists"
         !endif
         StrCpy $APP_EXISTS "1"
+        ; get actual version number from application.ini because
+        ; the version can be mismatched.
+        ReadINIStr $APP_VERSION "$APP_DIR\application.ini" "App" "Version"
       ${EndIf}
     ${EndIf}
 
-    Call GetAppActualVersion
   ERR:
-FunctionEnd
-
-Function GetAppActualVersion
-    ReadINIStr $APP_VERSION "$APP_DIR\application.ini" "App" "Version"
-FunctionEnd
-
-Function GetFirstStrPart
-  Exch $R0
-  Push $R1
-  Push $R2
-  StrLen $R1 $R0
-  IntOp $R1 $R1 + 1
-  loop:
-    IntOp $R1 $R1 - 1
-    StrCpy $R2 $R0 1 -$R1
-    StrCmp $R2 "" exit2
-    StrCmp $R2 " " exit1 ; Change " " to "\" if ur inputting dir path str
-  Goto loop
-  exit1:
-    StrCpy $R0 $R0 -$R1
-  exit2:
-    Pop $R2
-    Pop $R1
-    Exch $R0
 FunctionEnd
 
 Function CheckAppVersion
@@ -2215,9 +2196,11 @@ Function CheckAppVersion
       LogSet on
     !endif
 
-    Push $APP_VERSION
-    Call GetFirstStrPart
-    Pop $NORMALIZED_APP_VERSION
+    ; try to remove " (ja)" part
+    ${StrStrAdv} $NORMALIZED_APP_VERSION "$APP_VERSION" " " ">" "<" "0" "0" "0"
+    ${If} "$NORMALIZED_APP_VERSION" == ""
+      StrCpy $NORMALIZED_APP_VERSION "$APP_VERSION"
+    ${EndIf}
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** CheckAppVersion: APP_VERSION = $APP_VERSION"
