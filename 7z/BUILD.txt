@@ -3,7 +3,7 @@
 1. Visual Studioをインストール。
    (VC6となっているが、恐らく2003でも2005でもOK)
 2. 7zipのソースを解凍
-3. CPP/MyVersion.hとCPP/MyVersionInfo.rcのCopyright等を修正。
+3. CPP/7zip/MyVersion.hとCPP/7zip/MyVersionInfo.rcのCopyright等を修正。
 4. CPP/7zip/Bundles/SFXSetupのsetup.icoをFxAddonInstallerのnsis/fainstall.ico
    で置き換える。
 5. スタートメニュー ->
