@@ -15,7 +15,10 @@
 7. 「nmake MY_STATIC_LINK=1」を実行する。
 8. CPP/7zip/Bundles/SFXSetup/O以下に7zS.sfxができる。
 9. マニフェストファイルを埋め込む。
-   mt.exe -manifest "7zS.manifest" -outputresource:7zS.sfx;#1
+   7zS.manifestを7zS.sfxと同じディレクトリに置いて、
+   CPP/7zip/Bundles/SFXSetup/Oに移動し、
+   「mt.exe -manifest "7zS.manifest" -outputresource:7zS.sfx;#1」
+   を実行する。
    リポジトリには、マニフェスト埋め込み済みのファイルを「7zS.sfx.with-manifest」の名前で含めてある。
 
 Visual Studio 2010では、CPP/Build.makで「-OPT:NOWIN98」とオプションを定義している箇所を探し、このオプションを削除する必要がある。
