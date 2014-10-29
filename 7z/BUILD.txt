@@ -12,12 +12,11 @@
    Visual Studio .NET 2003 コマンド プロンプト
    を実行する
 6. CPP/7zip/Bundles/SFXSetup以下に移動する。
-7. nmakeを実行する。
+7. 「nmake MY_STATIC_LINK=1」を実行する。
 8. CPP/7zip/Bundles/SFXSetup/O以下に7zS.sfxができる。
 
-デフォルトではダイナミックリンク版が生成される(msvcrt71.dllが必要)。
-スタティックリンク版をビルドするには、makefileなどにMY_STATIC_LINKマクロを定義し
-ておく必要がある(未検証)。
+Visual Studio 2010では、CPP/Build.makで「-OPT:NOWIN98」とオプションを定義している箇所を探し、このオプションを削除する必要がある。
+また、VS2010SP1でないとビルドに失敗する。
 
 
 = 7zS.sfxおよび7zSD.sfxのビルド方法(GUI)
