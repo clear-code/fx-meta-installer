@@ -852,7 +852,7 @@ Function "UpdateQuickLaunchShortcutForOneUser"
       Delete "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
     ${Else}
       ${Unless} ${FileExists} "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
-        SetOutPath "$ITEM_LOCATION"
+        SetOutPath "$APP_DIR"
         CreateShortCut "$ITEM_LOCATION\$SHORTCUT_NAME.lnk" "$APP_EXE_PATH" "" "$APP_EXE_PATH" 0
       ${EndUnless}
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledQuickLaunchShortcut$ITEM_INDEX" "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
