@@ -221,6 +221,7 @@ Var DISPLAY_VERSION
 Var APP_VERSION
 Var APP_IS_ESR
 Var APP_REG_KEY
+Var APP_VERSIONS_ROOT_REG_KEY
 Var NORMALIZED_APP_VERSION
 Var APP_VERSION_NUM
 Var APP_EXE_PATH
@@ -1654,6 +1655,7 @@ Section -Post
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "Publisher"       "${PRODUCT_PUBLISHER}"
     ${If} "$APP_INSTALLED" == "1"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppRegKey"  "$APP_REG_KEY"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersionsRootRegKey"  "$APP_VERSIONS_ROOT_REG_KEY"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion" "$APP_VERSION"
     ${EndIf}
 SectionEnd
@@ -1885,7 +1887,7 @@ Function un.onUninstSuccess
     ${AndIf} "$APP_VERSION" != ""
       Call un.GetCurrentAppVersion
       ${IfThen} "$APP_VERSION" == "" ${|} GoTo RETURN ${|}
-      StrCpy $0 "$APP_REG_KEY\$APP_VERSION\Main"
+      StrCpy $0 "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main"
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
       ${IfThen} "$APP_DIR" == "" ${|} GoTo RETURN ${|}
 
@@ -2109,10 +2111,13 @@ Function GetCurrentAppRegKey
   ${Else}
     StrCpy $APP_REG_KEY "Software\${APP_KEY}"
   ${EndIf}
+
+  StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY}"
 FunctionEnd
 
 Function un.GetCurrentAppRegKey
   ReadRegStr $APP_REG_KEY HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppRegKey"
+  ReadRegStr $APP_VERSIONS_ROOT_REG_KEY HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersionsRootRegKey"
 FunctionEnd
 
 !macro GetCurrentAppVersion un
@@ -2137,7 +2142,7 @@ Function GetAppPath
 
     Call GetCurrentAppVersion
     ${IfThen} "$APP_VERSION" == "" ${|} GoTo ERR ${|}
-    StrCpy $0 "$APP_REG_KEY\$APP_VERSION\Main"
+    StrCpy $0 "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main"
 
     ; EXE path
     ReadRegStr $APP_EXE_PATH HKLM $0 "PathToExe"
