@@ -9,6 +9,11 @@ package_name="${base_name}-source"
 dist_dir=${base_dir}/../dist/
 addons=${@:2}
 
+case $(uname) in
+  Darwin|*BSD|CYGWIN*) cp="gcp" ;;
+  *)                   cp="cp" ;;
+esac
+
 main() {
         safely rm -rf ${base_dir}/resources
         safely mkdir ${base_dir}/resources
@@ -28,8 +33,8 @@ rm_emacs_swap_file() {
 }
 
 make_installer() {
-    safely cp -t ${base_dir}/ ${base_dir}/../installer-config/*.*
-    safely cp -t ${base_dir}/resources/ ${base_dir}/../resources/*.*
+    safely $cp -t ${base_dir}/ ${base_dir}/../installer-config/*.*
+    safely $cp -t ${base_dir}/resources/ ${base_dir}/../resources/*.*
 
     (cd ${base_dir} &&
         safely ./make.sh &&
@@ -38,7 +43,7 @@ make_installer() {
         safely rm -f "./resources/*.sample" &&
         rm_emacs_swap_file)
 
-    safely cp ${base_dir}/../installer-config/fainstall.ini "${base_dir}/${package_name}/"
+    safely $cp ${base_dir}/../installer-config/fainstall.ini "${base_dir}/${package_name}/"
     safely mv "${base_dir}/${package_name}" ${dist_dir}
     safely rm "${dist_dir}/${package_name}/${base_name}.exe"
 }
