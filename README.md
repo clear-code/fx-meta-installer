@@ -61,6 +61,22 @@ environments at first.
         $ find . -name "*.dll" | grep -v -i "unicode" | sudo xargs mv -t /usr/share/nsis/Plugins/
         $ find . -name "*.nsh" | sudo xargs mv -t /usr/share/nsis/Include/
 
+#### OS X (Homebrew)
+
+ 1. Install required a package "nsis".
+
+        $ brew install makensis
+
+ 2. Install plugins. Download zip files, decompress them,
+    move "*.dll" files to "/usr/local/share/nsis/Plugins/", and
+    move "*.nsh" files to "/usr/local/share/nsis/Include".
+    For example:
+
+        $ unzip *.zip
+        $ find . -name "*.dll" | grep -v -i "unicode" | xargs -J % mv % /usr/local/share/nsis/Plugins/
+        $ find . -name "*.nsh" | xargs -J % mv % /usr/local/share/nsis/Include/
+
+
 ### Preparing configuration files and resources
 
  1. Copy "config.bat.sample" to "config.bat", and
