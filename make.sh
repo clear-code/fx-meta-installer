@@ -30,6 +30,11 @@ case $(uname) in
   *)           sed="sed -r -e" ;;
 esac
 
+case $(uname) in
+  Darwin|*BSD) tar="gtar" ;;
+  *)           tar="tar" ;;
+esac
+
 product_name=`grep 'PRODUCT_NAME' config.nsh | $sed 's/^[^"]*"//' | $sed 's/".*$\r?\n?//'`
 echo product_name
 
@@ -134,7 +139,7 @@ mkdir "$product_name-source/resources"
 mv fainstall.exe "./$product_name-source/"
 mv fainstall.ini "./$product_name-source/"
 
-tar -c -f- --exclude-vcs -C resources . | tar -x -C "./$product_name-source/resources"
+$tar -c -f- --exclude-vcs -C resources . | $tar -x -C "./$product_name-source/resources"
 cp ./7z/pack.list "./$product_name-source/"
 cat ./7z/7zS.sfx.with-manifest ./7z/FxMetaInstaller.tag > "./$product_name-source/fainstall.sfx"
 cp ./7z/7zr.exe "./$product_name-source/"
