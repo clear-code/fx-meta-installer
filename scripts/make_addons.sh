@@ -4,7 +4,7 @@
 script_dir=$(cd $(dirname ${BASH_SOURCE:-$0}); pwd)
 base_dir=$(dirname $script_dir)
 source ${script_dir}/utils.sh
-addons = $@
+addons="$@"
 
 main() {
 	safely rm -r ${base_dir}/resources
