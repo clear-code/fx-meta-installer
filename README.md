@@ -49,14 +49,14 @@ environments at first.
 #### Linux (Debian, Ubuntu)
 
  1. Install required a package "nsis".
-    
+
         $ sudo apt-get install nsis
-    
+
  2. Install plugins. Download zip files, decompress them,
     move "*.dll" files to "/usr/share/nsis/Plugins/", and
     move "*.nsh" files to "/usr/share/nsis/Include".
     For example:
-    
+
         $ unzip *.zip
         $ find . -name "*.dll" | grep -v -i "unicode" | sudo xargs mv -t /usr/share/nsis/Plugins/
         $ find . -name "*.nsh" | sudo xargs mv -t /usr/share/nsis/Include/
