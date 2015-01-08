@@ -76,6 +76,9 @@ environments at first.
         $ find . -name "*.dll" | grep -v -i "unicode" | xargs -J % mv % /usr/local/share/nsis/Plugins/
         $ find . -name "*.nsh" | xargs -J % mv % /usr/local/share/nsis/Include/
 
+ 3. install GNU origin commands.
+
+        $ brew instal gnu-tar coreutils
 
 ### Preparing configuration files and resources
 
