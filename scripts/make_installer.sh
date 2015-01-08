@@ -7,6 +7,7 @@ source ${script_dir}/utils.sh
 base_name="$1"
 package_name="${base_name}-source"
 dist_dir=${base_dir}/../dist/
+addons=${@:2}
 
 main() {
         safely rm -rf ${base_dir}/resources
@@ -15,7 +16,7 @@ main() {
         safely rm -rf ${dist_dir}
         safely mkdir ${dist_dir}
 
-        safely ${script_dir}/make_addons.sh
+        safely ${script_dir}/make_addons.sh $addons
         make_installer
 
         safely rm -rf ${base_dir}/resources
