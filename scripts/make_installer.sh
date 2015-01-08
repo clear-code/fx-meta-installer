@@ -10,8 +10,8 @@ dist_dir=${base_dir}/../dist/
 addons=${@:2}
 
 case $(uname) in
-  Darwin|*BSD|CYGWIN*) cp="gcp" ;;
-  *)                   cp="cp" ;;
+  Darwin|*BSD) cp="gcp" ;;
+  *)           cp="cp" ;;
 esac
 
 main() {
