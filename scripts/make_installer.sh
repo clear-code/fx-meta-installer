@@ -34,7 +34,9 @@ rm_emacs_swap_file() {
 
 make_installer() {
     safely $cp -t ${base_dir}/ ${base_dir}/../installer-config/*.*
-    safely $cp -t ${base_dir}/resources/ ${base_dir}/../resources/*.*
+    if [ -f ${base_dir}/resources/* ];then
+	safely $cp -t ${base_dir}/resources/ ${base_dir}/../resources/*.*
+    fi
 
     (cd ${base_dir} &&
         safely ./make.sh &&
