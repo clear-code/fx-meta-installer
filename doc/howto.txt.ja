@@ -135,7 +135,7 @@
 　　> TargetLocation=%AppDir%\browser\extensions
 　　その上で、MCD用設定ファイルなどを使い以下の設定を適用し、
 　　初回起動時の警告を表示しないようにする。
-　　> defaultPref("extensions.autoDisableScopes", 0);
+　　> defaultPref("extensions.autoDisableScopes", 11);
 
 
 ■検索エンジン
