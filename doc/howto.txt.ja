@@ -137,6 +137,12 @@
 　　初回起動時の警告を表示しないようにする。
 　　> defaultPref("extensions.autoDisableScopes", 11);
 
+   ・TergetLocationについての注意
+   → Firefoxでは
+   > TargetLocation=%AppDir%\browser\extensions
+   → Thunderbirdでは
+   > TargetLocation=%AppDir%\extensions
+   となる事に注意が必要。
 
 ■検索エンジン
 
