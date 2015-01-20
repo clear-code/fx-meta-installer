@@ -1380,6 +1380,7 @@ Function InstallAdditionalFiles
 
     StrCpy $DIST_DIR "${APP_CONFIG_DIR}"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.js" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.jsc" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\chrome"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.css" "InstallNormalFile"
