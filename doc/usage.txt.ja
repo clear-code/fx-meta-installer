@@ -41,7 +41,7 @@ resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向
 
 ・resourcesフォルダ内に特定の名前のファイルを置くと、所定の位置に自動的に
 　インストールされる。
-  ・*.js          ：初期設定ファイルとして、%AppDir%\defaults\pref\ に
+  ・*.js, *.jsc   ：初期設定ファイルとして、%AppDir%\defaults\pref\ に
                     インストールされる。
   ・*.cfg         ：AutoConfigファイルとして、%AppDir%\ にインストールされる。
   ・override.ini  ：%AppDir%\ にインストールされる。
