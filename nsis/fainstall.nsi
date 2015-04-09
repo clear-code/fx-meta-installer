@@ -1881,6 +1881,12 @@ Function un.onInit
       SetSilent silent
     !endif
     ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
+
+    ; This must be called here, because all registory keys are
+    ; already cleared at "onUninstSuccess".
+    ${If} "$APP_VERSION" != ""
+      Call un.GetCurrentAppVersion
+    ${EndIf}
 FunctionEnd
 
 Function un.onUninstSuccess
@@ -1893,7 +1899,6 @@ Function un.onUninstSuccess
     ${un.GetOptions} "$0" "/AddonOnly" $1
     ${If} ${Errors}
     ${AndIf} "$APP_VERSION" != ""
-      Call un.GetCurrentAppVersion
       ${IfThen} "$APP_VERSION" == "" ${|} GoTo RETURN ${|}
       StrCpy $0 "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main"
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
