@@ -1471,8 +1471,10 @@ Function "InstallNormalFile"
 
     CopyFiles /SILENT "$RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
     ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
+    ${If} $ITEM_INDEX > -1
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ${EndIf}
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallNormalFile: $PROCESSING_FILE is successfully installed"
@@ -1641,6 +1643,11 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
       CreateDirectory "$DIST_PATH"
       ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
+
+      ; Set ITEM_INDEX to negative to prevent registeration of the installed file
+      ; with an uninstall target, because distribution.* files are automatically
+      ; removed with the parent folder stored as "InstalledDistributonCustomizer".
+      StrCpy $ITEM_INDEX -1
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=distribution.*" "InstallNormalFile"
     ${EndIf}
 SectionEnd
