@@ -1472,8 +1472,8 @@ Function "InstallNormalFile"
     CopyFiles /SILENT "$RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
     ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
     ${If} $ITEM_INDEX > -1
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
-    IntOp $ITEM_INDEX $ITEM_INDEX + 1
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
     !ifdef NSIS_CONFIG_LOG
