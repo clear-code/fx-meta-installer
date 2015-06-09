@@ -126,6 +126,17 @@
 
 ■アドオン
 
+・任意のアドオンをインストール対象に加えるには
+　→resourcesフォルダへアドオンのxpiファイルを追加する。
+　→以下の内容をfainstall.iniに追記する
+  ----------
+  [<addon identifier>.xpi]
+  AddonId=<addon identifier>
+  ----------
+
+　<addon identifier> はxpiをzipにするなどして解凍した後、
+　install.rdfのem:idの値を見ることで確かめられる。
+
 ・インストール先を「extensions」以下にして、普通のアドオンとして
 　見えるようにするには？
 　→fainstall.iniで各アドオンのセクションに
