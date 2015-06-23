@@ -867,7 +867,7 @@ InstallDirectoryPath：（省略可能）
   > InstallDirectoryPath=C:\Firefox
 ShortcutName：
   生成あるいは削除の対象とするショートカットの名称。
-  （FirefixおよびThunderbirdでは、ショートカット名は固定されており
+  （FirefoxおよびThunderbirdでは、ショートカット名は固定されており
   　この設定は機能しない）
 DesktopShortcut：（省略可能）
   デスクトップ上にショートカットを作成するかどうかを指定する。
