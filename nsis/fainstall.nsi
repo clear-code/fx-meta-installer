@@ -2210,6 +2210,8 @@ Function GetAppPath
         ReadINIStr $APP_VERSION "$APP_DIR\application.ini" "App" "Version"
       ${EndIf}
     ${EndIf}
+
+  ERR:
 FunctionEnd
 
 Function CheckAppVersion
