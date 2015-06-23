@@ -2181,14 +2181,16 @@ Function GetAppPath
           !ifdef NSIS_CONFIG_LOG
             LogText "*** GetAppPath: APP_DIR must be $INI_TEMP2"
           !endif
-          GoTo ERR
+          StrCpy $APP_DIR "$INI_TEMP2"
+          StrCpy $APP_EXE_PATH "$APP_DIR\${APP_NAME}.exe"
         ${EndIf}
       ${ElseIf} $INI_TEMP != ""
         ${If} "$APP_DIR" != "$PROGRAMFILES\$INI_TEMP"
           !ifdef NSIS_CONFIG_LOG
             LogText "*** GetAppPath: APP_DIR must be $PROGRAMFILES\$INI_TEMP"
           !endif
-          GoTo ERR
+          StrCpy $APP_DIR "$PROGRAMFILES\$INI_TEMP"
+          StrCpy $APP_EXE_PATH "$APP_DIR\${APP_NAME}.exe"
         ${EndIf}
       ${EndIf}
     ${EndIf}
@@ -2205,8 +2207,6 @@ Function GetAppPath
         ReadINIStr $APP_VERSION "$APP_DIR\application.ini" "App" "Version"
       ${EndIf}
     ${EndIf}
-
-  ERR:
 FunctionEnd
 
 Function CheckAppVersion
