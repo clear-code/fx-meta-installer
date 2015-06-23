@@ -1090,6 +1090,27 @@ Section "Install Additional Files" DoInstallAdditionalFiles
   Call InstallAdditionalFiles
 SectionEnd
 
+Section "Old Distribution Directory Existence Check" OldDistDirExistenceCheck
+    StrCpy $DIST_PATH   "${APP_DISTRIBUTION_DIR}"
+    StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
+    StrCpy $BACKUP_COUNT 0
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InitDistributonCustomizer: install to $DIST_PATH"
+    !endif
+    ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
+      IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
+      StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
+    ${EndWhile}
+    ${If} ${FileExists} "$DIST_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup" "$BACKUP_PATH"
+      Rename "$DIST_PATH" "$BACKUP_PATH"
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** InitDistributonCustomizer: BACKUP_PATH = $BACKUP_PATH"
+      !endif
+    ${EndIf}
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
+SectionEnd
+
 Section "Install Add-ons" InstallAddons
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1621,26 +1642,8 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
     !endif
 
     StrCpy $DIST_PATH   "${APP_DISTRIBUTION_DIR}"
-    StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
-    StrCpy $BACKUP_COUNT 0
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InitDistributonCustomizer: install to $DIST_PATH"
-    !endif
-    ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
-      IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
-      StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
-    ${EndWhile}
-
     StrCpy $DIST_DIR "$DIST_PATH"
     ${If} ${FileExists} "$RES_DIR\distribution.*"
-      ${If} ${FileExists} "$DIST_PATH"
-        WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup" "$BACKUP_PATH"
-        Rename "$DIST_PATH" "$BACKUP_PATH"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** InitDistributonCustomizer: BACKUP_PATH = $BACKUP_PATH"
-        !endif
-      ${EndIf}
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
       CreateDirectory "$DIST_PATH"
       ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
 
