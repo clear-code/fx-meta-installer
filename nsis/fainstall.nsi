@@ -1311,10 +1311,8 @@ Function "InstallShortcut"
     ${EndIf}
 
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
-    ${If} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
-      IntOp $ITEM_INDEX $ITEM_INDEX + 1
-    ${EndIf}
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
+    IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
     SetShellVarContext current
 
