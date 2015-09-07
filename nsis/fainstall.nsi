@@ -91,6 +91,7 @@ ${DefineDefaultValue} CONFIRM_RESTART_MESSAGE ""
 ${DefineDefaultValue} CONFIRM_RESTART_TITLE   ""
 
 
+!ifndef APP_EXE
 !if ${APP_NAME} == "Firefox"
   !define APP_EXE "firefox.exe"
   !define APP_FULL_NAME "Mozilla Firefox"
@@ -109,6 +110,7 @@ ${DefineDefaultValue} CONFIRM_RESTART_TITLE   ""
   !define APP_KEY "Netscape\${APP_FULL_NAME}"
   !define APP_DIRECTORY_NAME "${APP_FULL_NAME}"
   !define APP_PROFILE_PATH "$APPDATA\Mozilla\Netscape"
+!endif
 !endif
 
 ${DefineDefaultValue} APP_EXE            "${APP_NAME}.exe"
