@@ -466,6 +466,12 @@ Section "Initialize Variables" InitializeVariables
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*setup*${APP_NAME}*.exe" "DetectAppInstallerPath"
     ${EndIf}
     ${If} "$APP_INSTALLER_PATH" == ""
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*installer*.exe" "DetectAppInstallerPath"
+    ${EndIf}
+    ${If} "$APP_INSTALLER_PATH" == ""
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*installer*${APP_NAME}*.exe" "DetectAppInstallerPath"
+    ${EndIf}
+    ${If} "$APP_INSTALLER_PATH" == ""
       StrCpy $APP_INSTALLER_PATH "$RES_DIR\${APP_NAME}-setup.exe"
     ${EndIf}
 
