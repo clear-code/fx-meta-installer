@@ -985,6 +985,12 @@ Section "Install Profiles" InstallProfiles
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} "$ITEM_LOCATION" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
+        ReadINIStr $INI_TEMP "${INIPATH}" "profile" "TargetUser"
+        ${If} "$INI_TEMP" == "all"
+          SetShellVarContext all
+        ${Else}
+          SetShellVarContext current
+        ${EndIf}
         Call ResolveItemLocation
         Call InstallProfile
       ${EndWhile}
