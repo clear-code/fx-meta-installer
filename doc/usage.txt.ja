@@ -830,6 +830,29 @@ RootPath：
   例えば "RootPath=%AppData%\Customized Firefox" と指定した場合、
   プロファイルは以下の位置に作られる。
   %AppData%\Customized Firefox\Profilex\(Name)
+TargetUser：（省略可能）
+  ショートカットの作成先ユーザ。以下のいずれかを指定可能。
+    current : 現在のユーザ
+    all     : All Users（パブリック）
+
+例えば全ユーザで共通のプロファイルを作成し、そのプロファイルで起動するショートカットを用意する場合は、以下のようにする。
+
+  [fainstall]
+  Shortcuts=startmenu-shortcut
+  
+  [profile]
+  Name=Default
+  RootPath=%AppData%/Customized Firefox
+  TargetUser=all
+  
+  [startmenu-shortcut]
+  Name="Customized Firefox"
+  Path=%AppDir%/firefox.exe
+  Options=-profile %AppData%\Customized Firefox\Profiles\Default -no-remote
+  TargetUser=all
+  TargetLocation=%Programs%
+
+
 
 ■Mozillaアプリケーションのサイレントインストールの挙動の変更
 
