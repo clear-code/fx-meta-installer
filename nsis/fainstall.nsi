@@ -1276,7 +1276,7 @@ Function "InstallShortcut"
         ${If} $SHORTCUT_OPTIONS_INDEX > 1
           ${IfThen} "$ITEM_LOCATION" == "$SHORTCUT_OPTIONS" ${|} ${Break} ${|}
         ${EndIf}
-        Call ResolveItemLocation
+        Call ResolveItemLocationBasic
         StrCpy $UPDATED_SHORTCUT_OPTIONS "$UPDATED_SHORTCUT_OPTIONS $ITEM_LOCATION"
       ${EndWhile}
       StrCpy $SHORTCUT_OPTIONS "$UPDATED_SHORTCUT_OPTIONS"
