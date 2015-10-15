@@ -2191,7 +2191,7 @@ Function GetAppPath
             LogText "*** GetAppPath: APP_DIR must be $INI_TEMP2"
           !endif
           StrCpy $APP_DIR "$INI_TEMP2"
-          StrCpy $APP_EXE_PATH "$APP_DIR\${APP_NAME}.exe"
+          StrCpy $APP_EXE_PATH "$APP_DIR\${APP_EXE}"
         ${EndIf}
       ${ElseIf} $INI_TEMP != ""
         ${If} "$APP_DIR" != "$PROGRAMFILES\$INI_TEMP"
@@ -2199,7 +2199,7 @@ Function GetAppPath
             LogText "*** GetAppPath: APP_DIR must be $PROGRAMFILES\$INI_TEMP"
           !endif
           StrCpy $APP_DIR "$PROGRAMFILES\$INI_TEMP"
-          StrCpy $APP_EXE_PATH "$APP_DIR\${APP_NAME}.exe"
+          StrCpy $APP_EXE_PATH "$APP_DIR\${APP_EXE}"
         ${EndIf}
       ${EndIf}
     ${EndIf}
