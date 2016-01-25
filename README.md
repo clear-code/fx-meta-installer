@@ -57,7 +57,7 @@ environments at first.
     move "*.nsh" files to "/usr/share/nsis/Include".
     For example:
 
-        $ unzip *.zip
+        $ ls *.zip | sed -e 's/\.zip$//' | xargs -i unzip {}.zip -d {}
         $ find . -name "*.dll" | grep -v -i "unicode" | sudo xargs mv -t /usr/share/nsis/Plugins/
         $ find . -name "*.nsh" | sudo xargs mv -t /usr/share/nsis/Include/
 
