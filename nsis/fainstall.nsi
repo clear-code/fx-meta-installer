@@ -2096,21 +2096,17 @@ Function LoadINI
 
 FunctionEnd
 
-Function CheckAppProc
+!macro CheckAppProc un
+  Function ${un}CheckAppProc
     FindProcDLL::FindProc "${APP_EXE}" $R0
     ${If} "$R0" == "1"
       MessageBox MB_OK|MB_ICONINFORMATION `$(MSG_APP_IS_RUNNING)`
       Abort
     ${EndIf}
-FunctionEnd
-
-Function un.CheckAppProc
-    FindProcDLL::FindProc "${APP_EXE}" $R0
-    ${If} "$R0" == "1"
-      MessageBox MB_OK|MB_ICONINFORMATION `$(MSG_APP_IS_RUNNING)`
-      Abort
-    ${EndIf}
-FunctionEnd
+  FunctionEnd
+!macroend
+!insertmacro CheckAppProc ""
+!insertmacro CheckAppProc "un."
 
 Function GetCurrentAppRegKey
   ReadINIStr $INI_TEMP ${INIPATH} ${INSTALLER_NAME} "AppIsESR"
