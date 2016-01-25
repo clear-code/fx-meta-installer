@@ -98,6 +98,7 @@ ${DefineDefaultValue} CONFIRM_RESTART_TITLE   ""
   !define APP_FULL_NAME "Mozilla Firefox"
   !define APP_KEY "Mozilla\${APP_FULL_NAME}"
   !define APP_KEY_ESR "Mozilla\${APP_FULL_NAME} ESR"
+  !define APP_KEY_DEV "Mozilla\${APP_NAME} Developer Edition"
   !define APP_DIRECTORY_NAME "${APP_FULL_NAME}"
   !define APP_PROFILE_PATH "$APPDATA\Mozilla\Firefox"
 !else if ${APP_NAME} == "Thunderbird"
@@ -105,6 +106,7 @@ ${DefineDefaultValue} CONFIRM_RESTART_TITLE   ""
   !define APP_FULL_NAME "Mozilla Thunderbird"
   !define APP_KEY "Mozilla\${APP_FULL_NAME}"
   !define APP_KEY_ESR "Mozilla\${APP_FULL_NAME}"
+  !define APP_KEY_DEV "Mozilla\${APP_FULL_NAME}"
   !define APP_DIRECTORY_NAME "${APP_FULL_NAME}"
   !define APP_PROFILE_PATH "$APPDATA\Thunderbird"
 !else if ${APP_NAME} == "Netscape"
@@ -112,6 +114,7 @@ ${DefineDefaultValue} CONFIRM_RESTART_TITLE   ""
   !define APP_FULL_NAME "Netscape"
   !define APP_KEY "Netscape\${APP_FULL_NAME}"
   !define APP_KEY_ESR "Netscape\${APP_FULL_NAME}"
+  !define APP_KEY_DEV "Netscape\${APP_FULL_NAME}"
   !define APP_DIRECTORY_NAME "${APP_FULL_NAME}"
   !define APP_PROFILE_PATH "$APPDATA\Mozilla\Netscape"
 !endif
@@ -121,6 +124,7 @@ ${DefineDefaultValue} APP_EXE            "${APP_NAME}.exe"
 ${DefineDefaultValue} APP_FULL_NAME      "${APP_NAME}"
 ${DefineDefaultValue} APP_KEY            "${APP_NAME}"
 ${DefineDefaultValue} APP_KEY_ESR        "${APP_NAME}"
+${DefineDefaultValue} APP_KEY_DEV        "${APP_NAME}"
 ${DefineDefaultValue} APP_DIRECTORY_NAME "${APP_NAME}"
 
 !define INSTALLER_NAME      "fainstall"
@@ -2149,8 +2153,23 @@ Function GetCurrentAppRegKey
     StrCpy $APP_REG_KEY "Software\${APP_KEY_ESR}"
     StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY_ESR}"
   ${Else}
-    StrCpy $APP_REG_KEY "Software\${APP_KEY}"
-    StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY}"
+    ReadINIStr $INI_TEMP ${INIPATH} ${INSTALLER_NAME} "AppIsDevEdition"
+    ${If} "$INI_TEMP" == ""
+      !ifdef APP_IS_DEV_EDITION
+        StrCpy $INI_TEMP "yes"
+      !else
+        StrCpy $INI_TEMP "no"
+      !endif
+    ${EndIf}
+
+    ${IsTrue} $R0 "$INI_TEMP"
+    ${If} "$R0" == "1"
+      StrCpy $APP_REG_KEY "Software\${APP_KEY_DEV}"
+      StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY_DEV}"
+    ${Else}
+      StrCpy $APP_REG_KEY "Software\${APP_KEY}"
+      StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY}"
+    ${EndIf}
   ${EndIf}
 FunctionEnd
 
