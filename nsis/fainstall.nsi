@@ -221,7 +221,6 @@ Icon "${INSTALLER_NAME}.ico"
 ;=== Variables
 Var DISPLAY_VERSION
 Var APP_VERSION
-Var APP_IS_ESR
 Var APP_REG_KEY
 Var APP_VERSIONS_ROOT_REG_KEY
 Var NORMALIZED_APP_VERSION
@@ -2114,21 +2113,21 @@ Function un.CheckAppProc
 FunctionEnd
 
 Function GetCurrentAppRegKey
-  ReadINIStr $APP_IS_ESR ${INIPATH} ${INSTALLER_NAME} "AppIsESR"
-  ${If} "$APP_IS_ESR" == ""
-    ReadINIStr $APP_IS_ESR ${INIPATH} ${INSTALLER_NAME} "AppIsEsr"
+  ReadINIStr $INI_TEMP ${INIPATH} ${INSTALLER_NAME} "AppIsESR"
+  ${If} "$INI_TEMP" == ""
+    ReadINIStr $INI_TEMP ${INIPATH} ${INSTALLER_NAME} "AppIsEsr"
   ${EndIf}
-  ${If} "$APP_IS_ESR" == ""
-    !ifdef APP_IS_ESR
-      StrCpy $APP_IS_ESR "yes"
+  ${If} "$INI_TEMP" == ""
+    !ifdef INI_TEMP
+      StrCpy $INI_TEMP "yes"
     !else
-      StrCpy $APP_IS_ESR "no"
+      StrCpy $INI_TEMP "no"
     !endif
   ${EndIf}
 
-  ${If} "$APP_IS_ESR" == "1"
-  ${OrIf} "$APP_IS_ESR" == "yes"
-  ${OrIf} "$APP_IS_ESR" == "true"
+  ${If} "$INI_TEMP" == "1"
+  ${OrIf} "$INI_TEMP" == "yes"
+  ${OrIf} "$INI_TEMP" == "true"
     StrCpy $APP_REG_KEY "Software\${APP_KEY} ESR"
   ${Else}
     StrCpy $APP_REG_KEY "Software\${APP_KEY}"
