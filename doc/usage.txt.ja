@@ -175,6 +175,7 @@ Firefox/Thunderbirdのインストールに関する設定
 対応する最小のバージョン           | APP_MIN_VERSION            | AppMinVersion
 対応する最大のバージョン           | APP_MAX_VERSION            | AppMaxVersion
 ESR版かどうか                      | APP_IS_ESR                 | AppIsESR
+Developer Editionかどうか          | APP_IS_DEV_EDITION         | AppIsDevEdition
 ダウングレードの可否               | APP_ALLOW_DOWNGRADE        | AppAllowDowngrade
 インストーラの設置場所のパス       | APP_DOWNLOAD_PATH          | AppDownloadPath
 インストーラのダウンロード元URL    | APP_DOWNLOAD_URL           | AppDownloadUrl
@@ -425,6 +426,15 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
 　取り得る値               ：APP_IS_ESRを定義すると真、未定義だと偽。
 　                           AppIsESRは、true/false/yes/no/1/0のいずれかで
 　                           指定する。
+  デフォルト値             ：false
+■■Developer Editionかどうか（省略可能）
+  config.nshでの設定キー   ：APP_IS_DEV_EDITION
+  fainstall.iniでの設定キー：[fainstall] > AppIsDevEdition
+　説明                     ：インストール対象のFirefoxがDeveloper Editionか
+                             どうかを示す。
+　取り得る値               ：APP_IS_DEV_EDITIONを定義すると真、未定義だと偽。
+　                           AppIsDevEditionは、true/false/yes/no/1/0のいずれ
+                             かで指定する。
   デフォルト値             ：false
 ■■ダウングレードの可否（省略可能）
   config.nshでの設定キー   ：APP_ALLOW_DOWNGRADE
