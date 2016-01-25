@@ -2118,7 +2118,7 @@ Function GetCurrentAppRegKey
     ReadINIStr $INI_TEMP ${INIPATH} ${INSTALLER_NAME} "AppIsEsr"
   ${EndIf}
   ${If} "$INI_TEMP" == ""
-    !ifdef INI_TEMP
+    !ifdef APP_IS_ESR
       StrCpy $INI_TEMP "yes"
     !else
       StrCpy $INI_TEMP "no"
