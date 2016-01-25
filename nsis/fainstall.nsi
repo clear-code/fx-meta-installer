@@ -39,6 +39,7 @@ FunctionEnd
 !insertmacro VersionCompare
 !insertmacro VersionConvert
 !include "StrFunc.nsh"
+${StrStr} ; activate macro for installation
 ${StrStrAdv} ; activate macro for installation
 ${UnStrStrAdv} ; activate macro for uninstallation
 !include "native_message_box.nsh"
@@ -2108,6 +2109,24 @@ FunctionEnd
 !insertmacro CheckAppProc ""
 !insertmacro CheckAppProc "un."
 
+Function IsTrue
+  Pop $1
+  ${StrStr} $0 "1,yes,true" "$1"
+  ${If} "$0" != ""
+    Push "1"
+  ${Else}
+    Push "0"
+  ${EndIf}
+FunctionEnd
+
+!define IsTrue "!insertmacro IsTrue"
+
+!macro IsTrue ResultVar SubString
+  Push `${SubString}`
+  Call IsTrue
+  Pop `${ResultVar}`
+!macroend
+
 Function GetCurrentAppRegKey
   ReadINIStr $INI_TEMP ${INIPATH} ${INSTALLER_NAME} "AppIsESR"
   ${If} "$INI_TEMP" == ""
@@ -2121,9 +2140,8 @@ Function GetCurrentAppRegKey
     !endif
   ${EndIf}
 
-  ${If} "$INI_TEMP" == "1"
-  ${OrIf} "$INI_TEMP" == "yes"
-  ${OrIf} "$INI_TEMP" == "true"
+  ${IsTrue} $R0 "$INI_TEMP"
+  ${If} "$R0" == "1"
     StrCpy $APP_REG_KEY "Software\${APP_KEY} ESR"
   ${Else}
     StrCpy $APP_REG_KEY "Software\${APP_KEY}"
