@@ -2147,11 +2147,11 @@ Function GetCurrentAppRegKey
   ${IsTrue} $R0 "$INI_TEMP"
   ${If} "$R0" == "1"
     StrCpy $APP_REG_KEY "Software\${APP_KEY_ESR}"
+    StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY_ESR}"
   ${Else}
     StrCpy $APP_REG_KEY "Software\${APP_KEY}"
+    StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY}"
   ${EndIf}
-
-  StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY}"
 FunctionEnd
 
 Function un.GetCurrentAppRegKey
