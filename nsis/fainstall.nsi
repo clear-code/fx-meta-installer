@@ -1235,6 +1235,7 @@ Function "InstallAddon"
     ${EndUnless}
 
     ReadINIStr $UNPACK "${INIPATH}" "$ITEM_NAME" "Unpack"
+
     ${IsFalse} $R0 "$UNPACK"
     ${Unless} "$R0" == "1"
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME"
@@ -1251,10 +1252,11 @@ Function "InstallAddon"
 
     SetOutPath $ITEM_LOCATION
 
-    ReadINIStr $UNPACK "${INIPATH}" "$ITEM_NAME" "Unpack"
     ${IsFalse} $R0 "$UNPACK"
     ${If} "$R0" == "1"
-      CopyFiles /SILENT "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
+      Rename "$RES_DIR\$ITEM_NAME" "$RES_DIR\$ADDON_NAME.xpi"
+      CopyFiles /SILENT "$RES_DIR\$ADDON_NAME.xpi" "$ITEM_LOCATION"
+      StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME.xpi"
     ${Else}
       ZipDLL::extractall "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
       ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
