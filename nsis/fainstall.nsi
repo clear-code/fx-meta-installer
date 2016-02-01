@@ -1238,15 +1238,15 @@ Function "InstallAddon"
     ${IsFalse} $R0 "$UNPACK"
     ${Unless} "$R0" == "1"
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME"
-    ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Overwrite"
-    ${If} "$INI_TEMP" == "false"
-    ${AndIf} ${FileExists} "$ITEM_LOCATION"
-    ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** InstallAddon: $ADDON_NAME installation is canceled (already installed)"
-      !endif
-      GoTo CANCELED
-    ${EndIf}
+      ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Overwrite"
+      ${If} "$INI_TEMP" == "false"
+      ${AndIf} ${FileExists} "$ITEM_LOCATION"
+      ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** InstallAddon: $ADDON_NAME installation is canceled (already installed)"
+        !endif
+        GoTo CANCELED
+      ${EndIf}
     ${EndUnless}
 
     SetOutPath $ITEM_LOCATION
@@ -1256,8 +1256,8 @@ Function "InstallAddon"
     ${If} "$R0" == "1"
       CopyFiles /SILENT "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
     ${Else}
-    ZipDLL::extractall "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
-    ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
+      ZipDLL::extractall "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
+      ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     ${EndIf}
 
     ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Uninstall"
