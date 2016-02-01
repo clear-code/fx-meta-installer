@@ -17,6 +17,27 @@ FunctionEnd
 !endif
 ;===================================================================
 
+;=== Libraries
+!include "LogicLib.nsh"
+!include "FileFunc.nsh"
+!insertmacro Locate
+!insertmacro un.Locate
+!insertmacro GetBaseName
+!insertmacro GetParent
+!insertmacro un.GetParameters
+!insertmacro un.GetOptions
+!include "WordFunc.nsh"
+!insertmacro WordFind
+!insertmacro WordReplace
+!insertmacro VersionCompare
+!insertmacro VersionConvert
+!include "StrFunc.nsh"
+${StrStr} ; activate macro for installation
+${StrStrAdv} ; activate macro for installation
+${UnStrStrAdv} ; activate macro for uninstallation
+!include "native_message_box.nsh"
+
+;== Definition of utilities
 !define DefineDefaultValue "!insertmacro DefineDefaultValue"
 !macro DefineDefaultValue Name Value
   !ifndef ${Name}
@@ -59,27 +80,6 @@ FunctionEnd
   Call IsFalse
   Pop `${ResultVar}`
 !macroend
-
-;=== Libraries
-!include "LogicLib.nsh"
-!include "FileFunc.nsh"
-!insertmacro Locate
-!insertmacro un.Locate
-!insertmacro GetBaseName
-!insertmacro GetParent
-!insertmacro un.GetParameters
-!insertmacro un.GetOptions
-!include "WordFunc.nsh"
-!insertmacro WordFind
-!insertmacro WordReplace
-!insertmacro VersionCompare
-!insertmacro VersionConvert
-!include "StrFunc.nsh"
-${StrStr} ; activate macro for installation
-${StrStrAdv} ; activate macro for installation
-${UnStrStrAdv} ; activate macro for uninstallation
-!include "native_message_box.nsh"
-
 
 ;== Basic Information
 !include "..\config.nsh"
