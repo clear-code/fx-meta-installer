@@ -1203,6 +1203,7 @@ Function "CollectAddonFiles"
 FunctionEnd
 
 Var ADDON_NAME
+Var UNPACK
 Function "InstallAddon"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1222,17 +1223,21 @@ Function "InstallAddon"
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
     ${Unless} "$ITEM_LOCATION" == ""
       Call ResolveItemLocation
-      StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME"
+      StrCpy $ITEM_LOCATION "$ITEM_LOCATION"
     ${Else}
       ; use distribution directory for Firefox/Thunderbird 10 or later.
       ${VersionCompare} "$APP_VERSION_NUM" "10" $0
       ${If} "$0" == "1"
-        StrCpy $ITEM_LOCATION "${APP_BUNDLES_DIR}\$ADDON_NAME"
+        StrCpy $ITEM_LOCATION "${APP_BUNDLES_DIR}"
       ${Else}
-        StrCpy $ITEM_LOCATION "${APP_EXTENSIONS_DIR}\$ADDON_NAME"
+        StrCpy $ITEM_LOCATION "${APP_EXTENSIONS_DIR}"
       ${EndIf}
     ${EndUnless}
 
+    ReadINIStr $UNPACK "${INIPATH}" "$ITEM_NAME" "Unpack"
+    ${IsFalse} $R0 "$UNPACK"
+    ${Unless} "$R0" == "1"
+      StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME"
     ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Overwrite"
     ${If} "$INI_TEMP" == "false"
     ${AndIf} ${FileExists} "$ITEM_LOCATION"
@@ -1242,11 +1247,18 @@ Function "InstallAddon"
       !endif
       GoTo CANCELED
     ${EndIf}
+    ${EndUnless}
 
     SetOutPath $ITEM_LOCATION
 
+    ReadINIStr $UNPACK "${INIPATH}" "$ITEM_NAME" "Unpack"
+    ${IsFalse} $R0 "$UNPACK"
+    ${If} "$R0" == "1"
+      CopyFiles /SILENT "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
+    ${Else}
     ZipDLL::extractall "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
+    ${EndIf}
 
     ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Uninstall"
     ${If} "$INI_TEMP" != "false"
