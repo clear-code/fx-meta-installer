@@ -42,6 +42,24 @@ FunctionEnd
   Pop `${ResultVar}`
 !macroend
 
+Function IsFalse
+  Pop $1
+  ${StrStr} $0 "0,no,false" "$1"
+  ${If} "$0" != ""
+    Push "1"
+  ${Else}
+    Push "0"
+  ${EndIf}
+FunctionEnd
+
+!define IsFalse "!insertmacro IsFalse"
+
+!macro IsFalse ResultVar SubString
+  Push `${SubString}`
+  Call IsFalse
+  Pop `${ResultVar}`
+!macroend
+
 ;=== Libraries
 !include "LogicLib.nsh"
 !include "FileFunc.nsh"
