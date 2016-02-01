@@ -24,6 +24,24 @@ FunctionEnd
   !endif
 !macroend
 
+Function IsTrue
+  Pop $1
+  ${StrStr} $0 "1,yes,true" "$1"
+  ${If} "$0" != ""
+    Push "1"
+  ${Else}
+    Push "0"
+  ${EndIf}
+FunctionEnd
+
+!define IsTrue "!insertmacro IsTrue"
+
+!macro IsTrue ResultVar SubString
+  Push `${SubString}`
+  Call IsTrue
+  Pop `${ResultVar}`
+!macroend
+
 ;=== Libraries
 !include "LogicLib.nsh"
 !include "FileFunc.nsh"
@@ -2116,24 +2134,6 @@ FunctionEnd
 !macroend
 !insertmacro CheckAppProc ""
 !insertmacro CheckAppProc "un."
-
-Function IsTrue
-  Pop $1
-  ${StrStr} $0 "1,yes,true" "$1"
-  ${If} "$0" != ""
-    Push "1"
-  ${Else}
-    Push "0"
-  ${EndIf}
-FunctionEnd
-
-!define IsTrue "!insertmacro IsTrue"
-
-!macro IsTrue ResultVar SubString
-  Push `${SubString}`
-  Call IsTrue
-  Pop `${ResultVar}`
-!macroend
 
 Function GetCurrentAppRegKey
   ReadINIStr $INI_TEMP ${INIPATH} ${INSTALLER_NAME} "AppIsESR"
