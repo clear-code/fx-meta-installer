@@ -2,8 +2,8 @@
 
 ;====================== CUSTOMIZABLE SECTION =======================
 
-!define PRODUCT_FULL_NAME   "EXAMPLE FULL NAME"
-!define PRODUCT_NAME        "EXAMPLE"
+!define PRODUCT_FULL_NAME   "@PROJECT_NAME@"
+!define PRODUCT_NAME        "@PROJECT_NAME@"
 !define PRODUCT_VERSION     "1.0.0.0"
 !define PRODUCT_YEAR        "2016"
 !define PRODUCT_PUBLISHER   "ClearCode Inc."

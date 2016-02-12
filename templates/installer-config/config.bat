@@ -2,7 +2,7 @@ rem Copyright (C) 2016 ClearCode Inc.
 
 rem ====================== CUSTOMIZABLE SECTION =======================
 
-set INSTALLER_NAME=EXAMPLE
+set INSTALLER_NAME=@PROJECT_NAME@
 
 set NSIS_PATH=C:\Program Files (x86)\NSIS
 set SEVENZIP_PATH=C:\Program Files\7-Zip
