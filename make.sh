@@ -35,7 +35,7 @@ case $(uname) in
   *)           tar="tar" ;;
 esac
 
-product_name=`grep 'PRODUCT_NAME' config.nsh | $sed 's/^[^"]*"//' | $sed 's/".*$\r?\n?//'`
+product_name=`grep --binary-files=text 'PRODUCT_NAME' config.nsh | $sed 's/^[^"]*"//' | $sed 's/".*$\r?\n?//'`
 echo $product_name
 
 rm fainstall.exe
