@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2008-2012 ClearCode Inc.
+# Copyright (C) 2008-2016 ClearCode Inc.
 
 if [ ! -d ./resources ]
 then
@@ -36,7 +36,7 @@ case $(uname) in
 esac
 
 product_name=`grep 'PRODUCT_NAME' config.nsh | $sed 's/^[^"]*"//' | $sed 's/".*$\r?\n?//'`
-echo product_name
+echo $product_name
 
 rm fainstall.exe
 rm fainstall.ini
