@@ -1879,7 +1879,7 @@ Section Uninstall
       ${If} ${DirExists} "$ITEM_LOCATION"
         RMDir /r "$ITEM_LOCATION"
       ${ElseIf} ${FileExists} "$ITEM_LOCATION"
-        Delete "$INSTALLED_FILE"
+        Delete "$ITEM_LOCATION"
       ${EndIf}
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$PROCESSING_FILE"
