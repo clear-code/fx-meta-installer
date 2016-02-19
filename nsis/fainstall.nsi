@@ -36,6 +36,7 @@ ${StrStr} ; activate macro for installation
 ${StrStrAdv} ; activate macro for installation
 ${UnStrStrAdv} ; activate macro for uninstallation
 !include "native_message_box.nsh"
+!include "logiclib_dir_exists.nsh"
 
 ;== Definition of utilities
 !define DefineDefaultValue "!insertmacro DefineDefaultValue"
@@ -1875,7 +1876,11 @@ Section Uninstall
     ${While} 1 == 1
       ReadRegStr $ITEM_LOCATION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
       ${IfThen} "$ITEM_LOCATION" == "" ${|} ${Break} ${|}
+      ${If} ${DirExists} "$ITEM_LOCATION"
       RMDir /r "$ITEM_LOCATION"
+      ${ElseIf} ${FileExists} "$ITEM_LOCATION"
+        Delete "$INSTALLED_FILE"
+      ${EndIf}
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$PROCESSING_FILE"
         StrCpy $UNINSTALL_FAILED 1
