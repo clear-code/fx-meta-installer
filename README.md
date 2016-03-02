@@ -48,9 +48,9 @@ environments at first.
 
 #### Linux (Debian, Ubuntu)
 
- 1. Install required a package "nsis".
+ 1. Install required packages "nsis" and "pwgen".
 
-        $ sudo apt-get install nsis
+        $ sudo apt-get install nsis pwgen
 
  2. Install plugins. Download zip files, decompress them,
     move "*.dll" files to "/usr/share/nsis/Plugins/", and
