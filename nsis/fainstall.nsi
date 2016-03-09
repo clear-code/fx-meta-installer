@@ -2188,7 +2188,7 @@ Function GetCurrentAppRegKey
   ${IsTrue} $R0 "$INI_TEMP"
   ${If} "$R0" == "1"
     StrCpy $APP_REG_KEY "Software\${APP_KEY_ESR}"
-    StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY_ESR}"
+    StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY}"
   ${Else}
     ReadINIStr $INI_TEMP ${INIPATH} ${INSTALLER_NAME} "AppIsDevEdition"
     ${If} "$INI_TEMP" == ""
