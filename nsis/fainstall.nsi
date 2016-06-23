@@ -1392,6 +1392,8 @@ Function "InstallShortcut"
     ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
       Delete "$SHORTCUT_WORK_PATH"
       CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$SHORTCUT_WORK_PATH"
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
     !ifdef NSIS_CONFIG_LOG
