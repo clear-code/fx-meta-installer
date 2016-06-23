@@ -1383,6 +1383,15 @@ Function "InstallShortcut"
 
     SetShellVarContext current
 
+    ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "UpdateUserPinned"
+    ${If} "$INI_TEMP" == "true"
+      StrCpy $SHORTCUT_WORK_PATH "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
+      ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
+        Delete "$SHORTCUT_WORK_PATH"
+      ${EndIf}
+      CopyFiles /SILENT "$ITEM_LOCATION" "$SHORTCUT_WORK_PATH"
+    ${EndIf}
+
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallShortcut: $ITEM_NAME successfully installed"
     !endif
