@@ -1384,7 +1384,7 @@ Function "InstallShortcut"
 
     SetShellVarContext current
 
-    ; Update shortcut in the start menu by the user
+    ; Update shortcut in the start menu pinned by by the user
     StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
     StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
     Call ResolveItemLocation
