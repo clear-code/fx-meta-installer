@@ -1295,6 +1295,7 @@ Var SHORTCUT_OPTIONS
 Var UPDATED_SHORTCUT_OPTIONS
 Var SHORTCUT_OPTIONS_INDEX
 Var SHORTCUT_WORK_PATH
+Var SHORTCUT_FINAL_PATH
 Var SHORTCUT_ICON_PATH
 Var SHORTCUT_ICON_INDEX
 Function "InstallShortcut"
@@ -1385,11 +1386,14 @@ Function "InstallShortcut"
 
     ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "UpdateUserPinned"
     ${If} "$INI_TEMP" == "true"
-      StrCpy $SHORTCUT_WORK_PATH "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
+      StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
+      StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
+      Call ResolveItemLocation
+      StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
       ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
         Delete "$SHORTCUT_WORK_PATH"
       ${EndIf}
-      CopyFiles /SILENT "$ITEM_LOCATION" "$SHORTCUT_WORK_PATH"
+      CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
     ${EndIf}
 
     !ifdef NSIS_CONFIG_LOG
