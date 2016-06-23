@@ -1384,15 +1384,13 @@ Function "InstallShortcut"
 
     SetShellVarContext current
 
-    ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "UpdateUserPinned"
-    ${If} "$INI_TEMP" == "true"
-      StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
-      StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
-      Call ResolveItemLocation
-      StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
-      ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
-        Delete "$SHORTCUT_WORK_PATH"
-      ${EndIf}
+    ; Update shortcut in the start menu by the user
+    StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
+    StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
+    Call ResolveItemLocation
+    StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
+    ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
+      Delete "$SHORTCUT_WORK_PATH"
       CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
     ${EndIf}
 
