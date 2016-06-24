@@ -1868,18 +1868,18 @@ Section Uninstall
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
       ${Unless} "$INSTALLED_FILE" == ""
-      ${If} ${FileExists} "$INSTALLED_FILE"
-        ${If} ${FileExists} "$INSTALLED_FILE\*.*"
-          RMDir /r "$INSTALLED_FILE"
-        ${Else}
-          Delete "$INSTALLED_FILE"
+        ${If} ${FileExists} "$INSTALLED_FILE"
+          ${If} ${FileExists} "$INSTALLED_FILE\*.*"
+            RMDir /r "$INSTALLED_FILE"
+          ${Else}
+            Delete "$INSTALLED_FILE"
+          ${EndIf}
+          ${If} ${Errors}
+          ${AndIf} ${FileExists} "$INSTALLED_FILE"
+            StrCpy $UNINSTALL_FAILED 1
+            ${Break}
+          ${EndIf}
         ${EndIf}
-        ${If} ${Errors}
-        ${AndIf} ${FileExists} "$INSTALLED_FILE"
-          StrCpy $UNINSTALL_FAILED 1
-          ${Break}
-        ${EndIf}
-      ${EndIf}
 
         ${un.GetParameters} $0
         ${un.GetOptions} "$0" "/AddonOnly" $1
