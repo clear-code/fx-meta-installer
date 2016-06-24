@@ -1384,9 +1384,21 @@ Function "InstallShortcut"
 
     SetShellVarContext current
 
-    ; Update shortcut in the start menu pinned by by the user
+    ; Update shortcut in the start menu shortcut pinned by by the user
     StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
     StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
+    Call ResolveItemLocation
+    StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
+    ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
+      Delete "$SHORTCUT_WORK_PATH"
+      CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
+    ${EndIf}
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$SHORTCUT_WORK_PATH"
+    IntOp $ITEM_INDEX $ITEM_INDEX + 1
+
+    ; Update shortcut in the task bar shortcut pinned by by the user
+    StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
+    StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\$SHORTCUT_NAME.lnk"
     Call ResolveItemLocation
     StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
     ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
