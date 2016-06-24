@@ -1380,7 +1380,6 @@ Function "InstallShortcut"
 
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
-    IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
     SetShellVarContext current
 
@@ -1392,9 +1391,8 @@ Function "InstallShortcut"
     ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
       Delete "$SHORTCUT_WORK_PATH"
       CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-startmenu" "$SHORTCUT_NAME"
     ${EndIf}
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$SHORTCUT_WORK_PATH"
-    IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
     ; Update shortcut in the task bar shortcut pinned by by the user
     StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
@@ -1404,8 +1402,9 @@ Function "InstallShortcut"
     ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
       Delete "$SHORTCUT_WORK_PATH"
       CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-taskbar" "$SHORTCUT_NAME"
     ${EndIf}
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$SHORTCUT_WORK_PATH"
+
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
     !ifdef NSIS_CONFIG_LOG
@@ -1868,7 +1867,7 @@ Section Uninstall
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
-      ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
+      ${Unless} "$INSTALLED_FILE" == ""
       ${If} ${FileExists} "$INSTALLED_FILE"
         ${If} ${FileExists} "$INSTALLED_FILE\*.*"
           RMDir /r "$INSTALLED_FILE"
@@ -1881,7 +1880,31 @@ Section Uninstall
           ${Break}
         ${EndIf}
       ${EndIf}
+
+        ${un.GetParameters} $0
+        ${un.GetOptions} "$0" "/AddonOnly" $1
+        ${If} ${Errors}
+          ReadRegStr $0 HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-startmenu"
+          ${Unless} "$0" == ""
+            StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$0.lnk"
+            Call un.ResolveItemLocation
+            ${If} ${FileExists} "$ITEM_LOCATION"
+              Delete "$ITEM_LOCATION"
+            ${EndIf}
+          ${EndUnless}
+
+          ReadRegStr $0 HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-taskbar"
+          ${Unless} "$0" == ""
+            StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\$0.lnk"
+            Call un.ResolveItemLocation
+            ${If} ${FileExists} "$ITEM_LOCATION"
+              Delete "$ITEM_LOCATION"
+            ${EndIf}
+          ${EndUnless}
+        ${EndIf}
+
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
+      ${EndUnless}
     ${EndWhile}
 
     StrCpy $ITEM_INDEX 0
