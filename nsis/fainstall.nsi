@@ -1903,8 +1903,8 @@ Section Uninstall
           ${EndUnless}
         ${EndIf}
 
-      IntOp $ITEM_INDEX $ITEM_INDEX + 1
       ${EndUnless}
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
 
     StrCpy $ITEM_INDEX 0
