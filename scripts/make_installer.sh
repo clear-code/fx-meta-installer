@@ -20,7 +20,7 @@ main() {
         safely rm -rf "${base_dir}/resources"
         safely mkdir "${base_dir}/resources"
 
-        safely rm -rf "${dist_dir}"
+        safely rm -rf "${dist_dir}/${package_name}"
         safely mkdir "${dist_dir}"
 
         safely "${script_dir}/make_addons.sh" $addons
