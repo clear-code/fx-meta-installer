@@ -115,6 +115,7 @@ ${DefineDefaultValue} DISABLED_CLIENTS ""
 ${DefineDefaultValue} INSTALL_ADDONS   ""
 ${DefineDefaultValue} EXTRA_INSTALLERS ""
 ${DefineDefaultValue} EXTRA_SHORTCUTS  ""
+${DefineDefaultValue} UPDATE_PINNED_SHORTCUTS "false"
 
 ${DefineDefaultValue} CLEAN_INSTALL           ""
 ${DefineDefaultValue} CLEAN_REQUIRED_MESSAGE  ""
@@ -1298,6 +1299,7 @@ Var SHORTCUT_WORK_PATH
 Var SHORTCUT_FINAL_PATH
 Var SHORTCUT_ICON_PATH
 Var SHORTCUT_ICON_INDEX
+Var UPDATE_PINNED_SHORTCUTS
 Function "InstallShortcut"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1383,6 +1385,8 @@ Function "InstallShortcut"
 
     SetShellVarContext current
 
+    ${ReadINIStrWithDefault} $UPDATE_PINNED_SHORTCUTS "${INIPATH}" "${INSTALLER_NAME}" "UpdatePinnedShortcuts" "${UPDATE_PINNED_SHORTCUTS}"
+    ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "false"
     ; Update shortcut in the start menu shortcut pinned by by the user
     StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
     StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
@@ -1390,8 +1394,10 @@ Function "InstallShortcut"
     StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
     ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
       Delete "$SHORTCUT_WORK_PATH"
+      ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "delete"
       CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-startmenu" "$SHORTCUT_NAME"
+      ${EndUnless}
     ${EndIf}
 
     ; Update shortcut in the task bar shortcut pinned by by the user
@@ -1401,9 +1407,12 @@ Function "InstallShortcut"
     StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
     ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
       Delete "$SHORTCUT_WORK_PATH"
+      ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "delete"
       CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-taskbar" "$SHORTCUT_NAME"
+      ${EndUnless}
     ${EndIf}
+    ${EndUnless}
 
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
 

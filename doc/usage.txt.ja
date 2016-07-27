@@ -162,6 +162,7 @@ PRODUCT_WEB_SITEのアンカーテキスト | PRODUCT_WEB_LABEL          |
 インストールするアドオン           | INSTALL_ADDONS             | Addons
 実行する他のインストーラ           | EXTRA_INSTALLERS           | Installers
 作成するショートカット             | EXTRA_SHORTCUTS            | Shortcuts
+ピン留めされたショートカットの更新  | UPDATE_PINNED_SHORTCUTS    | UpdatePinnedShortcuts
 正常終了時メッセージ               | FINISH_MESSAGE             | FinishMessage
 正常終了時タイトル                 | FINISH_TITLE               | FinishTitle
 再起動確認メッセージ               | CONFIRM_RESTART_MESSAGE    | ConfirmRestartMessage
@@ -355,6 +356,16 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
                              詳細は「ショートカットの作成」を参照。
 　取り得る値               ：ショートカット定義のセクション名のリスト。
   デフォルト値             ：なし。
+■■ピン留めされたショートカットの更新
+  config.nshでの設定キー   ：UPDATE_PINNED_SHORTCUTS
+  fainstall.iniでの設定キー：UpdatePinnedShortcuts
+　説明                     ：スタートメニューとタスクバー上に保存された
+                             ショートカットの取り扱い。
+　取り得る値               ：
+    "true"  ：新しいショートカットで置き換える。
+    "false" ：何もしない。
+    "delete"：古いショートカットがあった場合は削除のみ行う。
+  デフォルト値             ："false"
 
 
 ■Mozillaアプリケーション（Firefox、Thunderbird）用の設定項目
