@@ -1295,6 +1295,7 @@ Var SHORTCUT_OPTIONS
 Var UPDATED_SHORTCUT_OPTIONS
 Var SHORTCUT_OPTIONS_INDEX
 Var SHORTCUT_WORK_PATH
+Var SHORTCUT_FINAL_PATH
 Var SHORTCUT_ICON_PATH
 Var SHORTCUT_ICON_INDEX
 Function "InstallShortcut"
@@ -1379,9 +1380,32 @@ Function "InstallShortcut"
 
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
-    IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
     SetShellVarContext current
+
+    ; Update shortcut in the start menu shortcut pinned by by the user
+    StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
+    StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
+    Call ResolveItemLocation
+    StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
+    ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
+      Delete "$SHORTCUT_WORK_PATH"
+      CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-startmenu" "$SHORTCUT_NAME"
+    ${EndIf}
+
+    ; Update shortcut in the task bar shortcut pinned by by the user
+    StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
+    StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\$SHORTCUT_NAME.lnk"
+    Call ResolveItemLocation
+    StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
+    ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
+      Delete "$SHORTCUT_WORK_PATH"
+      CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
+      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-taskbar" "$SHORTCUT_NAME"
+    ${EndIf}
+
+    IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** InstallShortcut: $ITEM_NAME successfully installed"
@@ -1843,19 +1867,43 @@ Section Uninstall
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
-      ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
-      ${If} ${FileExists} "$INSTALLED_FILE"
-        ${If} ${FileExists} "$INSTALLED_FILE\*.*"
-          RMDir /r "$INSTALLED_FILE"
-        ${Else}
-          Delete "$INSTALLED_FILE"
+      ${Unless} "$INSTALLED_FILE" == ""
+        ${If} ${FileExists} "$INSTALLED_FILE"
+          ${If} ${FileExists} "$INSTALLED_FILE\*.*"
+            RMDir /r "$INSTALLED_FILE"
+          ${Else}
+            Delete "$INSTALLED_FILE"
+          ${EndIf}
+          ${If} ${Errors}
+          ${AndIf} ${FileExists} "$INSTALLED_FILE"
+            StrCpy $UNINSTALL_FAILED 1
+            ${Break}
+          ${EndIf}
         ${EndIf}
+
+        ${un.GetParameters} $0
+        ${un.GetOptions} "$0" "/AddonOnly" $1
         ${If} ${Errors}
-        ${AndIf} ${FileExists} "$INSTALLED_FILE"
-          StrCpy $UNINSTALL_FAILED 1
-          ${Break}
+          ReadRegStr $0 HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-startmenu"
+          ${Unless} "$0" == ""
+            StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$0.lnk"
+            Call un.ResolveItemLocation
+            ${If} ${FileExists} "$ITEM_LOCATION"
+              Delete "$ITEM_LOCATION"
+            ${EndIf}
+          ${EndUnless}
+
+          ReadRegStr $0 HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-taskbar"
+          ${Unless} "$0" == ""
+            StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\$0.lnk"
+            Call un.ResolveItemLocation
+            ${If} ${FileExists} "$ITEM_LOCATION"
+              Delete "$ITEM_LOCATION"
+            ${EndIf}
+          ${EndUnless}
         ${EndIf}
-      ${EndIf}
+
+      ${EndUnless}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
 
