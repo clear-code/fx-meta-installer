@@ -1387,31 +1387,31 @@ Function "InstallShortcut"
 
     ${ReadINIStrWithDefault} $UPDATE_PINNED_SHORTCUTS "${INIPATH}" "${INSTALLER_NAME}" "UpdatePinnedShortcuts" "${UPDATE_PINNED_SHORTCUTS}"
     ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "false"
-    ; Update shortcut in the start menu shortcut pinned by by the user
-    StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
-    StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
-    Call ResolveItemLocation
-    StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
-    ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
-      Delete "$SHORTCUT_WORK_PATH"
-      ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "delete"
-      CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-startmenu" "$SHORTCUT_NAME"
-      ${EndUnless}
-    ${EndIf}
+      ; Update shortcut in the start menu shortcut pinned by by the user
+      StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
+      StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$SHORTCUT_NAME.lnk"
+      Call ResolveItemLocation
+      StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
+      ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
+        Delete "$SHORTCUT_WORK_PATH"
+        ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "delete"
+          CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
+          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-startmenu" "$SHORTCUT_NAME"
+        ${EndUnless}
+      ${EndIf}
 
-    ; Update shortcut in the task bar shortcut pinned by by the user
-    StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
-    StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\$SHORTCUT_NAME.lnk"
-    Call ResolveItemLocation
-    StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
-    ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
-      Delete "$SHORTCUT_WORK_PATH"
-      ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "delete"
-      CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-taskbar" "$SHORTCUT_NAME"
-      ${EndUnless}
-    ${EndIf}
+      ; Update shortcut in the task bar shortcut pinned by by the user
+      StrCpy $SHORTCUT_FINAL_PATH "$ITEM_LOCATION"
+      StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\$SHORTCUT_NAME.lnk"
+      Call ResolveItemLocation
+      StrCpy $SHORTCUT_WORK_PATH "$ITEM_LOCATION"
+      ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
+        Delete "$SHORTCUT_WORK_PATH"
+        ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "delete"
+          CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
+          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-taskbar" "$SHORTCUT_NAME"
+        ${EndUnless}
+      ${EndIf}
     ${EndUnless}
 
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
