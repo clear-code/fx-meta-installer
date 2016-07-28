@@ -1875,18 +1875,18 @@ Section Uninstall
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
-        ${If} ${FileExists} "$INSTALLED_FILE"
-          ${If} ${FileExists} "$INSTALLED_FILE\*.*"
-            RMDir /r "$INSTALLED_FILE"
-          ${Else}
-            Delete "$INSTALLED_FILE"
-          ${EndIf}
-          ${If} ${Errors}
-          ${AndIf} ${FileExists} "$INSTALLED_FILE"
-            StrCpy $UNINSTALL_FAILED 1
-            ${Break}
-          ${EndIf}
+      ${If} ${FileExists} "$INSTALLED_FILE"
+        ${If} ${FileExists} "$INSTALLED_FILE\*.*"
+          RMDir /r "$INSTALLED_FILE"
+        ${Else}
+          Delete "$INSTALLED_FILE"
         ${EndIf}
+        ${If} ${Errors}
+        ${AndIf} ${FileExists} "$INSTALLED_FILE"
+          StrCpy $UNINSTALL_FAILED 1
+          ${Break}
+        ${EndIf}
+      ${EndIf}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
 
