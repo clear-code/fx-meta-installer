@@ -1396,7 +1396,6 @@ Function "InstallShortcut"
         Delete "$SHORTCUT_WORK_PATH"
         ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "delete"
           CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
-          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-startmenu" "$SHORTCUT_NAME"
         ${EndUnless}
       ${EndIf}
 
@@ -1409,7 +1408,6 @@ Function "InstallShortcut"
         Delete "$SHORTCUT_WORK_PATH"
         ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "delete"
           CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
-          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-taskbar" "$SHORTCUT_NAME"
         ${EndUnless}
       ${EndIf}
     ${EndUnless}
@@ -1889,29 +1887,6 @@ Section Uninstall
             ${Break}
           ${EndIf}
         ${EndIf}
-
-        ${un.GetParameters} $0
-        ${un.GetOptions} "$0" "/AddonOnly" $1
-        ${If} ${Errors}
-          ReadRegStr $0 HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-startmenu"
-          ${Unless} "$0" == ""
-            StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu\$0.lnk"
-            Call un.ResolveItemLocation
-            ${If} ${FileExists} "$ITEM_LOCATION"
-              Delete "$ITEM_LOCATION"
-            ${EndIf}
-          ${EndUnless}
-
-          ReadRegStr $0 HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX-taskbar"
-          ${Unless} "$0" == ""
-            StrCpy $ITEM_LOCATION "%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\$0.lnk"
-            Call un.ResolveItemLocation
-            ${If} ${FileExists} "$ITEM_LOCATION"
-              Delete "$ITEM_LOCATION"
-            ${EndIf}
-          ${EndUnless}
-        ${EndIf}
-
       ${EndUnless}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
