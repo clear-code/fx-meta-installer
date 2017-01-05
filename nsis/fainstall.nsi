@@ -1487,6 +1487,7 @@ Function InstallAdditionalFiles
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cer.override" "InstallNormalFile"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.crt.override" "InstallNormalFile"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.pem.override" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.permissions" "InstallNormalFile"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"

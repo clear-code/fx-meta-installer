@@ -66,6 +66,7 @@ resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向
   ・*.cer, *.pem, *.crt,
     *.cer.override, *.pem.override, *.crt.override
                   ：%AppDir%\defaults\ にインストールされる。（certimporter用）
+  ・*.permissions ：%AppDir%\defaults\ にインストールされる。
   ・*.xpt         ：%AppDir%\components\ にインストールされる。
   ・*.dll         ：%AppDir%\plugins\ にインストールされる。
                     （Firefoxの場合は %AppDir%\browser\plugins にも
