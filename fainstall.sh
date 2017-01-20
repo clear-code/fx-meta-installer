@@ -9,19 +9,19 @@
 # 使用方法:
 #  1. メタインストーラのファイル群（fainstall.ini、resources
 #     など）をインストール対象のLinux環境にコピーする。
-#     例えば /tmp/FxMetaInstaller-soruce など。
+#     例えば /tmp/FxMetaInstaller-source など。
 #
-#       % scp -r fileserver:/shared/FxMetaInstaller-soruce /tmp/
+#       % scp -r fileserver:/shared/FxMetaInstaller-source /tmp/
 #
 #  2. このスクリプトをメタインストーラのディレクトリ
 #     （fainstall.ini があるディレクトリ）に設置する。
-#     例えば /tmp/FxMetaInstaller-soruce/fainstall.sh など。
+#     例えば /tmp/FxMetaInstaller-source/fainstall.sh など。
 #
-#       % scp fainstall.sh /tmp/FxMetaInstaller-soruce/
+#       % scp fainstall.sh /tmp/FxMetaInstaller-source/
 #
 #  3. 2.でスクリプトをコピーした先のディレクトリに cd する。
 #
-#       % cd /tmp/FxMetaInstaller-soruce
+#       % cd /tmp/FxMetaInstaller-source
 #
 #  4. 2.でコピーした fainstall.sh を管理者権限で実行する。
 #
