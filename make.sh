@@ -89,6 +89,7 @@ Installers=$(read_config "EXTRA_INSTALLERS")
 Shortcuts=$(read_config "EXTRA_SHORTCUTS")
 FxEnabledSearchPlugins=$(read_config "FX_ENABLED_SEARCH_PLUGINS")
 FxDisabledSearchPlugins=$(read_config "FX_DISABLEd_SEARCH_PLUGINS")
+;AppIsESR=true
 
 EOS
 
