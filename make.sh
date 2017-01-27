@@ -107,6 +107,7 @@ do
     echo "id = $addon_id"
     echo "AddonId=$addon_id" >> $inifile
     echo "TargetLocation=%AppDir%/browser/extensions" >> $inifile
+    echo "Unpack=false" >> $inifile
     echo "" >> $inifile
   fi
 done
