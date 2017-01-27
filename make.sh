@@ -106,6 +106,7 @@ do
     addon_id=`echo $install_rdf | $sed "s%(em:id=['\"]|<em:id>)([^'\"<]+).*%\1\2%g" | $sed "s%.*(em:id=['\"]|<em:id>)%%"`
     echo "id = $addon_id"
     echo "AddonId=$addon_id" >> $inifile
+    echo "TargetLocation=%AppDir%/browser/extensions" >> $inifile
     echo "" >> $inifile
   fi
 done
