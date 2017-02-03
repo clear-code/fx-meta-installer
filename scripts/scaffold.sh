@@ -7,7 +7,7 @@ project_root="${base_dir}/../"
 project_name="$1"
 
 if [ "${project_name}" = "" ]; then
-    echo "error: You must give project name via the first argument" 1>&2
+    echo "error: You must give project name via the first argument (like \"FxMetaInstaller\")" 1>&2
     exit 1
 fi
 
