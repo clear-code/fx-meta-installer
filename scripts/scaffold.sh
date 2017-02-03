@@ -17,11 +17,11 @@ add_blank_dir() {
 }
 
 fill_palceholders() {
-    local source_path=$1
-    local destination_dir=$2
-    local source_base_name=$(basename ${source_path})
-    local destination_path=${destination_dir}/${source_base_name}
-    sed -e "s/@PROJECT_NAME@/${project_name}/g" ${source_path} > ${destination_path}
+    local source_path="$1"
+    local destination_dir="$2"
+    local source_base_name="$(basename "${source_path}")"
+    local destination_path="${destination_dir}/${source_base_name}"
+    sed -e "s/@PROJECT_NAME@/${project_name}/g" "${source_path}" > "${destination_path}"
 }
 
 add_blank_dir resources
