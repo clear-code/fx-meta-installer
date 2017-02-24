@@ -1948,6 +1948,9 @@ Section Uninstall
     RMDir /r "$INSTDIR"
     DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
 
+    ; remove publisher directory when $PRODUCT_PUBLISHER is empty
+    RMDir "$PROGRAMFILES\${PRODUCT_PUBLISHER}"
+
     ${If} "$UNINSTALL_FAILED" == "1"
       MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_UNINST_ERROR)" /SD IDOK
     ${EndIf}
