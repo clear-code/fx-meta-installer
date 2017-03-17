@@ -933,7 +933,7 @@ TaskbarShortcut：（省略可能）
   true：タスクバーにショートカットを作成する。
   false：タスクバーにショートカットを作成しない。
   省略時はtrueとして扱う。
-  （この指定はFirefox 52以降でのみ利用できる。Firefox 45以前ではタスクバー
+  （この指定はFirefox 47以降でのみ利用できる。Firefox 46以前ではタスクバー
     のショートカットは作成されない）
 MaintenanceService：（省略可能）
   Mozilla Maintenance Serviceのインストールを行うかどうか。
