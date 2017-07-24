@@ -63,8 +63,8 @@ resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向
   ・*.ico         ：%AppDir%\chrome\icons\default\ および
                     %AppDir%\browser\chrome\icons\default\main-window.ico
                     にインストールされる。
-  ・*.cer, *.pem, *.crt,
-    *.cer.override, *.pem.override, *.crt.override
+  ・*.cer, *.pem, *.crt, *.der,
+    *.cer.override, *.pem.override, *.crt.override, *.der.override
                   ：%AppDir%\defaults\ にインストールされる。（certimporter用）
   ・*.permissions ：%AppDir%\defaults\ にインストールされる。
   ・*.xpt         ：%AppDir%\components\ にインストールされる。
