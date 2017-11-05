@@ -48,9 +48,9 @@ environments at first.
 
 #### Linux (Debian, Ubuntu)
 
- 1. Install required packages "nsis" and "pwgen".
+ 1. Install required packages "nsis", "pwgen" and "uuid-runtime".
 
-        $ sudo apt-get install nsis pwgen
+        $ sudo apt-get install nsis pwgen uuid-runtime
 
  2. Install plugins. Download zip files, decompress them,
     move "*.dll" files to "/usr/share/nsis/Plugins/", and
