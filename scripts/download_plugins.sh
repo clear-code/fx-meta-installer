@@ -25,7 +25,7 @@ for url in $URI; do
 done
 if [ "$1" = "install" ]; then
     cd plugins
-    ls *.zip | sed -e 's/\.zip$//' | xargs -i unzip -f {}.zip -d {}
+    ls *.zip | sed -e 's/\.zip$//' | xargs -i unzip -u {}.zip -d {}
     find . -name "*.dll" | grep -v -i "unicode" | sudo xargs mv -t /usr/share/nsis/Plugins/
     find . -name "*.nsh" | sudo xargs mv -t /usr/share/nsis/Include/
 fi
