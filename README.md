@@ -78,7 +78,7 @@ environments at first.
 
  3. install GNU origin commands.
 
-        $ brew instal gnu-tar coreutils
+        $ brew install gnu-tar coreutils
 
 ### Preparing configuration files and resources
 
