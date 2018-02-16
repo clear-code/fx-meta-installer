@@ -113,7 +113,7 @@ This repository includes binaries of 7-Zip self extraction: 7zSD.sfx and
 7zS.sfx. You can update them by following steps:
 
  1. Download new self extraction binaries (7zSD.sfx and 7zS.sfx).
-    Go to the [download page in the 7-Zip project site](http://www.7-zip.org/ja/download.html)
+    Go to the [download page in the 7-Zip project site](http://www.7-zip.org/download.html)
     and extract binaries.
  2. Replace old .sfx files with new one.
  3. Replace icon resources in those .sfx files with fainstal.ico, by
