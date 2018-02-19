@@ -1743,6 +1743,7 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
     StrCpy $DIST_PATH   "${APP_DISTRIBUTION_DIR}"
     StrCpy $DIST_DIR "$DIST_PATH"
     ${If} ${FileExists} "$RES_DIR\distribution.*"
+    ${OrIf} ${FileExists} "$RES_DIR\policies.json"
       CreateDirectory "$DIST_PATH"
       ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
 
@@ -1751,6 +1752,7 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       ; removed with the parent folder stored as "InstalledDistributonCustomizer".
       StrCpy $ITEM_INDEX -1
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=distribution.*" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=policies.json" "InstallNormalFile"
     ${EndIf}
 SectionEnd
 

@@ -47,6 +47,8 @@ resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向
   ・override.ini  ：%AppDir%\ にインストールされる。
                     （Firefoxの場合は %AppDir%\browser にもインストールされる。）
   ・*.properties  ：%AppDir%\ にインストールされる。（*.jsなどからの参照用）
+  ・distribution.ini, policies.json
+                  ：%AppDir%\distribution\ にインストールされる。
   ・bookmarks.html：新規プロファイルの初期ブックマークの内容として
                     %AppDir%\defaults\profile\ および
                     %AppDir%\browser\defaults\profile\ にインストールされる。
