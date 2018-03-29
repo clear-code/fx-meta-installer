@@ -178,6 +178,7 @@ Firefox/Thunderbirdのインストールに関する設定
 レジストリキー                     | APP_KEY                    |
 対応する最小のバージョン           | APP_MIN_VERSION            | AppMinVersion
 対応する最大のバージョン           | APP_MAX_VERSION            | AppMaxVersion
+64bit版かどうか                    | APP_IS_64BIT               | AppIs64bit
 ESR版かどうか                      | APP_IS_ESR                 | AppIsESR
 Developer Editionかどうか          | APP_IS_DEV_EDITION         | AppIsDevEdition
 ダウングレードの可否               | APP_ALLOW_DOWNGRADE        | AppAllowDowngrade
@@ -433,12 +434,20 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
                              うなワイルドカードは利用できない。その場合は代わ
                              りとして「2.0.0.99」を用いる。
   デフォルト値             ：なし。
+■■64bit版かどうか（省略可能）
+  config.nshでの設定キー   ：APP_IS_64BIT
+  fainstall.iniでの設定キー：[fainstall] > AppIs64bit
+　説明                     ：インストール対象のFirefoxが64bit版かどうかを示す。
+　取り得る値               ：APP_IS_64BITを定義すると真、未定義だと偽。
+　                           AppIs64bitは、true/falseのいずれかで
+　                           指定する。
+  デフォルト値             ：false
 ■■ESR版かどうか（省略可能）
   config.nshでの設定キー   ：APP_IS_ESR
   fainstall.iniでの設定キー：[fainstall] > AppIsESR
 　説明                     ：インストール対象のFirefoxがESR版かどうかを示す。
 　取り得る値               ：APP_IS_ESRを定義すると真、未定義だと偽。
-　                           AppIsESRは、true/false/yes/no/1/0のいずれかで
+　                           AppIsESRは、true/falseのいずれかで
 　                           指定する。
   デフォルト値             ：false
 ■■Developer Editionかどうか（省略可能）
@@ -447,7 +456,7 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
 　説明                     ：インストール対象のFirefoxがDeveloper Editionか
                              どうかを示す。
 　取り得る値               ：APP_IS_DEV_EDITIONを定義すると真、未定義だと偽。
-　                           AppIsDevEditionは、true/false/yes/no/1/0のいずれ
+　                           AppIsDevEditionは、true/falseのいずれ
                              かで指定する。
   デフォルト値             ：false
 ■■ダウングレードの可否（省略可能）
@@ -458,7 +467,7 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
 　                           ション自体の上書きインストール（ダウングレード）
 　                           を試みるかどうか。
 　取り得る値               ：APP_ALLOW_DOWNGRADEを定義すると真、未定義だと偽。
-　                           AppAllowDownguradeは、true/false/yes/no/1/0の
+　                           AppAllowDownguradeは、true/falseの
 　                           いずれかで指定する。
   デフォルト値             ：false
 ■■インストーラの設置場所のパス（省略可能）

@@ -106,6 +106,7 @@ ${DefineDefaultValue} APP_DOWNLOAD_URL  ""
 ${DefineDefaultValue} APP_EULA_URL      ""
 ${DefineDefaultValue} APP_APP_HASH      ""
 ${DefineDefaultValue} APP_INSTALL_MODE  "QUIET"
+${DefineDefaultValue} APP_IS_64BIT      "false"
 
 ${DefineDefaultValue} FX_ENABLED_SEARCH_PLUGINS  "*"
 ${DefineDefaultValue} FX_DISABLED_SEARCH_PLUGINS ""
@@ -306,6 +307,8 @@ Var APP_MIN_VERSION
 Var APP_ALLOW_DOWNGRADE
 Var APP_EULA_DL_FAILED
 Var APP_WRONG_VERSION
+Var APP_IS_64BIT
+Var APP_PROGRAMFILES
 
 Var PROCESSING_FILE
 Var RES_DIR
@@ -484,6 +487,13 @@ Section "Initialize Variables" InitializeVariables
     !ifdef NSIS_CONFIG_LOG
       LogSet on
     !endif
+
+    ${ReadINIStrWithDefault} $APP_IS_64BIT "${INIPATH}" "${INSTALLER_NAME}" "AppIs64bit" "${APP_IS_64BIT}"
+    ${If} "$APP_IS_64BIT" == "true"
+      StrCpy $APP_PROGRAMFILES "$PROGRAMFILES64"
+    ${Else}
+      StrCpy $APP_PROGRAMFILES "$PROGRAMFILES32"
+    ${EndIf}
 
     !if ${APP_INSTALL_MODE} == "SKIP"
       Call GetAppPath
@@ -1770,6 +1780,7 @@ Section -Post
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersionsRootRegKey"  "$APP_VERSIONS_ROOT_REG_KEY"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion" "$APP_VERSION"
     ${EndIf}
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "AppIs64bit" "$APP_IS_64BIT"
 SectionEnd
 
 Section "Show Finish Message" ShowFinishMessage
@@ -2112,7 +2123,7 @@ Function CheckAdminPrivilege
     ; check by file writing
     ${ReadINIStrWithDefault} $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory" "${ADMIN_CHECK_DIR}"
     Call ResolveItemLocation
-    ${IfThen} "$ITEM_LOCATION" == "" ${|} StrCpy $ITEM_LOCATION "$PROGRAMFILES" ${|}
+    ${IfThen} "$ITEM_LOCATION" == "" ${|} StrCpy $ITEM_LOCATION "$APP_PROGRAMFILES" ${|}
     ${Unless} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\_${INSTALLER_NAME}.lock"
       ${If} ${FileExists} "$ITEM_LOCATION"
@@ -2250,6 +2261,7 @@ Function GetCurrentAppRegKey
 FunctionEnd
 
 Function un.GetCurrentAppRegKey
+  ReadRegStr $APP_IS_64BIT HKLM "${PRODUCT_UNINST_KEY}" "AppIs64bit"
   ReadRegStr $APP_REG_KEY HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppRegKey"
   ReadRegStr $APP_VERSIONS_ROOT_REG_KEY HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersionsRootRegKey"
 FunctionEnd
@@ -2257,7 +2269,13 @@ FunctionEnd
 !macro GetCurrentAppVersion un
   Function ${un}GetCurrentAppVersion
     Call ${un}GetCurrentAppRegKey
+    ${If} "$APP_IS_64BIT" == "true"
+      SetRegView 64
+    ${EndIf}
     ReadRegStr $APP_VERSION HKLM "$APP_REG_KEY" "CurrentVersion"
+    ${If} "$APP_IS_64BIT" == "true"
+      SetRegView 32
+    ${EndIf}
   FunctionEnd
 !macroend
 !insertmacro GetCurrentAppVersion ""
@@ -2279,7 +2297,13 @@ Function GetAppPath
     StrCpy $0 "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main"
 
     ; EXE path
+    ${If} "$APP_IS_64BIT" == "true"
+      SetRegView 64
+    ${EndIf}
     ReadRegStr $APP_EXE_PATH HKLM $0 "PathToExe"
+    ${If} "$APP_IS_64BIT" == "true"
+      SetRegView 32
+    ${EndIf}
     ${IfThen} "$APP_EXE_PATH" == "" ${|} GoTo ERR ${|}
 
     !ifdef NSIS_CONFIG_LOG
@@ -2287,7 +2311,13 @@ Function GetAppPath
     !endif
 
     ; Application directory
+    ${If} "$APP_IS_64BIT" == "true"
+      SetRegView 64
+    ${EndIf}
     ReadRegStr $APP_DIR HKLM $0 "Install Directory"
+    ${If} "$APP_IS_64BIT" == "true"
+      SetRegView 32
+    ${EndIf}
     ${IfThen} "$APP_DIR" == "" ${|} GoTo ERR ${|}
 
     !ifdef NSIS_CONFIG_LOG
@@ -2306,16 +2336,18 @@ Function GetAppPath
           StrCpy $APP_EXE_PATH "$APP_DIR\${APP_EXE}"
         ${EndIf}
       ${ElseIf} $INI_TEMP != ""
-        ${If} "$APP_DIR" != "$PROGRAMFILES\$INI_TEMP"
+        ${If} "$APP_DIR" != "$APP_PROGRAMFILES\$INI_TEMP"
           !ifdef NSIS_CONFIG_LOG
-            LogText "*** GetAppPath: APP_DIR must be $PROGRAMFILES\$INI_TEMP"
+            LogText "*** GetAppPath: APP_DIR must be $APP_PROGRAMFILES\$INI_TEMP"
           !endif
-          StrCpy $APP_DIR "$PROGRAMFILES\$INI_TEMP"
+          StrCpy $APP_DIR "$APP_PROGRAMFILES\$INI_TEMP"
           StrCpy $APP_EXE_PATH "$APP_DIR\${APP_EXE}"
         ${EndIf}
       ${EndIf}
     ${EndIf}
 
+;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+MessageBox MB_OK|MB_ICONEXCLAMATION "APP_EXE_PATH $APP_EXE_PATH APP_DIR $APP_DIR" /SD IDOK
     ${If} ${FileExists} "$APP_EXE_PATH"
       ${If} ${FileExists} "$APP_DIR"
       ${OrIf} ${FileExists} "$APP_DIR\*.*"
