@@ -2346,8 +2346,6 @@ Function GetAppPath
       ${EndIf}
     ${EndIf}
 
-;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-MessageBox MB_OK|MB_ICONEXCLAMATION "APP_EXE_PATH $APP_EXE_PATH APP_DIR $APP_DIR" /SD IDOK
     ${If} ${FileExists} "$APP_EXE_PATH"
       ${If} ${FileExists} "$APP_DIR"
       ${OrIf} ${FileExists} "$APP_DIR\*.*"
