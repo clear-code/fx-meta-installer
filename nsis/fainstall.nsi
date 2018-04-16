@@ -1893,7 +1893,6 @@ Function un.onUninstSuccess
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
       ${IfThen} "$APP_DIR" == "" ${|} GoTo RETURN ${|}
 
-      ${If} ${FileExists} "$APP_DIR\uninstall\install_wizard*.log"
       ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
         !if ${APP_INSTALL_MODE} != "SKIP"
           !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
