@@ -148,14 +148,6 @@ ${DefineDefaultValue} CONFIRM_RESTART_TITLE   ""
   !define APP_KEY_DEV "Mozilla\${APP_FULL_NAME}"
   !define APP_DIRECTORY_NAME "${APP_FULL_NAME}"
   !define APP_PROFILE_PATH "$APPDATA\Thunderbird"
-!else if ${APP_NAME} == "Netscape"
-  !define APP_EXE "Netscp.exe"
-  !define APP_FULL_NAME "Netscape"
-  !define APP_KEY "Netscape\${APP_FULL_NAME}"
-  !define APP_KEY_ESR "Netscape\${APP_FULL_NAME}"
-  !define APP_KEY_DEV "Netscape\${APP_FULL_NAME}"
-  !define APP_DIRECTORY_NAME "${APP_FULL_NAME}"
-  !define APP_PROFILE_PATH "$APPDATA\Mozilla\Netscape"
 !endif
 !endif
 
@@ -238,9 +230,6 @@ ${DefineDefaultValue} APP_DIRECTORY_NAME "${APP_NAME}"
 
 !define SILENT_INSTALL_OPTIONS "-ms -ira -ispf"
 ; -ms   : silent install (ignore INI files)
-; -ma   : automatic install (show progress meter, for Netscape)
-; -ira  : prevent to start the application after installation, for Netscape)
-; -ispf : prevent to open the folder in the start menu, for Netscape)
 
 !define SEPARATOR "|"
 
@@ -289,14 +278,6 @@ Var SHORTCUT_PATH_DESKTOP
 Var SHORTCUT_PATH_STARTMENU
 Var SHORTCUT_PATH_STARTMENU_PROGRAM
 Var SHORTCUT_PATH_QUICKLAUNCH
-!if ${APP_NAME} == "Netscape"
-  Var EXISTS_SHORTCUT_DESKTOP_IM
-  Var EXISTS_SHORTCUT_DESKTOP_MAIL
-  Var EXISTS_SHORTCUT_QUICKLAUNCH_MAIL
-  Var SHORTCUT_PATH_DESKTOP_IM
-  Var SHORTCUT_PATH_DESKTOP_MAIL
-  Var SHORTCUT_PATH_QUICKLAUNCH_MAIL
-!endif
 Var APP_INSTALLER_PATH
 Var APP_INSTALLER_INI
 Var APP_EXISTS
@@ -661,11 +642,7 @@ FunctionEnd
           LogText "*** InstallApp: Let's run installer"
         !endif
         ${If} ${FileExists} "$APP_INSTALLER_INI"
-          !if ${APP_NAME} == "Netscape"
-            ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
-          !else
             ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
-          !endif
         ${Else}
           !if ${APP_INSTALL_MODE} == "QUIET"
             ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
@@ -736,13 +713,8 @@ Function "CheckShortcutsExistence"
       ReadINIStr $SHORTCUT_NAME "$APP_INSTALLER_INI" "Install" "ShortcutName"
       ReadINIStr $PROGRAM_FOLDER_NAME "$APP_INSTALLER_INI" "Install" "StartMenuDirectoryName"
     ${EndIf}
-    !if ${APP_NAME} == "Netscape"
-      ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "$SHORTCUT_DEFAULT_NAME" ${|}
-      ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "$PROGRAM_FOLDER_DEFAULT_NAME" ${|}
-    !else
       ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "${APP_FULL_NAME}" ${|}
       ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "${APP_FULL_NAME}" ${|}
-    !endif
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** SHORTCUT_NAME : $SHORTCUT_NAME"
@@ -772,24 +744,6 @@ Function "CheckShortcutsExistence"
       LogText "*** EXISTS_SHORTCUT_STARTMENU_PROGRAM : $EXISTS_SHORTCUT_STARTMENU_PROGRAM"
       LogText "*** EXISTS_SHORTCUT_QUICKLAUNCH       : $EXISTS_SHORTCUT_QUICKLAUNCH"
     !endif
-
-    !if ${APP_NAME} == "Netscape"
-      SetShellVarContext all
-      StrCpy $SHORTCUT_PATH_DESKTOP_IM "$DESKTOP\Instant Messenger.lnk"
-      ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_IM "1" ${|}
-      StrCpy $SHORTCUT_PATH_DESKTOP_MAIL "$DESKTOP\Netscape Mail & Newsgroups.lnk"
-      ${IfThen} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_DESKTOP_MAIL "1" ${|}
-
-      SetShellVarContext current
-      StrCpy $SHORTCUT_PATH_QUICKLAUNCH_MAIL "$QUICKLAUNCH\Netscape Mail & Newsgroups.lnk"
-      ${IfThen} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL" ${|} StrCpy $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL "1" ${|}
-
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** EXISTS_SHORTCUT_DESKTOP_IM        : $EXISTS_SHORTCUT_DESKTOP_IM"
-        LogText "*** EXISTS_SHORTCUT_DESKTOP_MAIL      : $EXISTS_SHORTCUT_DESKTOP_MAIL"
-        LogText "*** EXISTS_SHORTCUT_QUICKLAUNCH_MAIL  : $EXISTS_SHORTCUT_QUICKLAUNCH_MAIL"
-      !endif
-    !endif
 FunctionEnd
 
 Function "UpdateShortcutsExistence"
@@ -811,25 +765,6 @@ Function "UpdateShortcutsExistence"
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP"
           Delete "$SHORTCUT_PATH_DESKTOP"
         ${EndIf}
-
-        !if ${APP_NAME} == "Netscape"
-          ${If} "$EXISTS_SHORTCUT_DESKTOP_IM" == ""
-          ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_IM"
-            Delete "$SHORTCUT_PATH_DESKTOP_IM"
-          ${EndIf}
-          ${If} "$EXISTS_SHORTCUT_DESKTOP_MAIL" == ""
-          ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP_MAIL"
-            Delete "$SHORTCUT_PATH_DESKTOP_MAIL"
-          ${EndIf}
-        !endif
-    !if ${APP_NAME} == "Netscape"
-      ${Else}
-        SetShellVarContext all
-        ${If} ${FileExists} "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk"
-          Rename "$DESKTOP\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_DESKTOP"
-        ${EndIf}
-        SetShellVarContext current
-    !endif
       ${EndIf}
 
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "StartMenuShortcuts"
@@ -845,15 +780,6 @@ Function "UpdateShortcutsExistence"
         ${OrIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU_PROGRAM\*.*"
           ${IfThen} "$EXISTS_SHORTCUT_STARTMENU_PROGRAM" == "" ${|} RMDir /r "$SHORTCUT_PATH_STARTMENU_PROGRAM" ${|}
         ${EndIf}
-    !if ${APP_NAME} == "Netscape"
-      ${Else}
-        SetShellVarContext all
-        ${If} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME"
-        ${OrIf} ${FileExists} "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME\*.*"
-          Rename "$SMPROGRAMS\$PROGRAM_FOLDER_DEFAULT_NAME" "$SHORTCUT_PATH_STARTMENU_PROGRAM"
-        ${EndIf}
-        SetShellVarContext current
-    !endif
       ${EndIf}
 
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcutAllUsers"
@@ -880,19 +806,6 @@ Function "UpdateShortcutsExistence"
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH"
           Delete "$SHORTCUT_PATH_QUICKLAUNCH"
         ${EndIf}
-        !if ${APP_NAME} == "Netscape"
-          ${If} "$EXISTS_SHORTCUT_QUICKLAUNCH_MAIL" == ""
-          ${AndIf} ${FileExists} "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
-            Delete "$SHORTCUT_PATH_QUICKLAUNCH_MAIL"
-          ${EndIf}
-        !endif
-    !if ${APP_NAME} == "Netscape"
-      ${Else}
-        SetShellVarContext current
-        ${If} ${FileExists} "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk"
-          Rename "$QUICKLAUNCH\$SHORTCUT_DEFAULT_NAME.lnk" "$SHORTCUT_PATH_QUICKLAUNCH"
-        ${EndIf}
-    !endif
       ${EndIf}
     ${EndIf}
 FunctionEnd
@@ -1550,10 +1463,6 @@ Function InstallAdditionalFiles
       StrCpy $DIST_DIR "$APP_DIR\browser\plugins"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
     !endif
-
-    !if ${APP_NAME} == "Netscape"
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=installed-chrome.txt" "AppendTextFile"
-    !endif
 FunctionEnd
 
 Function "InstallNormalFile"
@@ -1613,48 +1522,6 @@ Function "InstallNormalFile"
   RETURN:
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
-
-!if ${APP_NAME} == "Netscape"
-  Function "AppendTextFile"
-      !ifdef NSIS_CONFIG_LOG
-        LogSet on
-      !endif
-
-      StrCpy $PROCESSING_FILE "$R7"
-      StrCpy $DIST_PATH "$DIST_DIR\$PROCESSING_FILE"
-      ${If} ${FileExists} "$DIST_PATH"
-        StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
-        StrCpy $BACKUP_COUNT 0
-        ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
-          IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
-          StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
-        ${EndWhile}
-        CopyFiles /SILENT "$DIST_PATH" "$BACKUP_PATH"
-        WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup" "$BACKUP_PATH"
-      ${EndIf}
-
-      ClearErrors
-      FileOpen $DIST_FILE "$DIST_PATH" a
-      FileOpen $PROCESSING_FILE "$RES_DIR\$PROCESSING_FILE" r
-      MOVE_TO_END:
-        FileRead $DIST_FILE $1
-        IfErrors READ_AND_WRITE
-        GoTo MOVE_TO_END
-      READ_AND_WRITE:
-        FileRead $PROCESSING_FILE $1
-        FileWrite $DIST_FILE "$1$\n"
-        IfErrors END_WRITE
-        GoTo READ_AND_WRITE
-      END_WRITE:
-      FileClose $DIST_FILE
-      FileClose $PROCESSING_FILE
-
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
-      IntOp $ITEM_INDEX $ITEM_INDEX + 1
-
-      Push $R0
-  FunctionEnd
-!endif
 
 Section "Initialize Search Plugins" InitSearchPlugins
     !ifdef NSIS_CONFIG_LOG
@@ -2026,28 +1893,17 @@ Function un.onUninstSuccess
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
       ${IfThen} "$APP_DIR" == "" ${|} GoTo RETURN ${|}
 
-    !if ${APP_NAME} == "Netscape"
       ${If} ${FileExists} "$APP_DIR\uninstall\install_wizard*.log"
-    !else
       ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
-    !endif
         !if ${APP_INSTALL_MODE} != "SKIP"
           !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
             MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES +2
             GoTo SKIP_APP_UNINSTALLATION
           !endif
           !if ${APP_INSTALL_MODE} == "QUIET"
-            !if ${APP_NAME} == "Netscape"
-              ExecWait `"$APP_DIR\uninstall\NSUninst.exe" -ms`
-            !else
               ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
-            !endif
           !else
-            !if ${APP_NAME} == "Netscape"
-              ExecWait "$APP_DIR\uninstall\NSUninst.exe"
-            !else
               ExecWait "$APP_DIR\uninstall\helper.exe"
-            !endif
           !endif
         !endif
         SKIP_APP_UNINSTALLATION:
@@ -2164,7 +2020,7 @@ Function CheckInstalled
         !ifdef NSIS_CONFIG_LOG
           LogText "CheckInstalled: Application is installed by meta installer"
         !endif
-        ; If the Firefox/Thunderbird/Netscape is installed by this meta installer,
+        ; If the Firefox/Thunderbird is installed by this meta installer,
         ; then we should keep the state.
         ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
         ${IfThen} "$APP_VERSION" != "" ${|} StrCpy $APP_INSTALLED "1" ${|}
