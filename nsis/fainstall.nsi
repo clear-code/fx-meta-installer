@@ -1891,8 +1891,11 @@ Function un.onUninstSuccess
       ${IfThen} "$APP_VERSION" == "" ${|} GoTo RETURN ${|}
       StrCpy $0 "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main"
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
-      ${IfThen} "$APP_DIR" == "" ${|} GoTo RETURN ${|}
+      ${IfThen} "$APP_DIR" != "" ${|} call un.UninstallApp ${|}
+    ${EndIf}
+FunctionEnd
 
+Function un.UninstallApp
       ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
         !if ${APP_INSTALL_MODE} != "SKIP"
           !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
@@ -1909,7 +1912,6 @@ Function un.onUninstSuccess
       ${EndIf}
 
       RETURN:
-    ${EndIf}
 FunctionEnd
 
 ;=== Utility functions
