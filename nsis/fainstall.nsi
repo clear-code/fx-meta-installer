@@ -627,6 +627,21 @@ FunctionEnd
       ${EndUnless}
   SectionEnd
 
+  Section "Cleanup Before Installation" CleanupBeforeInstall
+      ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupCommands"
+      ${Unless} "$ITEMS_LIST" == ""
+        StrCpy $ITEMS_LIST_INDEX 0
+        ${While} 1 == 1
+          IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+          ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+          ${If} $ITEMS_LIST_INDEX > 1
+            ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
+          ${EndIf}
+          ExecWait `$ITEM_NAME`
+        ${EndWhile}
+      ${EndUnless}
+  SectionEnd
+
   Section "Install Application" InstallApp
       !ifdef NSIS_CONFIG_LOG
         LogSet on
