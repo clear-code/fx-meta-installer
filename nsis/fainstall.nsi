@@ -1888,7 +1888,6 @@ Function un.onUninstSuccess
     ${un.GetOptions} "$0" "/AddonOnly" $1
     ${If} ${Errors}
     ${AndIf} "$APP_VERSION" != ""
-      ${IfThen} "$APP_VERSION" == "" ${|} GoTo RETURN ${|}
       StrCpy $0 "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main"
       ReadRegStr $APP_DIR HKLM $0 "Install Directory"
       ${IfThen} "$APP_DIR" != "" ${|} call un.UninstallApp ${|}
