@@ -190,6 +190,7 @@ Developer Editionかどうか          | APP_IS_DEV_EDITION         | AppIsDevEd
 既定のクライアントに設定する       | DEFAULT_CLIENT             | DefaultClient
 Firefoxで有効化する検索エンジン    | FX_ENABLED_SEARCH_PLUGINS  | FxEnabledSearchPlugins
 Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | FxDisabledSearchPlugins
+インストール前のクリーンアップ操作 | APP_CLEANUP_COMMANDS       | AppCleanupCommands
 クリーンインストールの要求         | CLEAN_INSTALL              | 以下の4つの設定により変化
 クリーンインストール要求メッセージ | CLEAN_REQUIRED_MESSAGE     | CleanInstallRequiredMessage
 クリーンインストール要求タイトル   | CLEAN_REQUIRED_TITLE       | CleanInstallRequiredTitle
@@ -560,6 +561,18 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
 　取り得る値               ：Googleを無効化する場合の例。
 　                           "google-jp.xml"
   デフォルト値             ：""
+■■インストール前のクリーンアップ操作 （省略可能）
+  config.nshでの設定キー   ：APP_CLEANUP_COMMANDS
+  fainstall.iniでの設定キー：[fainstall] > AppCleanupCommands
+　説明                     ：インストール処理を始める前に実行するコマンド列のリスト（「|」区切り）。
+                             無指定の場合、何もしない。
+                             コマンド列は前のコマンドの実行の成否に関わらずすべてが順番に実行される。
+　取り得る値               ："C:\Program Files\Mozilla Firefox\uninstaller\helper.exe" /S|"C:\Program Files\Nightly\uninstaller\helper.exe" /S
+  デフォルト値             ：""
+  注意点                   ：実行ファイルのパスに空白が含まれる場合、上記の例のように二重引用符で括る必要がある。
+                             また、fainstall.iniで「AppCleanupCommands=〜」として記載する場合で二重引用符を使う際は、
+                             「AppCleanupCommands=""C:\Path To Exe\app1.exe" /S|"C:\Path To Exe\app2.exe" /S"」
+                             のように全体も二重引用符で括る。（でないと、登場する最初と最後の二重引用符が取り除かれてしまう）
 ■■クリーンインストールの要求（省略可能）
   config.nshでの設定キー   ：CLEAN_INSTALL
   fainstall.iniでの設定キー：なし。ただし、
