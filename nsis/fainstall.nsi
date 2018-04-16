@@ -642,7 +642,7 @@ FunctionEnd
           LogText "*** InstallApp: Let's run installer"
         !endif
         ${If} ${FileExists} "$APP_INSTALLER_INI"
-            ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
+          ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
         ${Else}
           !if ${APP_INSTALL_MODE} == "QUIET"
             ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
@@ -713,8 +713,8 @@ Function "CheckShortcutsExistence"
       ReadINIStr $SHORTCUT_NAME "$APP_INSTALLER_INI" "Install" "ShortcutName"
       ReadINIStr $PROGRAM_FOLDER_NAME "$APP_INSTALLER_INI" "Install" "StartMenuDirectoryName"
     ${EndIf}
-      ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "${APP_FULL_NAME}" ${|}
-      ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "${APP_FULL_NAME}" ${|}
+    ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "${APP_FULL_NAME}" ${|}
+    ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "${APP_FULL_NAME}" ${|}
 
     !ifdef NSIS_CONFIG_LOG
       LogText "*** SHORTCUT_NAME : $SHORTCUT_NAME"
@@ -1901,9 +1901,9 @@ Function un.onUninstSuccess
             GoTo SKIP_APP_UNINSTALLATION
           !endif
           !if ${APP_INSTALL_MODE} == "QUIET"
-              ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
+            ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
           !else
-              ExecWait "$APP_DIR\uninstall\helper.exe"
+            ExecWait "$APP_DIR\uninstall\helper.exe"
           !endif
         !endif
         SKIP_APP_UNINSTALLATION:
