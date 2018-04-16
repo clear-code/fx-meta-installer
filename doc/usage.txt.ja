@@ -15,7 +15,6 @@
 ・Mozilla Thunderbird 3.0.x
 ・Mozilla Thunderbird 3.1.x
 ・Mozilla Thunderbird 10.x
-・Netscape 7.x
 
 ■Mozillaアプリケーションの自動インストールの概要
 
@@ -391,7 +390,6 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
 　取り得る値               ：
     Firefox    ：Mozilla Firefox
     Thunderbird：Mozilla Thunderbird
-    Netscape   ：Netscape 7.x
   デフォルト値             ：なし。
 ■■実行ファイル名（省略可能）
   config.nshでの設定キー   ：APP_EXE
