@@ -1895,22 +1895,20 @@ Function un.onUninstSuccess
 FunctionEnd
 
 Function un.UninstallApp
-      ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
-        !if ${APP_INSTALL_MODE} != "SKIP"
-          !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
-            MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES +2
-            GoTo SKIP_APP_UNINSTALLATION
-          !endif
-          !if ${APP_INSTALL_MODE} == "QUIET"
-            ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
-          !else
-            ExecWait "$APP_DIR\uninstall\helper.exe"
-          !endif
+    ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
+      !if ${APP_INSTALL_MODE} != "SKIP"
+        !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
+          MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_APP_CONFIRM)" IDYES +2
+          GoTo SKIP_APP_UNINSTALLATION
         !endif
-        SKIP_APP_UNINSTALLATION:
-      ${EndIf}
-
-      RETURN:
+        !if ${APP_INSTALL_MODE} == "QUIET"
+          ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
+        !else
+          ExecWait "$APP_DIR\uninstall\helper.exe"
+        !endif
+      !endif
+      SKIP_APP_UNINSTALLATION:
+    ${EndIf}
 FunctionEnd
 
 ;=== Utility functions
