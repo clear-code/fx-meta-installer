@@ -107,6 +107,7 @@ ${DefineDefaultValue} APP_EULA_URL      ""
 ${DefineDefaultValue} APP_APP_HASH      ""
 ${DefineDefaultValue} APP_INSTALL_MODE  "QUIET"
 ${DefineDefaultValue} APP_IS_64BIT      "false"
+${DefineDefaultValue} APP_CLEANUP_COMMANDS ""
 
 ${DefineDefaultValue} FX_ENABLED_SEARCH_PLUGINS  "*"
 ${DefineDefaultValue} FX_DISABLED_SEARCH_PLUGINS ""
@@ -628,7 +629,7 @@ FunctionEnd
   SectionEnd
 
   Section "Cleanup Before Installation" CleanupBeforeInstall
-      ReadINIStr $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupCommands"
+      ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupCommands" "${APP_CLEANUP_COMMANDS}"
       ${Unless} "$ITEMS_LIST" == ""
         StrCpy $ITEMS_LIST_INDEX 0
         ${While} 1 == 1
