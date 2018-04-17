@@ -309,6 +309,9 @@ Var ITEM_INDEX
 Var ITEM_LOCATION
 Var ITEM_LOCATION_BASE
 
+Var MANIFEST_PATH
+Var MANIFEST_DIR
+
 Var REQUIRED_DIRECTORY
 Var CREATED_TOP_REQUIRED_DIRECTORY
 Var REQUIRED_DIRECTORIES
@@ -1148,6 +1151,7 @@ FunctionEnd
 
 Var ADDON_NAME
 Var UNPACK
+Var UNINSTALL
 Function "InstallAddon"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1179,6 +1183,7 @@ Function "InstallAddon"
     ${EndUnless}
 
     ReadINIStr $UNPACK "${INIPATH}" "$ITEM_NAME" "Unpack"
+    ReadINIStr $UNINSTALL "${INIPATH}" "$ITEM_NAME" "Uninstall"
 
     ${IsFalse} $R0 "$UNPACK"
     ${Unless} "$R0" == "1"
@@ -1206,8 +1211,31 @@ Function "InstallAddon"
       ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     ${EndIf}
 
-    ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Uninstall"
-    ${If} "$INI_TEMP" != "false"
+    ; Install the "Managed Storage" manifest for the addon (if one exists)
+    ${if} ${FileExists} "$RES_DIR\$ITEM_NAME.ManagedStorage"
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** InstallAddon: $ADDON_NAME native manifest found (ManagedStorage)"
+      !endif
+
+      StrCpy $MANIFEST_DIR "${APP_DISTRIBUTION_DIR}\ManagedStorage"
+      SetOutPath $MANIFEST_DIR
+
+      ; Distribute 'addon.xpi.ManagedStorage' as 'myaddon@clearcode.com.json'
+      CopyFiles /SILENT "$RES_DIR\$ITEM_NAME.ManagedStorage" $MANIFEST_DIR
+      Rename "$MANIFEST_DIR\$ITEM_NAME.ManagedStorage" "$MANIFEST_DIR\$ADDON_NAME.json"
+
+      ${If} "$UNINSTALL" != "false"
+        WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledManagedStorage$ITEM_INDEX" "$MANIFEST_DIR\$ADDON_NAME.json"
+      ${EndIf}
+
+      ; For native messaging manifests, the registry key should not be created under
+      ; Wow6432Node, even if the app is 32-bit.
+      SetRegView 64
+      WriteRegStr HKLM "Software\Mozilla\ManagedStorage\$ADDON_NAME" "" "$MANIFEST_DIR\$ADDON_NAME.json"
+      SetRegView 32
+    ${EndIf}
+
+    ${If} "$UNINSTALL" != "false"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ITEM_LOCATION"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
@@ -1809,11 +1837,20 @@ Section Uninstall
     ${While} 1 == 1
       ReadRegStr $ITEM_LOCATION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
       ${IfThen} "$ITEM_LOCATION" == "" ${|} ${Break} ${|}
+
       ${If} ${DirExists} "$ITEM_LOCATION"
         RMDir /r "$ITEM_LOCATION"
       ${ElseIf} ${FileExists} "$ITEM_LOCATION"
         Delete "$ITEM_LOCATION"
       ${EndIf}
+
+      ; Remove the manifest files for the addon, too
+      ReadRegStr $MANIFEST_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledManagedStorage$ITEM_INDEX"
+      ${If} "$MANIFEST_PATH" != ""
+      ${AndIf} ${FileExists} "$MANIFEST_PATH"
+        Delete "$MANIFEST_PATH"
+      ${EndIf}
+
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$PROCESSING_FILE"
         StrCpy $UNINSTALL_FAILED 1
