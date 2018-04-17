@@ -639,7 +639,7 @@ FunctionEnd
           ${If} $ITEMS_LIST_INDEX > 1
             ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
           ${EndIf}
-          ${If} ${FileExists} "$APP_INSTALLER_INI"
+          ${If} ${FileExists} "$ITEM_NAME\uninstall\helper.exe"
             !insertmacro ExecWaitJob `"$ITEM_NAME\uninstall\helper.exe" /S`
           ${EndIf}
         ${EndWhile}
