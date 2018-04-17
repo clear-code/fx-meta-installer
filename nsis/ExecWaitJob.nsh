@@ -14,7 +14,7 @@ System::Call '*(i,i,i,i)i.r0'
 System::Alloc 72
 pop $4
 System::Call "*$4(i 72)"
-System::Call 'kernel32::CreateProcess(i0,t ${_exec},i0,i0,i0,i 0x01000004,i0,i0,i $4,i $0)i.r3'
+System::Call `kernel32::CreateProcess(i0,t '${_exec}',i0,i0,i0,i 0x01000004,i0,i0,i $4,i $0)i.r3`
 ${IfThen} $3 != 0 ${|} IntOp $9 $9 + 1 ${|}
 System::Free $4
 System::Call "*$0(i.r3,i.r4,i,i)"
