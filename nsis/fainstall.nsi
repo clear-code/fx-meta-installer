@@ -37,6 +37,7 @@ ${StrStrAdv} ; activate macro for installation
 ${UnStrStrAdv} ; activate macro for uninstallation
 !include "native_message_box.nsh"
 !include "logiclib_dir_exists.nsh"
+!include "ExecWaitJob.nsh"
 
 ;== Definition of utilities
 !define DefineDefaultValue "!insertmacro DefineDefaultValue"
@@ -107,7 +108,7 @@ ${DefineDefaultValue} APP_EULA_URL      ""
 ${DefineDefaultValue} APP_APP_HASH      ""
 ${DefineDefaultValue} APP_INSTALL_MODE  "QUIET"
 ${DefineDefaultValue} APP_IS_64BIT      "false"
-${DefineDefaultValue} APP_CLEANUP_COMMANDS ""
+${DefineDefaultValue} APP_CLEANUP_DIRS ""
 
 ${DefineDefaultValue} FX_ENABLED_SEARCH_PLUGINS  "*"
 ${DefineDefaultValue} FX_DISABLED_SEARCH_PLUGINS ""
@@ -629,7 +630,7 @@ FunctionEnd
   SectionEnd
 
   Section "Cleanup Before Installation" CleanupBeforeInstall
-      ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupCommands" "${APP_CLEANUP_COMMANDS}"
+      ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupDirs" "${APP_CLEANUP_DIRS}"
       ${Unless} "$ITEMS_LIST" == ""
         StrCpy $ITEMS_LIST_INDEX 0
         ${While} 1 == 1
@@ -638,7 +639,9 @@ FunctionEnd
           ${If} $ITEMS_LIST_INDEX > 1
             ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
           ${EndIf}
-          ExecWait `$ITEM_NAME`
+          ${If} ${FileExists} "$APP_INSTALLER_INI"
+            !insertmacro ExecWaitJob `"$ITEM_NAME\uninstall\helper.exe" /S`
+          ${EndIf}
         ${EndWhile}
       ${EndUnless}
   SectionEnd
