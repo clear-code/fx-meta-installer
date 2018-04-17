@@ -543,6 +543,23 @@ Function "DetectAppInstallerIni"
 	Push $0
 FunctionEnd
 
+Section "Cleanup Before Installation" CleanupBeforeInstall
+      ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupDirs" "${APP_CLEANUP_DIRS}"
+      ${Unless} "$ITEMS_LIST" == ""
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
+        ${EndIf}
+        ${If} ${FileExists} "$ITEM_NAME\uninstall\helper.exe"
+          !insertmacro ExecWaitJob `"$ITEM_NAME\uninstall\helper.exe" /S`
+        ${EndIf}
+        ${EndWhile}
+      ${EndUnless}
+  SectionEnd
+
 !if ${APP_INSTALL_MODE} != "SKIP"
   Section "Download Application" DownloadApp
       !ifdef NSIS_CONFIG_LOG
@@ -626,23 +643,6 @@ FunctionEnd
         !ifdef NSIS_CONFIG_LOG
           LogText "*** DownloadApp: installer is $APP_INSTALLER_FINAL_PATH"
         !endif
-      ${EndUnless}
-  SectionEnd
-
-  Section "Cleanup Before Installation" CleanupBeforeInstall
-      ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupDirs" "${APP_CLEANUP_DIRS}"
-      ${Unless} "$ITEMS_LIST" == ""
-        StrCpy $ITEMS_LIST_INDEX 0
-        ${While} 1 == 1
-          IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
-          ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
-          ${If} $ITEMS_LIST_INDEX > 1
-            ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
-          ${EndIf}
-          ${If} ${FileExists} "$ITEM_NAME\uninstall\helper.exe"
-            !insertmacro ExecWaitJob `"$ITEM_NAME\uninstall\helper.exe" /S`
-          ${EndIf}
-        ${EndWhile}
       ${EndUnless}
   SectionEnd
 
