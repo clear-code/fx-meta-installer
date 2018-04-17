@@ -553,8 +553,10 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
-        ${If} ${FileExists} "$ITEM_NAME\uninstall\helper.exe"
-          !insertmacro ExecWaitJob `"$ITEM_NAME\uninstall\helper.exe" /S`
+        StrCpy $ITEM_LOCATION "$ITEM_NAME"
+        Call ResolveItemLocation
+        ${If} ${FileExists} "$ITEM_LOCATION\uninstall\helper.exe"
+          !insertmacro ExecWaitJob `"$ITEM_LOCATION\uninstall\helper.exe" /S`
         ${EndIf}
         ${EndWhile}
       ${EndUnless}
