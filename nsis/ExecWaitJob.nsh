@@ -1,6 +1,5 @@
 ; http://nsis.sourceforge.net/ExecWait_and_waiting_for_child_processes_with_Job_Objects
 !macro ExecWaitJob _exec
-
 StrCpy $9 0
 System::Call 'kernel32::CreateIoCompletionPort(i -1,i0,i0,i0)i.r1'
 ${IfThen} $1 != 0 ${|} IntOp $9 $9 + 1 ${|}
@@ -14,6 +13,7 @@ System::Call '*(i,i,i,i)i.r0'
 System::Alloc 72
 pop $4
 System::Call "*$4(i 72)"
+; '${_exec}' instead of ${_exec}, for a path including whitespaces
 System::Call `kernel32::CreateProcess(i0,t '${_exec}',i0,i0,i0,i 0x01000004,i0,i0,i $4,i $0)i.r3`
 ${IfThen} $3 != 0 ${|} IntOp $9 $9 + 1 ${|}
 System::Free $4
