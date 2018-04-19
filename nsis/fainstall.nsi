@@ -1448,78 +1448,81 @@ Function InstallAdditionalFiles
     StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
 
     StrCpy $DIST_DIR "$APP_DIR"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cfg" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.properties" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cfg" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.properties" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=override.ini" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cer" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.crt" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.pem" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.der" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cer.override" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.crt.override" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.pem.override" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.der.override" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.permissions" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cer" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.crt" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.pem" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.der" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cer.override" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.crt.override" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.pem.override" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.der.override" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.permissions" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\isp"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xml" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xml" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "${APP_CONFIG_DIR}"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.js" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.jsc" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.js" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.jsc" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\chrome"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.css" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.jar" "InstallNormalFile"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.manifest" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.css" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.jar" "InstallNormalFileForLocate"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.manifest" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\chrome\icons\default"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.ico" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.ico" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\components"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xpt" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xpt" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\plugins"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$DESKTOP"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFileForLocate"
   ;  StrCpy $DIST_DIR "$QUICKLAUNCH"
-  ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+  ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFileForLocate"
   ;  StrCpy $DIST_DIR "$SMPROGRAMS"
-  ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFile"
+  ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFileForLocate"
 
     StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 1
 
     !if ${APP_NAME} == "Firefox"
       ; Firefox 21 and later, these files must be placed into the "browser" directory. 
       StrCpy $DIST_DIR "$APP_DIR\browser"
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=override.ini" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=override.ini" "InstallNormalFileForLocate"
 
       StrCpy $DIST_DIR "$APP_DIR\browser\defaults\profile"
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFile"
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFileForLocate"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFileForLocate"
 
       StrCpy $DIST_DIR "$APP_DIR\browser\chrome\icons\default"
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.ico" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.ico" "InstallNormalFileForLocate"
 
       StrCpy $DIST_DIR "$APP_DIR\browser\plugins"
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFileForLocate"
     !endif
+FunctionEnd
+
+Function "InstallNormalFileForLocate"
+    StrCpy $PROCESSING_FILE "$R7"
+    Call InstallNormalFile
 FunctionEnd
 
 Function "InstallNormalFile"
     !ifdef NSIS_CONFIG_LOG
       LogSet on
     !endif
-
-    StrCpy $PROCESSING_FILE "$R7"
 
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$PROCESSING_FILE" "TargetLocation"
     ClearErrors
@@ -1616,7 +1619,7 @@ Section "Initialize Search Plugins" InitSearchPlugins
     ; install additional engines
     StrCpy $DIST_DIR "$APP_DIR\searchplugins"
     ${If} ${FileExists} "$RES_DIR\*.xml"
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xml" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xml" "InstallNormalFileForLocate"
     ${EndIf}
 SectionEnd
 
@@ -1677,8 +1680,8 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       ; with an uninstall target, because distribution.* files are automatically
       ; removed with the parent folder stored as "InstalledDistributonCustomizer".
       StrCpy $ITEM_INDEX -1
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=distribution.*" "InstallNormalFile"
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=policies.json" "InstallNormalFile"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=distribution.*" "InstallNormalFileForLocate"
+      ${Locate} "$RES_DIR" "/L=F /G=0 /M=policies.json" "InstallNormalFileForLocate"
     ${EndIf}
 SectionEnd
 
