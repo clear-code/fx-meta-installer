@@ -118,6 +118,7 @@ ${DefineDefaultValue} DISABLED_CLIENTS ""
 ${DefineDefaultValue} INSTALL_ADDONS   ""
 ${DefineDefaultValue} EXTRA_INSTALLERS ""
 ${DefineDefaultValue} EXTRA_SHORTCUTS  ""
+${DefineDefaultValue} EXTRA_FILES      ""
 ${DefineDefaultValue} UPDATE_PINNED_SHORTCUTS "false"
 
 ${DefineDefaultValue} CLEAN_INSTALL           ""
@@ -1390,6 +1391,26 @@ Function "InstallShortcut"
       LogText "*** InstallShortcut: $ITEM_NAME successfully installed"
     !endif
 FunctionEnd
+
+Section "Install Extra Files" InstallExtraFiles
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+      LogText "*** InstallExtraFiles"
+    !endif
+    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraFiles" "${EXTRA_FILES}"
+    ${Unless} "$ITEMS_LIST" == ""
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
+        ${EndIf}
+        StrCpy $PROCESSING_FILE "$ITEM_NAME"
+        Call InstallNormalFile
+      ${EndWhile}
+    ${EndUnless}
+SectionEnd
 
 Section "Install Extra Installers" InstallExtraInstallers
     !ifdef NSIS_CONFIG_LOG
