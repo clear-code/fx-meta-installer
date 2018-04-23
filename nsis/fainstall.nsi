@@ -1392,11 +1392,14 @@ Function "InstallShortcut"
     !endif
 FunctionEnd
 
+Var INSTALLING_APPLICATION_SPECIFIC_FILES
 Section "Install Extra Files" InstallExtraFiles
     !ifdef NSIS_CONFIG_LOG
       LogSet on
       LogText "*** InstallExtraFiles"
     !endif
+    ; Disable install guard for ExtraFiles=
+    StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraFiles" "${EXTRA_FILES}"
     ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
@@ -1410,6 +1413,7 @@ Section "Install Extra Files" InstallExtraFiles
         Call InstallNormalFile
       ${EndWhile}
     ${EndUnless}
+    StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 1
 SectionEnd
 
 Section "Install Extra Installers" InstallExtraInstallers
@@ -1459,7 +1463,6 @@ Function "InstallExtraInstaller"
     !endif
 FunctionEnd
 
-Var INSTALLING_APPLICATION_SPECIFIC_FILES
 Function InstallAdditionalFiles
     !ifdef NSIS_CONFIG_LOG
       LogSet on
