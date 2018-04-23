@@ -765,6 +765,27 @@ Options：（省略可能）
   Name=myplugin2.exe
   Options=-S
 
+■その他のファイルのインストール
+
+fainstall.iniの[fainstall]セクションのExtraFilesにパイプ（|）区切りで
+記述されたファイル名に対応するセクションを定義することで、任意の形式の
+ファイルを指定したパスにインストールすることができる。(メタインストー
+ラが通常インストールすることを想定していない形式のファイルをやむを得ず
+インストールしなければならない場合に使用。)
+
+各[ファイル名]セクションでは以下のキーを指定できる。
+
+TargetLocation：（省略不可）
+  インストール先のディレクトリ名。
+
+例えば「proxy.pac」をdefaults以下にインストールする場合は、以下の通り。
+
+  [fainstall]
+  ExtraFiles=proxy.pac
+
+  [proxy.pac]
+  TargetLocation=%AppDir%/defaults/
+
 ■ショートカットの作成
 
 fainstall.iniの[fainstall]セクションのShortcutsにパイプ（|）区切りで記述され
