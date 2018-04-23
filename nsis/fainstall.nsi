@@ -118,6 +118,7 @@ ${DefineDefaultValue} DISABLED_CLIENTS ""
 ${DefineDefaultValue} INSTALL_ADDONS   ""
 ${DefineDefaultValue} EXTRA_INSTALLERS ""
 ${DefineDefaultValue} EXTRA_SHORTCUTS  ""
+${DefineDefaultValue} EXTRA_FILES      ""
 ${DefineDefaultValue} UPDATE_PINNED_SHORTCUTS "false"
 
 ${DefineDefaultValue} CLEAN_INSTALL           ""
@@ -1391,6 +1392,36 @@ Function "InstallShortcut"
     !endif
 FunctionEnd
 
+Var INSTALLING_APPLICATION_SPECIFIC_FILES
+Section "Install Extra Files" InstallExtraFiles
+    !ifdef NSIS_CONFIG_LOG
+      LogSet on
+      LogText "*** InstallExtraFiles"
+    !endif
+    ; Disable install guard for ExtraFiles=
+    StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
+    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraFiles" "${EXTRA_FILES}"
+    ${Unless} "$ITEMS_LIST" == ""
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** InstallExtraFiles: WordFind ITEM_NAME ($ITEM_NAME) in ITEMS_LIST ($ITEMS_LIST)"
+        !endif
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
+        ${EndIf}
+        StrCpy $PROCESSING_FILE "$ITEM_NAME"
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** InstallExtraFiles: PROCESSING_FILE: $PROCESSING_FILE"
+        !endif
+        Call InstallNormalFile
+      ${EndWhile}
+    ${EndUnless}
+    StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 1
+SectionEnd
+
 Section "Install Extra Installers" InstallExtraInstallers
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1438,7 +1469,6 @@ Function "InstallExtraInstaller"
     !endif
 FunctionEnd
 
-Var INSTALLING_APPLICATION_SPECIFIC_FILES
 Function InstallAdditionalFiles
     !ifdef NSIS_CONFIG_LOG
       LogSet on
@@ -1528,15 +1558,27 @@ Function "InstallNormalFile"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
     ;       otherwise only the first found file will be installed and others are ignored.
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InstallNormalFile: TargetLocation of $PROCESSING_FILE: $ITEM_LOCATION"
+    !endif
     ${Unless} "$ITEM_LOCATION" == ""
       ${If} $INSTALLING_APPLICATION_SPECIFIC_FILES == 1
         ; Don't install normal file twice to the location specified by "TargetLocation".
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** InstallNormalFile: block to install $PROCESSING_FILE to $ITEM_LOCATION twice"
+        !endif
         GoTo RETURN
       ${EndIf}
       Call ResolveItemLocation
     ${EndUnless}
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InstallNormalFile: resolved ITEM_LOCATION: $ITEM_LOCATION"
+    !endif
     ${If} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$DIST_DIR"
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** InstallNormalFile: set DIST_DIR ($DIST_DIR) to ITEM_LOCATION ($ITEM_LOCATION)"
+      !endif
     ${EndIf}
     StrCpy $DIST_PATH "$ITEM_LOCATION\$PROCESSING_FILE"
 
