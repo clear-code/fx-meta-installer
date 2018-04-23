@@ -1949,8 +1949,13 @@ Function un.onUninstSuccess
     ${un.GetOptions} "$0" "/AddonOnly" $1
     ${If} ${Errors}
     ${AndIf} "$APP_VERSION" != ""
-      StrCpy $0 "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main"
-      ReadRegStr $APP_DIR HKLM $0 "Install Directory"
+      ${If} "$APP_IS_64BIT" == "true"
+        SetRegView 64
+      ${EndIf}
+      ReadRegStr $APP_DIR HKLM "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
+      ${If} "$APP_IS_64BIT" == "true"
+        SetRegView 32
+      ${EndIf}
       ${IfThen} "$APP_DIR" != "" ${|} call un.UninstallApp ${|}
     ${EndIf}
 FunctionEnd
