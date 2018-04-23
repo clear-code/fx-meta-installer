@@ -1406,10 +1406,16 @@ Section "Install Extra Files" InstallExtraFiles
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
         ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** InstallExtraFiles: WordFind ITEM_NAME ($ITEM_NAME) in ITEMS_LIST ($ITEMS_LIST)"
+        !endif
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
         StrCpy $PROCESSING_FILE "$ITEM_NAME"
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** InstallExtraFiles: PROCESSING_FILE: $PROCESSING_FILE"
+        !endif
         Call InstallNormalFile
       ${EndWhile}
     ${EndUnless}
@@ -1552,15 +1558,27 @@ Function "InstallNormalFile"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
     ;       otherwise only the first found file will be installed and others are ignored.
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InstallNormalFile: TargetLocation of $PROCESSING_FILE: $ITEM_LOCATION"
+    !endif
     ${Unless} "$ITEM_LOCATION" == ""
       ${If} $INSTALLING_APPLICATION_SPECIFIC_FILES == 1
         ; Don't install normal file twice to the location specified by "TargetLocation".
+        !ifdef NSIS_CONFIG_LOG
+          LogText "*** InstallNormalFile: block to install $PROCESSING_FILE to $ITEM_LOCATION twice"
+        !endif
         GoTo RETURN
       ${EndIf}
       Call ResolveItemLocation
     ${EndUnless}
+    !ifdef NSIS_CONFIG_LOG
+      LogText "*** InstallNormalFile: resolved ITEM_LOCATION: $ITEM_LOCATION"
+    !endif
     ${If} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$DIST_DIR"
+      !ifdef NSIS_CONFIG_LOG
+        LogText "*** InstallNormalFile: set DIST_DIR ($DIST_DIR) to ITEM_LOCATION ($ITEM_LOCATION)"
+      !endif
     ${EndIf}
     StrCpy $DIST_PATH "$ITEM_LOCATION\$PROCESSING_FILE"
 
