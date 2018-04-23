@@ -1947,8 +1947,10 @@ Function un.onUninstSuccess
 
     ${un.GetParameters} $0
     ${un.GetOptions} "$0" "/AddonOnly" $1
+    ;MessageBox MB_ICONINFORMATION|MB_OK "un.onUninstSuccess, APP_VERSION = $APP_VERSION"
     ${If} ${Errors}
     ${AndIf} "$APP_VERSION" != ""
+      ;MessageBox MB_ICONINFORMATION|MB_OK "Reading $APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main"
       ${If} "$APP_IS_64BIT" == "true"
         SetRegView 64
       ${EndIf}
@@ -1956,11 +1958,13 @@ Function un.onUninstSuccess
       ${If} "$APP_IS_64BIT" == "true"
         SetRegView 32
       ${EndIf}
+      ;MessageBox MB_ICONINFORMATION|MB_OK "APP_DIR = $APP_DIR"
       ${IfThen} "$APP_DIR" != "" ${|} call un.UninstallApp ${|}
     ${EndIf}
 FunctionEnd
 
 Function un.UninstallApp
+    ;MessageBox MB_ICONINFORMATION|MB_OK "Checking $APP_DIR\uninstall\uninstall.log"
     ${If} ${FileExists} "$APP_DIR\uninstall\uninstall.log"
       !if ${APP_INSTALL_MODE} != "SKIP"
         !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
@@ -2193,6 +2197,7 @@ FunctionEnd
       SetRegView 64
     ${EndIf}
     ReadRegStr $APP_VERSION HKLM "$APP_REG_KEY" "CurrentVersion"
+    ;MessageBox MB_OK|MB_ICONEXCLAMATION "APP_IS_64BIT = $APP_IS_64BIT / APP_REG_KEY = $APP_REG_KEY / APP_VERSION = $APP_VERSION" /SD IDOK
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 32
     ${EndIf}
