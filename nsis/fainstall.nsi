@@ -314,7 +314,7 @@ Var INI_TEMP2
   StrCpy ${OutVariable} "${Default}"
   ${If} ${FileExists} ${File}
     ReadINIStr ${OutVariable} ${File} ${Section} ${Name}
-    LogEx::Write "*** LoadINI: ${Name} = ${OutVariable}"
+    LogEx::Write "LoadINI: ${Name} = ${OutVariable}"
     ${IfThen} "${OutVariable}" == "" ${|} StrCpy ${OutVariable} "${Default}" ${|}
   ${EndIf}
 !macroend
@@ -392,16 +392,17 @@ Var CLEAN_INSTALL
 !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
   !if ${APP_INSTALL_MODE} == "QUIET"
     Function AppEULAPageCheck
+        LogEx::Write "AppEULAPageCheck"
         StrCpy $APP_EULA_DL_FAILED "0"
 
         Call GetAppPath
         Call CheckAppVersionWithMessage
 
         ${If} "$APP_EXISTS" == "1"
-          LogEx::Write "*** AppEULAPageCheck: EULA does not exist"
+          LogEx::Write "  EULA does not exist"
           Abort
         ${Else}
-          LogEx::Write "*** AppEULAPageCheck: Application does not exist so show EULA"
+          LogEx::Write "  Application does not exist so show EULA"
           StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
           ${Unless} ${FileExists} "$APP_EULA_PATH"
             StrCpy $APP_EULA_FINAL_PATH "$RES_DIR\${APP_NAME}-EULA.txt"
@@ -424,7 +425,7 @@ Var CLEAN_INSTALL
             ${EndUnless}
           ${EndIf}
           EULADownloadDone:
-          LogEx::Write "*** AppEULAPageCheck: EULA = $APP_EULA_FINAL_PATH"
+          LogEx::Write "  EULA = $APP_EULA_FINAL_PATH"
         ${EndIf}
     FunctionEnd
 
@@ -439,6 +440,7 @@ Var CLEAN_INSTALL
 
 Section "Initialize Variables" InitializeVariables
     LogEx::Init "$INSTDIR\install.log"
+    LogEx::Write "InitializeVariables"
 
     ${ReadINIStrWithDefault} $APP_IS_64BIT "${INIPATH}" "${INSTALLER_NAME}" "AppIs64bit" "${APP_IS_64BIT}"
     ${If} "$APP_IS_64BIT" == "true"
@@ -446,6 +448,7 @@ Section "Initialize Variables" InitializeVariables
     ${Else}
       StrCpy $APP_PROGRAMFILES "$PROGRAMFILES32"
     ${EndIf}
+    LogEx::Write "  APP_PROGRAMFILES = $APP_PROGRAMFILES"
 
     !if ${APP_INSTALL_MODE} == "SKIP"
       Call GetAppPath
@@ -465,7 +468,7 @@ Section "Initialize Variables" InitializeVariables
     ${Else}
       StrCpy $RES_DIR "$EXEDIR\$RES_DIR"
     ${EndIf}
-    LogEx::Write "*** InitializeVariables: resources is $RES_DIR"
+    LogEx::Write "  resources is $RES_DIR"
 
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.exe" "DetectAppInstallerPath"
     ${If} "$APP_INSTALLER_PATH" == ""
@@ -491,7 +494,7 @@ Section "Initialize Variables" InitializeVariables
 
     ${ReadINIStrWithDefault} $DISPLAY_VERSION "${INIPATH}" "${INSTALLER_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
 
-    LogEx::Write "*** InitializeVariables: install to $INSTDIR"
+    LogEx::Write "  install to $INSTDIR"
 SectionEnd
 
 Function "DetectAppInstallerPath"
@@ -509,6 +512,7 @@ Function "DetectAppInstallerIni"
 FunctionEnd
 
 Section "Cleanup Before Installation" CleanupBeforeInstall
+      LogEx::Write "CleanupBeforeInstall"
       ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupDirs" "${APP_CLEANUP_DIRS}"
       ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
@@ -521,6 +525,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
         StrCpy $ITEM_LOCATION "$ITEM_NAME"
         Call ResolveItemLocation
         ${If} ${FileExists} "$ITEM_LOCATION\uninstall\helper.exe"
+          LogEx::Write "  Running $ITEM_LOCATION\uninstall\helper.exe"
           !insertmacro ExecWaitJob `"$ITEM_LOCATION\uninstall\helper.exe" /S`
         ${EndIf}
         ${EndWhile}
@@ -529,6 +534,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
 !if ${APP_INSTALL_MODE} != "SKIP"
   Section "Download Application" DownloadApp
+      LogEx::Write "DownloadApp"
       Call GetAppPath
       !if ${APP_INSTALL_MODE} == "QUIET"
         Call CheckAppVersion
@@ -537,7 +543,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
       !endif
 
       ${Unless} "$APP_EXISTS" == "1"
-        LogEx::Write "*** DownloadApp: Application not exist so do installation"
+        LogEx::Write "  Application not exist so do installation"
         StrCpy $APP_INSTALLER_FINAL_PATH "$APP_INSTALLER_PATH"
 
         ${IfThen} ${FileExists} "$APP_INSTALLER_FINAL_PATH" ${|} GoTo AppDownloadDone ${|}
@@ -546,7 +552,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
           !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
             ${If} "$APP_EULA_DL_FAILED" == "1"
               MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
-              LogEx::Write "*** DownloadApp: Application's EULA does not exist"
+              LogEx::Write "  Application's EULA does not exist"
               Abort
             ${EndIf}
           !endif
@@ -558,7 +564,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
           GoTo AppDownloadDone
         ${EndIf}
 
-        LogEx::Write "*** DownloadApp: Let's download from the Internet"
+        LogEx::Write "  Let's download from the Internet"
 
         ; overwrite subtitle
         SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_APP_DOWNLOAD_START)"
@@ -576,7 +582,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
         ${If} "$R0" != "OK"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
-          LogEx::Write "*** DownloadApp: Download failed"
+          LogEx::Write "  Download failed"
           Abort
         ${EndIf}
 
@@ -588,12 +594,12 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
         ${If} "$APP_HASH" != ""
         ${AndIf} "$0" != "$APP_HASH"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_HASH_ERROR)" /SD IDOK
-          LogEx::Write "*** DownloadApp: Downloaded file is broken"
+          LogEx::Write "  Downloaded file is broken"
           Abort
         ${EndIf}
 
         AppDownloadDone:
-        LogEx::Write "*** DownloadApp: installer is $APP_INSTALLER_FINAL_PATH"
+        LogEx::Write "  installer is $APP_INSTALLER_FINAL_PATH"
       ${EndUnless}
   SectionEnd
 
@@ -604,7 +610,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
       Call CheckShortcutsExistence
 
       ${Unless} "$APP_EXISTS" == "1"
-        LogEx::Write "*** InstallApp: Let's run installer"
+        LogEx::Write "  Let's run installer"
         ${If} ${FileExists} "$APP_INSTALLER_INI"
           ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
         ${Else}
@@ -626,7 +632,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
           ${Else}
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_INSTALL_ERROR)" /SD IDOK
           ${EndIf}
-          LogEx::Write "*** InstallApp: Version check failed"
+          LogEx::Write "  Version check failed"
           Abort
         ${EndUnless}
 
@@ -664,7 +670,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 !endif
 
 Function "CheckShortcutsExistence"
-    LogEx::Write "*** CheckShortcutsExistence"
+    LogEx::Write "CheckShortcutsExistence"
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
@@ -675,8 +681,8 @@ Function "CheckShortcutsExistence"
     ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "${APP_FULL_NAME}" ${|}
     ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "${APP_FULL_NAME}" ${|}
 
-    LogEx::Write "*** SHORTCUT_NAME : $SHORTCUT_NAME"
-    LogEx::Write "*** PROGRAM_FOLDER_NAME : $PROGRAM_FOLDER_NAME"
+    LogEx::Write "  SHORTCUT_NAME : $SHORTCUT_NAME"
+    LogEx::Write "  PROGRAM_FOLDER_NAME : $PROGRAM_FOLDER_NAME"
 
     SetShellVarContext all
     StrCpy $SHORTCUT_PATH_DESKTOP "$DESKTOP\$SHORTCUT_NAME.lnk"
@@ -695,21 +701,21 @@ Function "CheckShortcutsExistence"
       StrCpy $EXISTS_SHORTCUT_STARTMENU_PROGRAM "1"
     ${EndIf}
 
-    LogEx::Write "*** EXISTS_SHORTCUT_DESKTOP           : $EXISTS_SHORTCUT_DESKTOP"
-    LogEx::Write "*** EXISTS_SHORTCUT_STARTMENU         : $EXISTS_SHORTCUT_STARTMENU"
-    LogEx::Write "*** EXISTS_SHORTCUT_STARTMENU_PROGRAM : $EXISTS_SHORTCUT_STARTMENU_PROGRAM"
-    LogEx::Write "*** EXISTS_SHORTCUT_QUICKLAUNCH       : $EXISTS_SHORTCUT_QUICKLAUNCH"
+    LogEx::Write "  EXISTS_SHORTCUT_DESKTOP           : $EXISTS_SHORTCUT_DESKTOP"
+    LogEx::Write "  EXISTS_SHORTCUT_STARTMENU         : $EXISTS_SHORTCUT_STARTMENU"
+    LogEx::Write "  EXISTS_SHORTCUT_STARTMENU_PROGRAM : $EXISTS_SHORTCUT_STARTMENU_PROGRAM"
+    LogEx::Write "  EXISTS_SHORTCUT_QUICKLAUNCH       : $EXISTS_SHORTCUT_QUICKLAUNCH"
 FunctionEnd
 
 Function "UpdateShortcutsExistence"
-    LogEx::Write "*** UpdateShortcutsExistence"
+    LogEx::Write "UpdateShortcutsExistence"
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
 
     ${If} ${FileExists} "$APP_INSTALLER_INI"
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "DesktopShortcut"
-      LogEx::Write "*** DesktopShortcut: $1"
+      LogEx::Write "  DesktopShortcut: $1"
       ${If} "$1" == "false"
         ${If} "$EXISTS_SHORTCUT_DESKTOP" == ""
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP"
@@ -718,7 +724,7 @@ Function "UpdateShortcutsExistence"
       ${EndIf}
 
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "StartMenuShortcuts"
-      LogEx::Write "*** StartMenuShortcuts: $1"
+      LogEx::Write "  StartMenuShortcuts: $1"
       ${If} "$1" == "false"
         ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
@@ -732,15 +738,15 @@ Function "UpdateShortcutsExistence"
 
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcutAllUsers"
       ReadINIStr $2 "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcut"
-      LogEx::Write "*** QuickLaunchShortcutAllUsers: $1"
+      LogEx::Write "  QuickLaunchShortcutAllUsers: $1"
       ${If} "$1" == "true"
         SetShellVarContext current
         StrCpy $ITEM_LOCATION_BASE "$APPDATA\Microsoft\Internet Explorer\Quick Launch"
         ${WordReplace} "$ITEM_LOCATION_BASE" "$PROFILE" "" "+*" $ITEM_LOCATION_BASE
         ${GetParent} "$PROFILE" $1 ; $1 is parent of "HOME"
         StrCpy $ITEM_LOCATION_BASE "$1\%USERNAME%$ITEM_LOCATION_BASE"
-        LogEx::Write "*** parent of HOME: $1"
-        LogEx::Write "*** ITEM_LOCATION_BASE: $ITEM_LOCATION_BASE"
+        LogEx::Write "  parent of HOME: $1"
+        LogEx::Write "  ITEM_LOCATION_BASE: $ITEM_LOCATION_BASE"
         StrCpy $ITEM_INDEX 0
         ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcut"
         ${Locate} "$1" "/L=D /G=0 /M=*" "UpdateQuickLaunchShortcutForOneUser"
@@ -756,17 +762,19 @@ FunctionEnd
 
 Var USER_NAME
 Function "UpdateQuickLaunchShortcutForOneUser"
-    LogEx::Write "*** UpdateQuickLaunchShortcutForOneUser"
+    LogEx::Write "UpdateQuickLaunchShortcutForOneUser"
 
     StrCpy $USER_NAME "$R7"
-    LogEx::Write "*** USER_NAME: $USER_NAME"
+    LogEx::Write "  USER_NAME: $USER_NAME"
     ${WordReplace} "$ITEM_LOCATION_BASE" "%USERNAME%" "$USER_NAME" "+*" $ITEM_LOCATION
-    LogEx::Write "*** ITEM_LOCATION: $ITEM_LOCATION"
+    LogEx::Write "  ITEM_LOCATION: $ITEM_LOCATION"
 
     ${If} "$INI_TEMP" == "false"
+      LogEx::Write "  Delete $ITEM_LOCATION\$SHORTCUT_NAME.lnk"
       Delete "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
     ${Else}
       ${Unless} ${FileExists} "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
+        LogEx::Write "  Create $ITEM_LOCATION\$SHORTCUT_NAME.lnk"
         SetOutPath "$APP_DIR"
         CreateShortCut "$ITEM_LOCATION\$SHORTCUT_NAME.lnk" "$APP_EXE_PATH" "" "$APP_EXE_PATH" 0
       ${EndUnless}
@@ -778,19 +786,21 @@ Function "UpdateQuickLaunchShortcutForOneUser"
 FunctionEnd
 
 Section "Set Default Client" SetDefaultClient
+    LogEx::Write "SetDefaultClient"
     ${ReadINIStrWithDefault} $ITEM_NAME "${INIPATH}" "${INSTALLER_NAME}" "DefaultClient" "${DEFAULT_CLIENT}"
     ${Unless} "$ITEM_NAME" == ""
-      LogEx::Write "*** SetDefaultClient: $ITEM_NAME"
+      LogEx::Write "  ITEM_NAME: $ITEM_NAME"
 
       ReadRegDWORD $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible"
       ${If} $COMMAND_STRING < 1
-        LogEx::Write "*** Hidden => Visible: $ITEM_NAME"
+        LogEx::Write "  Hidden => Visible: $ITEM_NAME"
         ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
-        LogEx::Write "*** Command: $COMMAND_STRING"
+        LogEx::Write "  Command: $COMMAND_STRING"
         ${Unless} "$COMMAND_STRING" == ""
           StrCpy $ITEM_LOCATION "$COMMAND_STRING"
           Call ResolveItemLocation
           StrCpy $COMMAND_STRING "$ITEM_LOCATION"
+          LogEx::Write "  Running: $COMMAND_STRING"
           ExecWait "$COMMAND_STRING"
           WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
           WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient" "$ITEM_NAME"
@@ -803,17 +813,19 @@ Section "Set Default Client" SetDefaultClient
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
+        LogEx::Write "  Running: $COMMAND_STRING"
         ExecWait "$COMMAND_STRING"
 
         ; re-installation can re-create shortcuts, so we have to remove them manually
         Call UpdateShortcutsExistence
       ${EndUnless}
 
-      LogEx::Write "*** Complete: $ITEM_NAME"
+      LogEx::Write "  Complete: $ITEM_NAME"
     ${EndUnless}
 SectionEnd
 
 Section "Disable Clients" DisableClients
+    LogEx::Write "DisableClients"
     StrCpy $ITEM_INDEX 0
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "DisabledClients" "${DISABLED_CLIENTS}"
     ${Unless} "$ITEMS_LIST" == ""
@@ -830,17 +842,18 @@ Section "Disable Clients" DisableClients
 SectionEnd
 
 Function "DisableClient"
-    LogEx::Write "*** DisableClient: $ITEM_NAME"
+    LogEx::Write "DisableClient $ITEM_NAME"
 
     ReadRegDWORD $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible"
     ${If} $COMMAND_STRING > 0
-      LogEx::Write "*** Visible => Hidden: $ITEM_NAME"
+      LogEx::Write "  Visible => Hidden: $ITEM_NAME"
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
-      LogEx::Write "*** Command: $COMMAND_STRING"
+      LogEx::Write "  Command: $COMMAND_STRING"
       ${Unless} "$COMMAND_STRING" == ""
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
+        LogEx::Write "  Running: $COMMAND_STRING"
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
         WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX" "$ITEM_NAME"
@@ -851,7 +864,7 @@ Function "DisableClient"
 FunctionEnd
 
 Section "Install Profiles" InstallProfiles
-    LogEx::Write "*** InstallProfiles: start"
+    LogEx::Write "InstallProfiles"
 
     StrCpy $ITEM_INDEX 0
 
