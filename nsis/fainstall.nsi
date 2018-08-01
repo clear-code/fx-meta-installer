@@ -1407,10 +1407,9 @@ Function "InstallNormalFile"
       ${EndIf}
       Call ResolveItemLocation
     ${EndUnless}
-    LogEx::Write "  resolved ITEM_LOCATION: $ITEM_LOCATION"
     ${If} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$DIST_DIR"
-      LogEx::Write "  set DIST_DIR ($DIST_DIR) to ITEM_LOCATION ($ITEM_LOCATION)"
+      LogEx::Write "  fallback to $ITEM_LOCATION"
     ${EndIf}
     StrCpy $DIST_PATH "$ITEM_LOCATION\$PROCESSING_FILE"
 
