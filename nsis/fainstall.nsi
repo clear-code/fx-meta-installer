@@ -1,22 +1,5 @@
 ;Copyright (C) 2008-2012 ClearCode Inc.
 
-;===================== SETUP NSIS-DBG FOR DEBUGGING ================
-
-; See http://nsis.sourceforge.net/Nsisdbg_plug-in for details
-
-!ifdef DEBUG
-
-!define MUI_CUSTOMFUNCTION_GUIINIT myGUIInit
-
-Function myGUIInit
-  InitPluginsDir
-  nsisdbg::init /NOUNLOAD
-  nsisdbg::setoption /NOUNLOAD "notifymsgs" "1"
-FunctionEnd
-
-!endif
-;===================================================================
-
 ;=== Libraries
 !include "LogicLib.nsh"
 !include "FileFunc.nsh"
@@ -331,9 +314,7 @@ Var INI_TEMP2
   StrCpy ${OutVariable} "${Default}"
   ${If} ${FileExists} ${File}
     ReadINIStr ${OutVariable} ${File} ${Section} ${Name}
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** LoadINI: ${Name} = ${OutVariable}"
-    !endif
+    LogEx::Write "*** LoadINI: ${Name} = ${OutVariable}"
     ${IfThen} "${OutVariable}" == "" ${|} StrCpy ${OutVariable} "${Default}" ${|}
   ${EndIf}
 !macroend
@@ -411,24 +392,16 @@ Var CLEAN_INSTALL
 !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
   !if ${APP_INSTALL_MODE} == "QUIET"
     Function AppEULAPageCheck
-        !ifdef NSIS_CONFIG_LOG
-          LogSet on
-        !endif
-
         StrCpy $APP_EULA_DL_FAILED "0"
 
         Call GetAppPath
         Call CheckAppVersionWithMessage
 
         ${If} "$APP_EXISTS" == "1"
-          !ifdef NSIS_CONFIG_LOG
-            LogText "*** AppEULAPageCheck: EULA does not exist"
-          !endif
+          LogEx::Write "*** AppEULAPageCheck: EULA does not exist"
           Abort
         ${Else}
-          !ifdef NSIS_CONFIG_LOG
-            LogText "*** AppEULAPageCheck: Application does not exist so show EULA"
-          !endif
+          LogEx::Write "*** AppEULAPageCheck: Application does not exist so show EULA"
           StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
           ${Unless} ${FileExists} "$APP_EULA_PATH"
             StrCpy $APP_EULA_FINAL_PATH "$RES_DIR\${APP_NAME}-EULA.txt"
@@ -451,17 +424,11 @@ Var CLEAN_INSTALL
             ${EndUnless}
           ${EndIf}
           EULADownloadDone:
-          !ifdef NSIS_CONFIG_LOG
-            LogText "*** AppEULAPageCheck: EULA = $APP_EULA_FINAL_PATH"
-          !endif
+          LogEx::Write "*** AppEULAPageCheck: EULA = $APP_EULA_FINAL_PATH"
         ${EndIf}
     FunctionEnd
 
     Function AppEULAPageSetup
-        !ifdef NSIS_CONFIG_LOG
-          LogSet on
-        !endif
-
         !insertmacro MUI_HEADER_TEXT $(MSG_APP_EULA_TITLE) $(MSG_APP_EULA_SUBTITLE)
         FindWindow $0 "#32770" "" $HWNDPARENT
         GetDlgItem $0 $0 1000
@@ -471,9 +438,7 @@ Var CLEAN_INSTALL
 !endif
 
 Section "Initialize Variables" InitializeVariables
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
+    LogEx::Init "$INSTDIR\install.log"
 
     ${ReadINIStrWithDefault} $APP_IS_64BIT "${INIPATH}" "${INSTALLER_NAME}" "AppIs64bit" "${APP_IS_64BIT}"
     ${If} "$APP_IS_64BIT" == "true"
@@ -500,9 +465,7 @@ Section "Initialize Variables" InitializeVariables
     ${Else}
       StrCpy $RES_DIR "$EXEDIR\$RES_DIR"
     ${EndIf}
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InitializeVariables: resources is $RES_DIR"
-    !endif
+    LogEx::Write "*** InitializeVariables: resources is $RES_DIR"
 
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.exe" "DetectAppInstallerPath"
     ${If} "$APP_INSTALLER_PATH" == ""
@@ -528,9 +491,7 @@ Section "Initialize Variables" InitializeVariables
 
     ${ReadINIStrWithDefault} $DISPLAY_VERSION "${INIPATH}" "${INSTALLER_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InitializeVariables: install to $INSTDIR"
-    !endif
+    LogEx::Write "*** InitializeVariables: install to $INSTDIR"
 SectionEnd
 
 Function "DetectAppInstallerPath"
@@ -568,10 +529,6 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
 !if ${APP_INSTALL_MODE} != "SKIP"
   Section "Download Application" DownloadApp
-      !ifdef NSIS_CONFIG_LOG
-        LogSet on
-      !endif
-
       Call GetAppPath
       !if ${APP_INSTALL_MODE} == "QUIET"
         Call CheckAppVersion
@@ -580,9 +537,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
       !endif
 
       ${Unless} "$APP_EXISTS" == "1"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** DownloadApp: Application not exist so do installation"
-        !endif
+        LogEx::Write "*** DownloadApp: Application not exist so do installation"
         StrCpy $APP_INSTALLER_FINAL_PATH "$APP_INSTALLER_PATH"
 
         ${IfThen} ${FileExists} "$APP_INSTALLER_FINAL_PATH" ${|} GoTo AppDownloadDone ${|}
@@ -591,9 +546,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
           !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
             ${If} "$APP_EULA_DL_FAILED" == "1"
               MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
-              !ifdef NSIS_CONFIG_LOG
-                LogText "*** DownloadApp: Application's EULA does not exist"
-              !endif
+              LogEx::Write "*** DownloadApp: Application's EULA does not exist"
               Abort
             ${EndIf}
           !endif
@@ -605,9 +558,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
           GoTo AppDownloadDone
         ${EndIf}
 
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** DownloadApp: Let's download from the Internet"
-        !endif
+        LogEx::Write "*** DownloadApp: Let's download from the Internet"
 
         ; overwrite subtitle
         SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_APP_DOWNLOAD_START)"
@@ -625,9 +576,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
         ${If} "$R0" != "OK"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
-          !ifdef NSIS_CONFIG_LOG
-            LogText "*** DownloadApp: Download failed"
-          !endif
+          LogEx::Write "*** DownloadApp: Download failed"
           Abort
         ${EndIf}
 
@@ -639,33 +588,23 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
         ${If} "$APP_HASH" != ""
         ${AndIf} "$0" != "$APP_HASH"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_HASH_ERROR)" /SD IDOK
-          !ifdef NSIS_CONFIG_LOG
-            LogText "*** DownloadApp: Downloaded file is broken"
-          !endif
+          LogEx::Write "*** DownloadApp: Downloaded file is broken"
           Abort
         ${EndIf}
 
         AppDownloadDone:
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** DownloadApp: installer is $APP_INSTALLER_FINAL_PATH"
-        !endif
+        LogEx::Write "*** DownloadApp: installer is $APP_INSTALLER_FINAL_PATH"
       ${EndUnless}
   SectionEnd
 
   Section "Install Application" InstallApp
-      !ifdef NSIS_CONFIG_LOG
-        LogSet on
-      !endif
-
       Call GetAppPath
       Call CheckAppVersion
 
       Call CheckShortcutsExistence
 
       ${Unless} "$APP_EXISTS" == "1"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** InstallApp: Let's run installer"
-        !endif
+        LogEx::Write "*** InstallApp: Let's run installer"
         ${If} ${FileExists} "$APP_INSTALLER_INI"
           ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
         ${Else}
@@ -687,9 +626,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
           ${Else}
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_INSTALL_ERROR)" /SD IDOK
           ${EndIf}
-          !ifdef NSIS_CONFIG_LOG
-            LogText "*** InstallApp: Version check failed"
-          !endif
+          LogEx::Write "*** InstallApp: Version check failed"
           Abort
         ${EndUnless}
 
@@ -727,10 +664,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 !endif
 
 Function "CheckShortcutsExistence"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** CheckShortcutsExistence"
-    !endif
+    LogEx::Write "*** CheckShortcutsExistence"
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
@@ -741,10 +675,8 @@ Function "CheckShortcutsExistence"
     ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "${APP_FULL_NAME}" ${|}
     ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "${APP_FULL_NAME}" ${|}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** SHORTCUT_NAME : $SHORTCUT_NAME"
-      LogText "*** PROGRAM_FOLDER_NAME : $PROGRAM_FOLDER_NAME"
-    !endif
+    LogEx::Write "*** SHORTCUT_NAME : $SHORTCUT_NAME"
+    LogEx::Write "*** PROGRAM_FOLDER_NAME : $PROGRAM_FOLDER_NAME"
 
     SetShellVarContext all
     StrCpy $SHORTCUT_PATH_DESKTOP "$DESKTOP\$SHORTCUT_NAME.lnk"
@@ -763,28 +695,21 @@ Function "CheckShortcutsExistence"
       StrCpy $EXISTS_SHORTCUT_STARTMENU_PROGRAM "1"
     ${EndIf}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** EXISTS_SHORTCUT_DESKTOP           : $EXISTS_SHORTCUT_DESKTOP"
-      LogText "*** EXISTS_SHORTCUT_STARTMENU         : $EXISTS_SHORTCUT_STARTMENU"
-      LogText "*** EXISTS_SHORTCUT_STARTMENU_PROGRAM : $EXISTS_SHORTCUT_STARTMENU_PROGRAM"
-      LogText "*** EXISTS_SHORTCUT_QUICKLAUNCH       : $EXISTS_SHORTCUT_QUICKLAUNCH"
-    !endif
+    LogEx::Write "*** EXISTS_SHORTCUT_DESKTOP           : $EXISTS_SHORTCUT_DESKTOP"
+    LogEx::Write "*** EXISTS_SHORTCUT_STARTMENU         : $EXISTS_SHORTCUT_STARTMENU"
+    LogEx::Write "*** EXISTS_SHORTCUT_STARTMENU_PROGRAM : $EXISTS_SHORTCUT_STARTMENU_PROGRAM"
+    LogEx::Write "*** EXISTS_SHORTCUT_QUICKLAUNCH       : $EXISTS_SHORTCUT_QUICKLAUNCH"
 FunctionEnd
 
 Function "UpdateShortcutsExistence"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** UpdateShortcutsExistence"
-    !endif
+    LogEx::Write "*** UpdateShortcutsExistence"
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
 
     ${If} ${FileExists} "$APP_INSTALLER_INI"
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "DesktopShortcut"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** DesktopShortcut: $1"
-      !endif
+      LogEx::Write "*** DesktopShortcut: $1"
       ${If} "$1" == "false"
         ${If} "$EXISTS_SHORTCUT_DESKTOP" == ""
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP"
@@ -793,9 +718,7 @@ Function "UpdateShortcutsExistence"
       ${EndIf}
 
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "StartMenuShortcuts"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** StartMenuShortcuts: $1"
-      !endif
+      LogEx::Write "*** StartMenuShortcuts: $1"
       ${If} "$1" == "false"
         ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
@@ -809,19 +732,15 @@ Function "UpdateShortcutsExistence"
 
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcutAllUsers"
       ReadINIStr $2 "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcut"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** QuickLaunchShortcutAllUsers: $1"
-      !endif
+      LogEx::Write "*** QuickLaunchShortcutAllUsers: $1"
       ${If} "$1" == "true"
         SetShellVarContext current
         StrCpy $ITEM_LOCATION_BASE "$APPDATA\Microsoft\Internet Explorer\Quick Launch"
         ${WordReplace} "$ITEM_LOCATION_BASE" "$PROFILE" "" "+*" $ITEM_LOCATION_BASE
         ${GetParent} "$PROFILE" $1 ; $1 is parent of "HOME"
         StrCpy $ITEM_LOCATION_BASE "$1\%USERNAME%$ITEM_LOCATION_BASE"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** parent of HOME: $1"
-          LogText "*** ITEM_LOCATION_BASE: $ITEM_LOCATION_BASE"
-        !endif
+        LogEx::Write "*** parent of HOME: $1"
+        LogEx::Write "*** ITEM_LOCATION_BASE: $ITEM_LOCATION_BASE"
         StrCpy $ITEM_INDEX 0
         ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcut"
         ${Locate} "$1" "/L=D /G=0 /M=*" "UpdateQuickLaunchShortcutForOneUser"
@@ -837,19 +756,12 @@ FunctionEnd
 
 Var USER_NAME
 Function "UpdateQuickLaunchShortcutForOneUser"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** UpdateQuickLaunchShortcutForOneUser"
-    !endif
+    LogEx::Write "*** UpdateQuickLaunchShortcutForOneUser"
 
     StrCpy $USER_NAME "$R7"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** USER_NAME: $USER_NAME"
-    !endif
+    LogEx::Write "*** USER_NAME: $USER_NAME"
     ${WordReplace} "$ITEM_LOCATION_BASE" "%USERNAME%" "$USER_NAME" "+*" $ITEM_LOCATION
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** ITEM_LOCATION: $ITEM_LOCATION"
-    !endif
+    LogEx::Write "*** ITEM_LOCATION: $ITEM_LOCATION"
 
     ${If} "$INI_TEMP" == "false"
       Delete "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
@@ -866,24 +778,15 @@ Function "UpdateQuickLaunchShortcutForOneUser"
 FunctionEnd
 
 Section "Set Default Client" SetDefaultClient
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
     ${ReadINIStrWithDefault} $ITEM_NAME "${INIPATH}" "${INSTALLER_NAME}" "DefaultClient" "${DEFAULT_CLIENT}"
     ${Unless} "$ITEM_NAME" == ""
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** SetDefaultClient: $ITEM_NAME"
-      !endif
+      LogEx::Write "*** SetDefaultClient: $ITEM_NAME"
 
       ReadRegDWORD $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible"
       ${If} $COMMAND_STRING < 1
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** Hidden => Visible: $ITEM_NAME"
-        !endif
+        LogEx::Write "*** Hidden => Visible: $ITEM_NAME"
         ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** Command: $COMMAND_STRING"
-        !endif
+        LogEx::Write "*** Command: $COMMAND_STRING"
         ${Unless} "$COMMAND_STRING" == ""
           StrCpy $ITEM_LOCATION "$COMMAND_STRING"
           Call ResolveItemLocation
@@ -906,16 +809,11 @@ Section "Set Default Client" SetDefaultClient
         Call UpdateShortcutsExistence
       ${EndUnless}
 
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** Complete: $ITEM_NAME"
-      !endif
+      LogEx::Write "*** Complete: $ITEM_NAME"
     ${EndUnless}
 SectionEnd
 
 Section "Disable Clients" DisableClients
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
     StrCpy $ITEM_INDEX 0
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "DisabledClients" "${DISABLED_CLIENTS}"
     ${Unless} "$ITEMS_LIST" == ""
@@ -932,20 +830,13 @@ Section "Disable Clients" DisableClients
 SectionEnd
 
 Function "DisableClient"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** DisableClient: $ITEM_NAME"
-    !endif
+    LogEx::Write "*** DisableClient: $ITEM_NAME"
 
     ReadRegDWORD $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible"
     ${If} $COMMAND_STRING > 0
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** Visible => Hidden: $ITEM_NAME"
-      !endif
+      LogEx::Write "*** Visible => Hidden: $ITEM_NAME"
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** Command: $COMMAND_STRING"
-      !endif
+      LogEx::Write "*** Command: $COMMAND_STRING"
       ${Unless} "$COMMAND_STRING" == ""
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call ResolveItemLocation
@@ -960,10 +851,7 @@ Function "DisableClient"
 FunctionEnd
 
 Section "Install Profiles" InstallProfiles
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** InstallProfiles: start"
-    !endif
+    LogEx::Write "*** InstallProfiles: start"
 
     StrCpy $ITEM_INDEX 0
 
@@ -1006,9 +894,7 @@ Section "Install Profiles" InstallProfiles
     ${EndUnless}
 
     ${If} ${FileExists} "$RES_DIR\profile.zip"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** Install Default Profile"
-      !endif
+      LogEx::Write "*** Install Default Profile"
       StrCpy $DIST_PATH "$APP_DIR\defaults\profile"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
       StrCpy $BACKUP_COUNT 0
@@ -1027,10 +913,7 @@ SectionEnd
 
 Var PROFILE_INDEX
 Function "InstallProfile"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** InstallProfile: start for $ITEM_LOCATION"
-    !endif
+    LogEx::Write "*** InstallProfile: start for $ITEM_LOCATION"
 
     StrCpy $1 "$ITEM_LOCATION"
     ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
@@ -1040,9 +923,7 @@ Function "InstallProfile"
 
     ReadINIStr $INI_TEMP "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile"
     ${If} "$INI_TEMP" == ""
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** CreateProfile: there is no profile"
-      !endif
+      LogEx::Write "*** CreateProfile: there is no profile"
 
       ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile" "1"
@@ -1052,9 +933,7 @@ Function "InstallProfile"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "Default" "1"
 
     ${Else}
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** CreateProfile: profile exists"
-      !endif
+      LogEx::Write "*** CreateProfile: profile exists"
 
       ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
 
@@ -1096,9 +975,7 @@ Section "Old Distribution Directory Existence Check" OldDistDirExistenceCheck
     StrCpy $DIST_PATH   "${APP_DISTRIBUTION_DIR}"
     StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
     StrCpy $BACKUP_COUNT 0
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InitDistributonCustomizer: install to $DIST_PATH"
-    !endif
+    LogEx::Write "*** InitDistributonCustomizer: install to $DIST_PATH"
     ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
       IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
@@ -1106,25 +983,18 @@ Section "Old Distribution Directory Existence Check" OldDistDirExistenceCheck
     ${If} ${FileExists} "$DIST_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup" "$BACKUP_PATH"
       Rename "$DIST_PATH" "$BACKUP_PATH"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** InitDistributonCustomizer: BACKUP_PATH = $BACKUP_PATH"
-      !endif
+      LogEx::Write "*** InitDistributonCustomizer: BACKUP_PATH = $BACKUP_PATH"
     ${EndIf}
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
 SectionEnd
 
 Section "Install Add-ons" InstallAddons
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
     StrCpy $ITEM_INDEX 0
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons" "${INSTALL_ADDONS}"
     ${If} "$ITEMS_LIST" == ""
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
     ${EndIf}
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** ADDONS: $ITEMS_LIST"
-    !endif
+    LogEx::Write "*** ADDONS: $ITEMS_LIST"
     ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
@@ -1139,10 +1009,7 @@ Section "Install Add-ons" InstallAddons
 SectionEnd
 
 Function "CollectAddonFiles"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** CollectAddonFiles: $R7"
-    !endif
+    LogEx::Write "*** CollectAddonFiles: $R7"
     ${If} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST "$R7"
     ${Else}
@@ -1156,10 +1023,7 @@ Var ADDON_NAME
 Var UNPACK
 Var UNINSTALL
 Function "InstallAddon"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** InstallAddon: install $ITEM_NAME"
-    !endif
+    LogEx::Write "*** InstallAddon: install $ITEM_NAME"
 
     ReadINIStr $ADDON_NAME "${INIPATH}" "$ITEM_NAME" "AddonId"
     ${If} "$ADDON_NAME" == ""
@@ -1167,9 +1031,7 @@ Function "InstallAddon"
       StrCpy $ADDON_NAME "$ADDON_NAME@${PRODUCT_DOMAIN}"
     ${EndIf}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallAddon: ADDON_NAME = $ADDON_NAME"
-    !endif
+    LogEx::Write "*** InstallAddon: ADDON_NAME = $ADDON_NAME"
 
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
     ${Unless} "$ITEM_LOCATION" == ""
@@ -1195,9 +1057,7 @@ Function "InstallAddon"
       ${If} "$INI_TEMP" == "false"
       ${AndIf} ${FileExists} "$ITEM_LOCATION"
       ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** InstallAddon: $ADDON_NAME installation is canceled (already installed)"
-        !endif
+        LogEx::Write "*** InstallAddon: $ADDON_NAME installation is canceled (already installed)"
         GoTo CANCELED
       ${EndIf}
     ${EndUnless}
@@ -1216,9 +1076,7 @@ Function "InstallAddon"
 
     ; Install the "Managed Storage" manifest for the addon (if one exists)
     ${if} ${FileExists} "$RES_DIR\$ITEM_NAME.ManagedStorage"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** InstallAddon: $ADDON_NAME native manifest found (ManagedStorage)"
-      !endif
+      LogEx::Write "*** InstallAddon: $ADDON_NAME native manifest found (ManagedStorage)"
 
       StrCpy $MANIFEST_DIR "${APP_DISTRIBUTION_DIR}\ManagedStorage"
       SetOutPath $MANIFEST_DIR
@@ -1243,9 +1101,7 @@ Function "InstallAddon"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallAddon: $ADDON_NAME successfully installed"
-    !endif
+    LogEx::Write "*** InstallAddon: $ADDON_NAME successfully installed"
   CANCELED:
 FunctionEnd
 
@@ -1274,10 +1130,7 @@ Var SHORTCUT_ICON_PATH
 Var SHORTCUT_ICON_INDEX
 Var UPDATE_PINNED_SHORTCUTS
 Function "InstallShortcut"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** InstallShortcut: install $ITEM_NAME"
-    !endif
+    LogEx::Write "*** InstallShortcut: install $ITEM_NAME"
 
     ReadINIStr $SHORTCUT_NAME "${INIPATH}" "$ITEM_NAME" "Name"
 
@@ -1387,17 +1240,12 @@ Function "InstallShortcut"
 
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallShortcut: $ITEM_NAME successfully installed"
-    !endif
+    LogEx::Write "*** InstallShortcut: $ITEM_NAME successfully installed"
 FunctionEnd
 
 Var INSTALLING_APPLICATION_SPECIFIC_FILES
 Section "Install Extra Files" InstallExtraFiles
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** InstallExtraFiles"
-    !endif
+    LogEx::Write "*** InstallExtraFiles"
     ; Disable install guard for ExtraFiles=
     StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraFiles" "${EXTRA_FILES}"
@@ -1406,16 +1254,12 @@ Section "Install Extra Files" InstallExtraFiles
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
         ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** InstallExtraFiles: WordFind ITEM_NAME ($ITEM_NAME) in ITEMS_LIST ($ITEMS_LIST)"
-        !endif
+        LogEx::Write "*** InstallExtraFiles: WordFind ITEM_NAME ($ITEM_NAME) in ITEMS_LIST ($ITEMS_LIST)"
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
         StrCpy $PROCESSING_FILE "$ITEM_NAME"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** InstallExtraFiles: PROCESSING_FILE: $PROCESSING_FILE"
-        !endif
+        LogEx::Write "*** InstallExtraFiles: PROCESSING_FILE: $PROCESSING_FILE"
         Call InstallNormalFile
       ${EndWhile}
     ${EndUnless}
@@ -1423,10 +1267,7 @@ Section "Install Extra Files" InstallExtraFiles
 SectionEnd
 
 Section "Install Extra Installers" InstallExtraInstallers
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** InstallExtraInstallers"
-    !endif
+    LogEx::Write "*** InstallExtraInstallers"
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Installers" "${EXTRA_INSTALLERS}"
     ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
@@ -1444,36 +1285,23 @@ SectionEnd
 Var EXTRA_INSTALLER_NAME
 Var EXTRA_INSTALLER_OPTIONS
 Function "InstallExtraInstaller"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-      LogText "*** InstallExtraInstaller: install $ITEM_NAME"
-    !endif
+    LogEx::Write "*** InstallExtraInstaller: install $ITEM_NAME"
 
     ReadINIStr $EXTRA_INSTALLER_NAME "${INIPATH}" "$ITEM_NAME" "Name"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** EXTRA_INSTALLER_NAME from INI: $EXTRA_INSTALLER_NAME"
-    !endif
+    LogEx::Write "*** EXTRA_INSTALLER_NAME from INI: $EXTRA_INSTALLER_NAME"
     ${If} "$EXTRA_INSTALLER_NAME" == ""
       StrCpy $EXTRA_INSTALLER_NAME "$ITEM_NAME"
     ${EndIf}
 
     ReadINIStr $EXTRA_INSTALLER_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** EXTRA_INSTALLER_OPTIONS from INI: $EXTRA_INSTALLER_OPTIONS"
-    !endif
+    LogEx::Write "*** EXTRA_INSTALLER_OPTIONS from INI: $EXTRA_INSTALLER_OPTIONS"
 
     ExecWait '"$RES_DIR\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallExtraInstaller: $ITEM_NAME successfully installed"
-    !endif
+    LogEx::Write "*** InstallExtraInstaller: $ITEM_NAME successfully installed"
 FunctionEnd
 
 Function InstallAdditionalFiles
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
-
     StrCpy $ITEM_INDEX 0
     StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
 
@@ -1550,41 +1378,27 @@ Function "InstallNormalFileForLocate"
 FunctionEnd
 
 Function "InstallNormalFile"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
-
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$PROCESSING_FILE" "TargetLocation"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
     ;       otherwise only the first found file will be installed and others are ignored.
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallNormalFile: TargetLocation of $PROCESSING_FILE: $ITEM_LOCATION"
-    !endif
+    LogEx::Write "*** InstallNormalFile: TargetLocation of $PROCESSING_FILE: $ITEM_LOCATION"
     ${Unless} "$ITEM_LOCATION" == ""
       ${If} $INSTALLING_APPLICATION_SPECIFIC_FILES == 1
         ; Don't install normal file twice to the location specified by "TargetLocation".
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** InstallNormalFile: block to install $PROCESSING_FILE to $ITEM_LOCATION twice"
-        !endif
+        LogEx::Write "*** InstallNormalFile: block to install $PROCESSING_FILE to $ITEM_LOCATION twice"
         GoTo RETURN
       ${EndIf}
       Call ResolveItemLocation
     ${EndUnless}
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallNormalFile: resolved ITEM_LOCATION: $ITEM_LOCATION"
-    !endif
+    LogEx::Write "*** InstallNormalFile: resolved ITEM_LOCATION: $ITEM_LOCATION"
     ${If} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$DIST_DIR"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** InstallNormalFile: set DIST_DIR ($DIST_DIR) to ITEM_LOCATION ($ITEM_LOCATION)"
-      !endif
+      LogEx::Write "*** InstallNormalFile: set DIST_DIR ($DIST_DIR) to ITEM_LOCATION ($ITEM_LOCATION)"
     ${EndIf}
     StrCpy $DIST_PATH "$ITEM_LOCATION\$PROCESSING_FILE"
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallNormalFile: install $PROCESSING_FILE to $DIST_PATH"
-    !endif
+    LogEx::Write "*** InstallNormalFile: install $PROCESSING_FILE to $DIST_PATH"
 
     ${If} ${FileExists} "$DIST_PATH"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
@@ -1593,9 +1407,7 @@ Function "InstallNormalFile"
         IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
         StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
       ${EndWhile}
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** InstallNormalFile: backup old file as $BACKUP_PATH"
-      !endif
+      LogEx::Write "*** InstallNormalFile: backup old file as $BACKUP_PATH"
       Rename "$DIST_PATH" "$BACKUP_PATH"
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup" "$BACKUP_PATH"
     ${EndIf}
@@ -1609,19 +1421,13 @@ Function "InstallNormalFile"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InstallNormalFile: $PROCESSING_FILE is successfully installed"
-    !endif
+    LogEx::Write "*** InstallNormalFile: $PROCESSING_FILE is successfully installed"
 
   RETURN:
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
 Section "Initialize Search Plugins" InitSearchPlugins
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
-
     StrCpy $DIST_PATH "$APP_DIR\browser\searchplugins"
     ${Unless} ${FileExists} "$DIST_PATH"
       StrCpy $DIST_PATH "$APP_DIR\searchplugins"
@@ -1629,18 +1435,14 @@ Section "Initialize Search Plugins" InitSearchPlugins
 
     StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
     StrCpy $BACKUP_COUNT 0
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InitSearchPlugins: install to $DIST_PATH"
-    !endif
+    LogEx::Write "*** InitSearchPlugins: install to $DIST_PATH"
     ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
       IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
     ${EndWhile}
 
     CreateDirectory "$BACKUP_PATH"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** InitSearchPlugins: BACKUP_PATH = $BACKUP_PATH"
-    !endif
+    LogEx::Write "*** InitSearchPlugins: BACKUP_PATH = $BACKUP_PATH"
 
     ${If} "$FX_ENABLED_SEARCH_PLUGINS" != ""
     ${AndIf} "$FX_ENABLED_SEARCH_PLUGINS" != "*"
@@ -1666,10 +1468,6 @@ Section "Initialize Search Plugins" InitSearchPlugins
 SectionEnd
 
 Function "CheckDisableSearchPlugin"
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
-
     StrCpy $PROCESSING_FILE "$R7"
 
     ${Unless} "$FX_ENABLED_SEARCH_PLUGINS" == "*"
@@ -1707,10 +1505,6 @@ Function "CheckDisableSearchPlugin"
 FunctionEnd
 
 Section "Initialize Distribution Customizer" InitDistributonCustomizer
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
-
     StrCpy $DIST_PATH   "${APP_DISTRIBUTION_DIR}"
     StrCpy $DIST_DIR "$DIST_PATH"
     ${If} ${FileExists} "$RES_DIR\distribution.*"
@@ -2025,10 +1819,6 @@ FunctionEnd
 
 ;=== Utility functions
 Function CheckCleanInstall
-  !ifdef NSIS_CONFIG_LOG
-    LogSet on
-  !endif
-
   ${If} ${FileExists} "${APP_PROFILE_PATH}"
     ${If} "$CLEAN_INSTALL" == "REQUIRED"
       ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage" "${CLEAN_REQUIRED_MESSAGE}"
@@ -2114,10 +1904,6 @@ Function CheckAdminPrivilege
 FunctionEnd
 
 Function CheckInstalled
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
-
     ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
     ${Unless} "$R0" == ""
       !if ${APP_INSTALL_MODE} != "SKIP"
@@ -2127,9 +1913,7 @@ Function CheckInstalled
         !endif
 
       UNINST:
-        !ifdef NSIS_CONFIG_LOG
-          LogText "CheckInstalled: Application is installed by meta installer"
-        !endif
+        LogEx::Write "CheckInstalled: Application is installed by meta installer"
         ; If the Firefox/Thunderbird is installed by this meta installer,
         ; then we should keep the state.
         ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
@@ -2142,10 +1926,6 @@ Function CheckInstalled
 FunctionEnd
 
 Function LoadINI
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
-
     ${ReadINIStrWithDefault} $APP_DOWNLOAD_PATH "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadPath" "${APP_DOWNLOAD_PATH}"
     ${ReadINIStrWithDefault} $APP_EULA_PATH     "${INIPATH}" "${INSTALLER_NAME}" "AppEulaPath"     "${APP_EULA_PATH}"
     ${ReadINIStrWithDefault} $APP_DOWNLOAD_URL  "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadUrl"  "${APP_DOWNLOAD_URL}"
@@ -2249,15 +2029,9 @@ FunctionEnd
 !insertmacro GetCurrentAppVersion "un."
 
 Function GetAppPath
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
-
     ${IfThen} "$APP_INSTALLED" != "1" ${|} StrCpy $APP_INSTALLED "0" ${|}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** GetAppPath: Application installed"
-    !endif
+    LogEx::Write "*** GetAppPath: Application installed"
 
     Call GetCurrentAppVersion
     ${IfThen} "$APP_VERSION" == "" ${|} GoTo ERR ${|}
@@ -2273,9 +2047,7 @@ Function GetAppPath
     ${EndIf}
     ${IfThen} "$APP_EXE_PATH" == "" ${|} GoTo ERR ${|}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** GetAppPath: APP_EXE_PATH = $APP_EXE_PATH"
-    !endif
+    LogEx::Write "*** GetAppPath: APP_EXE_PATH = $APP_EXE_PATH"
 
     ; Application directory
     ${If} "$APP_IS_64BIT" == "true"
@@ -2287,26 +2059,20 @@ Function GetAppPath
     ${EndIf}
     ${IfThen} "$APP_DIR" == "" ${|} GoTo ERR ${|}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** GetAppPath: APP_DIR = $APP_DIR"
-    !endif
+    LogEx::Write "*** GetAppPath: APP_DIR = $APP_DIR"
 
     ${If} ${FileExists} "$APP_INSTALLER_INI"
       ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"
       ReadINIStr $INI_TEMP2 "$APP_INSTALLER_INI" "Install" "InstallDirectoryPath"
       ${If} $INI_TEMP2 != ""
         ${If} "$APP_DIR" != "$INI_TEMP2"
-          !ifdef NSIS_CONFIG_LOG
-            LogText "*** GetAppPath: APP_DIR must be $INI_TEMP2"
-          !endif
+          LogEx::Write "*** GetAppPath: APP_DIR must be $INI_TEMP2"
           StrCpy $APP_DIR "$INI_TEMP2"
           StrCpy $APP_EXE_PATH "$APP_DIR\${APP_EXE}"
         ${EndIf}
       ${ElseIf} $INI_TEMP != ""
         ${If} "$APP_DIR" != "$APP_PROGRAMFILES\$INI_TEMP"
-          !ifdef NSIS_CONFIG_LOG
-            LogText "*** GetAppPath: APP_DIR must be $APP_PROGRAMFILES\$INI_TEMP"
-          !endif
+          LogEx::Write "*** GetAppPath: APP_DIR must be $APP_PROGRAMFILES\$INI_TEMP"
           StrCpy $APP_DIR "$APP_PROGRAMFILES\$INI_TEMP"
           StrCpy $APP_EXE_PATH "$APP_DIR\${APP_EXE}"
         ${EndIf}
@@ -2316,9 +2082,7 @@ Function GetAppPath
     ${If} ${FileExists} "$APP_EXE_PATH"
       ${If} ${FileExists} "$APP_DIR"
       ${OrIf} ${FileExists} "$APP_DIR\*.*"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** GetAppPath: Application exists"
-        !endif
+        LogEx::Write "*** GetAppPath: Application exists"
         StrCpy $APP_EXISTS "1"
         ; get actual version number from application.ini because
         ; the version can be mismatched.
@@ -2330,23 +2094,17 @@ Function GetAppPath
 FunctionEnd
 
 Function CheckAppVersion
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
-
     ; try to remove " (ja)" part
     ${StrStrAdv} $NORMALIZED_APP_VERSION "$APP_VERSION" " " ">" "<" "0" "0" "0"
     ${If} "$NORMALIZED_APP_VERSION" == ""
       StrCpy $NORMALIZED_APP_VERSION "$APP_VERSION"
     ${EndIf}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** CheckAppVersion: APP_VERSION = $APP_VERSION"
-      LogText "*** CheckAppVersion: NORMALIZED_APP_VERSION = $NORMALIZED_APP_VERSION"
-      LogText "*** CheckAppVersion: APP_MIN_VERSION = $APP_MIN_VERSION"
-      LogText "*** CheckAppVersion: APP_MAX_VERSION = $APP_MAX_VERSION"
-      LogText "*** CheckAppVersion: APP_ALLOW_DOWNGRADE = $APP_ALLOW_DOWNGRADE"
-    !endif
+    LogEx::Write "*** CheckAppVersion: APP_VERSION = $APP_VERSION"
+    LogEx::Write "*** CheckAppVersion: NORMALIZED_APP_VERSION = $NORMALIZED_APP_VERSION"
+    LogEx::Write "*** CheckAppVersion: APP_MIN_VERSION = $APP_MIN_VERSION"
+    LogEx::Write "*** CheckAppVersion: APP_MAX_VERSION = $APP_MAX_VERSION"
+    LogEx::Write "*** CheckAppVersion: APP_ALLOW_DOWNGRADE = $APP_ALLOW_DOWNGRADE"
 
     ${VersionConvert} "$NORMALIZED_APP_VERSION" "abcdefghijklmnopqrstuvwxyz" $APP_VERSION_NUM
     StrCpy $APP_WRONG_VERSION "0"
@@ -2359,9 +2117,7 @@ Function CheckAppVersion
 
     ${IfThen} "$APP_EXISTS" != "1" ${|} GoTo RETURN ${|}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** CheckAppVersion: Application exists"
-    !endif
+    LogEx::Write "*** CheckAppVersion: Application exists"
 
     ${ReadINIStrWithDefault} $0 "${INIPATH}" "${INSTALLER_NAME}" "AppMaxVersion" "${APP_MAX_VERSION}"
     ${VersionConvert} "$0" "abcdefghijklmnopqrstuvwxyz" $1
@@ -2369,9 +2125,7 @@ Function CheckAppVersion
     ${If} "$0" == "1"
       StrCpy $APP_WRONG_VERSION "2"
       StrCpy $APP_EXISTS "0"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** CheckAppVersion: Installed version is too new"
-      !endif
+      LogEx::Write "*** CheckAppVersion: Installed version is too new"
       GoTo RETURN
     ${EndIf}
 
@@ -2381,26 +2135,18 @@ Function CheckAppVersion
     ${If} "$0" == "2"
       StrCpy $APP_WRONG_VERSION "1"
       StrCpy $APP_EXISTS "0"
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** CheckAppVersion: Installed version is too old"
-      !endif
+      LogEx::Write "*** CheckAppVersion: Installed version is too old"
       GoTo RETURN
     ${EndIf}
   RETURN:
 FunctionEnd
 
 Function CheckAppVersionWithMessage
-    !ifdef NSIS_CONFIG_LOG
-      LogSet on
-    !endif
-
     ${IfThen} "$APP_EXISTS" != "1" ${|} GoTo RETURN ${|}
 
     Call CheckAppVersion
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** CheckAppVersionWithMessage: APP_WRONG_VERSION = $APP_WRONG_VERSION"
-    !endif
+    LogEx::Write "*** CheckAppVersionWithMessage: APP_WRONG_VERSION = $APP_WRONG_VERSION"
     ${Switch} $APP_WRONG_VERSION
 
       ${Case} 1
@@ -2433,9 +2179,7 @@ Function CheckAppVersionWithMessage
 FunctionEnd
 
 Function "SetUpRequiredDirectories"
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** SetUpRequiredDirectories: setup $REQUIRED_DIRECTORY"
-    !endif
+    LogEx::Write "*** SetUpRequiredDirectories: setup $REQUIRED_DIRECTORY"
 
     StrCpy $CREATED_TOP_REQUIRED_DIRECTORY ""
     StrCpy $REQUIRED_DIRECTORIES "$REQUIRED_DIRECTORY"
@@ -2448,9 +2192,7 @@ Function "SetUpRequiredDirectories"
       StrCpy $R0 "$R1"
     ${EndWhile}
 
-    !ifdef NSIS_CONFIG_LOG
-      LogText "*** SetUpRequiredDirectories: folders = $REQUIRED_DIRECTORIES"
-    !endif
+    LogEx::Write "*** SetUpRequiredDirectories: folders = $REQUIRED_DIRECTORIES"
 
     StrCpy $REQUIRED_DIRECTORY_INDEX 0
     ${While} 1 == 1
@@ -2465,15 +2207,11 @@ Function "SetUpRequiredDirectories"
       ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
         ${Continue}
       ${EndIf}
-      !ifdef NSIS_CONFIG_LOG
-        LogText "*** SetUpRequiredDirectories: create $ITEM_LOCATION"
-      !endif
+      LogEx::Write "*** SetUpRequiredDirectories: create $ITEM_LOCATION"
       CreateDirectory "$ITEM_LOCATION"
       ${If} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
         StrCpy $CREATED_TOP_REQUIRED_DIRECTORY "$ITEM_LOCATION"
-        !ifdef NSIS_CONFIG_LOG
-          LogText "*** SetUpRequiredDirectories: top level = $ITEM_LOCATION"
-        !endif
+        LogEx::Write "*** SetUpRequiredDirectories: top level = $ITEM_LOCATION"
       ${EndIf}
     ${EndWhile}
 FunctionEnd

@@ -19,8 +19,4 @@
 !define APP_INSTALL_MODE    "QUIET"
 !define APP_IS_64BIT        "false"
 
-!ifdef NSIS_CONFIG_LOG
-!undef NSIS_CONFIG_LOG
-!endif
-
 ;===================================================================
