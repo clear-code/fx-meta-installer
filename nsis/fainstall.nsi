@@ -2035,7 +2035,7 @@ Function GetCurrentAppRegKey
       StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY}"
     ${EndIf}
   ${EndIf}
-  LogEx::Write "  APP_REG_KEY: $APP_REG_KEY"
+  LogEx::Write "  APP_REG_KEY:               $APP_REG_KEY"
   LogEx::Write "  APP_VERSIONS_ROOT_REG_KEY: $APP_VERSIONS_ROOT_REG_KEY"
 FunctionEnd
 
