@@ -13,7 +13,7 @@ http://nsis.sourceforge.net/mediawiki/images/d/d7/Md5dll.zip
 http://nsis.sourceforge.net/mediawiki/images/8/8f/UAC.zip
 http://nsis.sourceforge.net/mediawiki/images/4/4a/AccessControl.zip
 http://nsis.sourceforge.net/mediawiki/images/0/08/UserMgr.zip
-http://nsis.sourceforge.net/mediawiki/images/a/a0/Dumpstate-0-1-.2.zip
+http://nsis.sourceforge.net/mediawiki/images/d/d1/LogEx.zip
 "
 
 mkdir -p plugins
