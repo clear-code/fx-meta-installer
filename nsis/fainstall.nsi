@@ -2099,7 +2099,15 @@ Function GetAppPath
 
     ${If} ${FileExists} "$APP_INSTALLER_INI"
       ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"
+      LogEx::Write "  InstallDirectoryName: $INI_TEMP"
       ReadINIStr $INI_TEMP2 "$APP_INSTALLER_INI" "Install" "InstallDirectoryPath"
+      LogEx::Write "  InstallDirectoryPath: $INI_TEMP2"
+      ${If} $INI_TEMP2 != ""
+      ${AndIf} $INI_TEMP != ""
+        LogEx::Write "  Both InstallDirectoryName and InstallDirectoryPath are specified!!"
+        LogEx::Write "  Clearing InstallDirectoryPath to use only InstallDirectoryName."
+        StrCpy $INI_TEMP2 ""
+      ${EndIf}
       ${If} $INI_TEMP2 != ""
         ${If} "$APP_DIR" != "$INI_TEMP2"
           LogEx::Write "  APP_DIR must be $INI_TEMP2"
