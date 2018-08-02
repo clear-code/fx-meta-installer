@@ -439,7 +439,6 @@ Var CLEAN_INSTALL
 !endif
 
 Section "Initialize Variables" InitializeVariables
-    LogEx::Init "$INSTDIR\install.log"
     LogEx::Write "InitializeVariables"
 
     ${ReadINIStrWithDefault} $APP_IS_64BIT "${INIPATH}" "${INSTALLER_NAME}" "AppIs64bit" "${APP_IS_64BIT}"
@@ -1766,6 +1765,7 @@ FunctionEnd
 
 ;=== Callback functions
 Function .onInit
+    LogEx::Init "$INSTDIR\install.log"
     Call CheckAppProc
 
     Call LoadINI
