@@ -458,6 +458,8 @@ Section "Initialize Variables" InitializeVariables
       ${EndUnless}
     !endif
 
+    SetOutPath $INSTDIR
+
     ${ReadINIStrWithDefault} $RES_DIR "${INIPATH}" "${INSTALLER_NAME}" "Resources" "resources"
     ${If} "$RES_DIR" == ""
       StrCpy $RES_DIR "$EXEDIR"
