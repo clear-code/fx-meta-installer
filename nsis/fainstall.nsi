@@ -1766,6 +1766,7 @@ FunctionEnd
 ;=== Callback functions
 Function .onInit
     LogEx::Init "$INSTDIR\install.log"
+    LogEx::Write "----------------------onInit------------------------"
     Call CheckAppProc
 
     Call LoadINI
