@@ -458,9 +458,6 @@ Section "Initialize Variables" InitializeVariables
       ${EndUnless}
     !endif
 
-    StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
-    SetOutPath $INSTDIR
-
     ${ReadINIStrWithDefault} $RES_DIR "${INIPATH}" "${INSTALLER_NAME}" "Resources" "resources"
     ${If} "$RES_DIR" == ""
       StrCpy $RES_DIR "$EXEDIR"
@@ -492,8 +489,6 @@ Section "Initialize Variables" InitializeVariables
     ${EndIf}
 
     ${ReadINIStrWithDefault} $DISPLAY_VERSION "${INIPATH}" "${INSTALLER_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
-
-    LogEx::Write "  install to $INSTDIR"
 SectionEnd
 
 Function "DetectAppInstallerPath"
@@ -1765,8 +1760,13 @@ FunctionEnd
 
 ;=== Callback functions
 Function .onInit
+    StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
+    SetOutPath $INSTDIR
+
     LogEx::Init "$INSTDIR\install.log"
     LogEx::Write "----------------------onInit------------------------"
+    LogEx::Write "Install to $INSTDIR"
+
     Call CheckAppProc
 
     Call LoadINI
