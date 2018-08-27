@@ -52,7 +52,7 @@ IF NOT EXIST "%SIGN_PFX%" GOTO CREATE_PACKAGE_SOURCES
 
 :CREATE_PACKAGE_SOURCES
 
-for /f %%s in ('cat product.txt') do set INSTALLER_NAME=%%s
+for /f %%s in ('type product.txt') do set INSTALLER_NAME=%%s
 
 del "%INSTALLER_NAME%.exe"
 rmdir "%INSTALLER_NAME%-source" /s /q
