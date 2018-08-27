@@ -415,7 +415,7 @@ Var CLEAN_INSTALL
           ${Else}
             FindWindow $0 "#32770" "" $HWNDPARENT
             EnableWindow $HWNDPARENT 0
-            InetLoad::load /SILENT " " /NOCANCEL \
+            inetc::get /SILENT /NOCANCEL \
               "$APP_EULA_URL" "$APP_EULA_FINAL_PATH"
             Pop $R0
             EnableWindow $HWNDPARENT 1
@@ -564,7 +564,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
         ; overwrite subtitle
         SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_APP_DOWNLOAD_START)"
-        InetLoad::load \
+        inetc::get \
             /TRANSLATE $(MSG_DL_DOWNLOADING)    \
                        $(MSG_DL_CONNECTIING)    \
                        $(MSG_DL_SECOND)         \
