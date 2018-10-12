@@ -1,11 +1,11 @@
 #!/bin/bash
-# Copyright (C) 2017 ClearCode Inc.
+# Copyright (C) 2017-2018 ClearCode Inc.
 
 set -e
 
 URI="
 http://nsis.sourceforge.net/mediawiki/images/3/3c/FindProc.zip
-http://nsis.sourceforge.net/mediawiki/images/b/b4/InetLoad.zip
+http://nsis.sourceforge.net/mediawiki/images/c/c9/Inetc.zip
 http://nsis.sourceforge.net/mediawiki/images/d/d9/ZipDLL.zip
 http://nsis.sourceforge.net/mediawiki/images/b/b3/CustomLicense.zip
 http://nsis.sourceforge.net/mediawiki/images/5/55/Xml.zip
