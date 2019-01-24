@@ -1893,6 +1893,12 @@ Function CheckAdminPrivilege
     LogEx::Write "    sid = $0"
     ${WordFind} $0 "-" "-1" $1
     ${If} $1 == "500"
+      LogEx::Write "    => local administrator"
+      GoTo PRIVILEGE_TEST_DONE
+    ${EndIf}
+
+    ${If} $0 == "S-1-5-18"
+      LogEx::Write "    => local system"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
@@ -1903,6 +1909,7 @@ Function CheckAdminPrivilege
     UserMgr::IsMemberOfGroup "$0" "Administrators"
     Pop $0
     ${If} "$0" == "TRUE"
+      LogEx::Write "    => local administrators"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
