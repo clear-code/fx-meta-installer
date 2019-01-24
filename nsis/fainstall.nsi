@@ -1887,8 +1887,10 @@ Function CheckAdminPrivilege
     ; check by sid (administrator ends with -500)
     AccessControl::GetCurrentUserName
     Pop $0
+    LogEx::Write "    name = $0"
     AccessControl::NameToSid $0
     Pop $0
+    LogEx::Write "    sid = $0"
     ${WordFind} $0 "-" "-1" $1
     ${If} $1 == "500"
       GoTo PRIVILEGE_TEST_DONE
