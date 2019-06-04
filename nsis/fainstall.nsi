@@ -1320,7 +1320,7 @@ SectionEnd
 Function "ApplyRegistryChange"
     StrCpy $PROCESSING_FILE "$R7"
     LogEx::Write "ApplyRegistryChange: $PROCESSING_FILE"
-    ExecWait '"$WINDIR\regedit.exe" "$PROCESSING_FILE"'
+    ExecWait '"$WINDIR\regedit.exe" /s "$RES_DIR\$PROCESSING_FILE"'
 FunctionEnd
 
 Function InstallAdditionalFiles
