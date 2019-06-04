@@ -21,6 +21,7 @@ ${UnStrStrAdv} ; activate macro for uninstallation
 !include "native_message_box.nsh"
 !include "logiclib_dir_exists.nsh"
 !include "ExecWaitJob.nsh"
+!include "x64.nsh"
 
 ;== Definition of utilities
 !define DefineDefaultValue "!insertmacro DefineDefaultValue"
@@ -1320,7 +1321,9 @@ SectionEnd
 Function "ApplyRegistryChange"
     StrCpy $PROCESSING_FILE "$R7"
     LogEx::Write "ApplyRegistryChange: $RES_DIR\$PROCESSING_FILE with $SYSDIR\reg.exe"
+    ${DisableX64FSRedirection}
     ExecWait '"$SYSDIR\reg.exe" import "$RES_DIR\$PROCESSING_FILE"'
+    ${EnableX64FSRedirection}
 FunctionEnd
 
 Function InstallAdditionalFiles
