@@ -1312,6 +1312,17 @@ Function "InstallExtraInstaller"
     LogEx::Write "  InstallExtraInstaller: $ITEM_NAME successfully installed"
 FunctionEnd
 
+Section "Apply Registry Changes" ApplyRegistryChanges
+    LogEx::Write "ApplyRegistryChanges"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.reg" "ApplyRegistryChange"
+SectionEnd
+
+Function "ApplyRegistryChange"
+    StrCpy $PROCESSING_FILE "$R7"
+    LogEx::Write "ApplyRegistryChange: $PROCESSING_FILE"
+    ExecWait '"$WINDIR\regedit.exe" "$PROCESSING_FILE"'
+FunctionEnd
+
 Function InstallAdditionalFiles
     LogEx::Write "InstallAdditionalFiles"
     StrCpy $ITEM_INDEX 0
