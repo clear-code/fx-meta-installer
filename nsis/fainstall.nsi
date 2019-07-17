@@ -1569,7 +1569,6 @@ SectionEnd
 
 Var EXTRA_REG_ROOT
 Var EXTRA_REG_PATH
-Var EXTRA_REG_DEFAULT_VALUE
 Var EXTRA_REG_VALUE_INDEX
 Var EXTRA_REG_VALUE_NAME
 Var EXTRA_REG_VALUE_DATA
@@ -1578,7 +1577,6 @@ Function "WriteRegistryEntry"
 
     ReadINIStr $EXTRA_REG_ROOT "${INIPATH}" "$ITEM_NAME" "Root"
     ReadINIStr $EXTRA_REG_PATH "${INIPATH}" "$ITEM_NAME" "Path"
-    ReadINIStr $EXTRA_REG_DEFAULT_VALUE "${INIPATH}" "$ITEM_NAME" "DefaultValue"
 
     ${If} "$EXTRA_REG_ROOT" == "HKCU"
     ${OrIf} "$EXTRA_REG_ROOT" == "HKEY_CURRENT_USER"
@@ -1587,11 +1585,39 @@ Function "WriteRegistryEntry"
       StrCpy $EXTRA_REG_ROOT HKLM
     ${EndIf}
 
-    ${If} "$EXTRA_REG_ROOT" == "HKCU"
-      WriteRegStr HKCU "$EXTRA_REG_PATH" "" "$EXTRA_REG_DEFAULT_VALUE"
-    ${Else}
-      WriteRegStr HKLM "$EXTRA_REG_PATH" "" "$EXTRA_REG_DEFAULT_VALUE"
-    ${EndIf}
+    ReadINIStr $EXTRA_REG_VALUE_DATA "${INIPATH}" "$ITEM_NAME" "DefaultStringData"
+    ${Unless} "$EXTRA_REG_VALUE_DATA" == ""
+      ${If} "$EXTRA_REG_ROOT" == "HKCU"
+        WriteRegStr HKCU "$EXTRA_REG_PATH" "" "$EXTRA_REG_VALUE_DATA"
+      ${Else}
+        WriteRegStr HKLM "$EXTRA_REG_PATH" "" "$EXTRA_REG_VALUE_DATA"
+      ${EndIf}
+    ${EndUnless}
+
+    StrCpy $EXTRA_REG_VALUE_INDEX 0
+    ${While} 1 == 1
+      ReadINIStr $EXTRA_REG_VALUE_NAME "${INIPATH}" "$ITEM_NAME" "StringValue$EXTRA_REG_VALUE_INDEX"
+      ${IfThen} "$EXTRA_REG_VALUE_NAME" == "" ${|} ${Break} ${|}
+
+      ReadINIStr $EXTRA_REG_VALUE_DATA "${INIPATH}" "$ITEM_NAME" "StringData$EXTRA_REG_VALUE_INDEX"
+
+      ${If} "$EXTRA_REG_ROOT" == "HKCU"
+        WriteRegStr HKCU "$EXTRA_REG_PATH" "$EXTRA_REG_VALUE_NAME" $EXTRA_REG_VALUE_DATA
+      ${Else}
+        WriteRegStr HKLM "$EXTRA_REG_PATH" "$EXTRA_REG_VALUE_NAME" $EXTRA_REG_VALUE_DATA
+      ${EndIf}
+
+      IntOp $EXTRA_REG_VALUE_INDEX $EXTRA_REG_VALUE_INDEX + 1
+    ${EndWhile}
+
+    ReadINIStr $EXTRA_REG_VALUE_DATA "${INIPATH}" "$ITEM_NAME" "DefaultDwordData"
+    ${Unless} "$EXTRA_REG_VALUE_DATA" == ""
+      ${If} "$EXTRA_REG_ROOT" == "HKCU"
+        WriteRegDWORD HKCU "$EXTRA_REG_PATH" "" $EXTRA_REG_VALUE_DATA
+      ${Else}
+        WriteRegDWORD HKLM "$EXTRA_REG_PATH" "" $EXTRA_REG_VALUE_DATA
+      ${EndIf}
+    ${EndUnless}
 
     StrCpy $EXTRA_REG_VALUE_INDEX 0
     ${While} 1 == 1
