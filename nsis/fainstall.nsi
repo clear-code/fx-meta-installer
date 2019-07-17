@@ -1848,6 +1848,20 @@ Section Uninstall
       Rename "$BACKUP_PATH" "$INSTALLED_FILE"
     ${EndIf}
 
+    ; extra registry entries
+    StrCpy $ITEM_INDEX 0
+    ${While} 1 == 1
+      ReadRegStr $EXTRA_REG_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryPath$ITEM_INDEX"
+      ${IfThen} "$EXTRA_REG_PATH" == "" ${|} ${Break} ${|}
+      ReadRegStr $EXTRA_REG_ROOT HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryRoot$ITEM_INDEX"
+      ${If} "$EXTRA_REG_ROOT" == "HKCU"
+        DeleteRegKey HKCU "$EXTRA_REG_PATH"
+      ${Else}
+        DeleteRegKey HKLM "$EXTRA_REG_PATH"
+      ${End}
+      IntOp $ITEM_INDEX $ITEM_INDEX + 1
+    ${EndWhile}
+
     RMDir /r "$INSTDIR"
     DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
 
