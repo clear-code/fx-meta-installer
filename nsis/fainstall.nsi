@@ -1858,7 +1858,7 @@ Section Uninstall
         DeleteRegKey HKCU "$EXTRA_REG_PATH"
       ${Else}
         DeleteRegKey HKLM "$EXTRA_REG_PATH"
-      ${End}
+      ${EndIf}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
 
