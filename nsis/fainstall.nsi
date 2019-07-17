@@ -104,6 +104,7 @@ ${DefineDefaultValue} EXTRA_INSTALLERS ""
 ${DefineDefaultValue} EXTRA_SHORTCUTS  ""
 ${DefineDefaultValue} EXTRA_FILES      ""
 ${DefineDefaultValue} UPDATE_PINNED_SHORTCUTS "false"
+${DefineDefaultValue} EXTRA_REGISTRY_ENTRIES  ""
 
 ${DefineDefaultValue} CLEAN_INSTALL           ""
 ${DefineDefaultValue} CLEAN_REQUIRED_MESSAGE  ""
@@ -1548,6 +1549,58 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=policies.json" "InstallNormalFileForLocate"
     ${EndIf}
 SectionEnd
+
+Section "Write Extra Registry Values" WriteExtraRegistryValues
+    LogEx::Write "WriteExtraRegistryValues"
+    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraRegistryEntries" "${EXTRA_REGISTRY_ENTRIES}"
+    StrCpy $ITEM_INDEX 0
+    ${Unless} "$ITEMS_LIST" == ""
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
+        ${EndIf}
+        Call WriteRegistryEntry
+      ${EndWhile}
+    ${EndUnless}
+SectionEnd
+
+Var EXTRA_REGISTRY_ENTRY_TARGET
+Var EXTRA_REGISTRY_ENTRY_PATH
+Var EXTRA_REGISTRY_ENTRY_DEFAULT_VALUE
+Var EXTRA_REGISTRY_VALUE_INDEX
+Var EXTRA_REGISTRY_VALUE_NAME
+Var EXTRA_REGISTRY_VALUE_DATA
+Function "WriteRegistryEntry"
+    LogEx::Write "WriteRegistryEntry: $ITEM_NAME"
+
+    ReadINIStr $EXTRA_REGISTRY_ENTRY_TARGET "${INIPATH}" "$ITEM_NAME" "Target"
+    ReadINIStr $EXTRA_REGISTRY_ENTRY_PATH "${INIPATH}" "$ITEM_NAME" "Path"
+    ReadINIStr $EXTRA_REGISTRY_ENTRY_DEFAULT_VALUE "${INIPATH}" "$ITEM_NAME" "DefaultValue"
+
+    ${If} "$EXTRA_REGISTRY_ENTRY_TARGET" == "HKCU"
+    ${OrIf} "$EXTRA_REGISTRY_ENTRY_TARGET" == "HKEY_CURRENT_USER"
+      WriteRegStr HKCU "$EXTRA_REGISTRY_ENTRY_PATH" "" "$EXTRA_REGISTRY_ENTRY_DEFAULT_VALUE"
+      StrCpy $EXTRA_REGISTRY_VALUE_INDEX 0
+      ${While} 1 == 1
+        ReadINIStr $EXTRA_REGISTRY_VALUE_NAME "${INIPATH}" "$ITEM_NAME" "DwordValue$EXTRA_REGISTRY_VALUE_INDEX"
+        ${IfThen} "$EXTRA_REGISTRY_VALUE_NAME" == "" ${|} ${Break} ${|}
+
+        ReadINIStr $EXTRA_REGISTRY_VALUE_DATA "${INIPATH}" "$ITEM_NAME" "DwordData$EXTRA_REGISTRY_VALUE_INDEX"
+        WriteRegDWORD HKCU "$EXTRA_REGISTRY_ENTRY_PATH" "$EXTRA_REGISTRY_VALUE_NAME" $EXTRA_REGISTRY_VALUE_DATA
+
+        IntOp $EXTRA_REGISTRY_VALUE_INDEX $EXTRA_REGISTRY_VALUE_INDEX + 1
+      ${EndWhile}
+;    ${Else}
+;      WriteRegStr HKLM "$EXTRA_REGISTRY_ENTRY_PATH" "" "$EXTRA_REGISTRY_ENTRY_DEFAULT_VALUE"
+;      ...
+    ${EndIf}
+
+    LogEx::Write "  $ITEM_NAME successfully processed"
+FunctionEnd
+
 
 Section -Post
     LogEx::Write "Post process"
