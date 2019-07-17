@@ -104,7 +104,7 @@ ${DefineDefaultValue} EXTRA_INSTALLERS ""
 ${DefineDefaultValue} EXTRA_SHORTCUTS  ""
 ${DefineDefaultValue} EXTRA_FILES      ""
 ${DefineDefaultValue} UPDATE_PINNED_SHORTCUTS "false"
-${DefineDefaultValue} EXTRA_REGISTRY_ENTRIES  ""
+${DefineDefaultValue} EXTRA_REG_ENTRIES  ""
 
 ${DefineDefaultValue} CLEAN_INSTALL           ""
 ${DefineDefaultValue} CLEAN_REQUIRED_MESSAGE  ""
@@ -1552,7 +1552,7 @@ SectionEnd
 
 Section "Write Extra Registry Values" WriteExtraRegistryValues
     LogEx::Write "WriteExtraRegistryValues"
-    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraRegistryEntries" "${EXTRA_REGISTRY_ENTRIES}"
+    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraRegistryEntries" "${EXTRA_REG_ENTRIES}"
     StrCpy $ITEM_INDEX 0
     ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
@@ -1567,50 +1567,50 @@ Section "Write Extra Registry Values" WriteExtraRegistryValues
     ${EndUnless}
 SectionEnd
 
-Var EXTRA_REGISTRY_ENTRY_ROOT
-Var EXTRA_REGISTRY_ENTRY_PATH
-Var EXTRA_REGISTRY_ENTRY_DEFAULT_VALUE
-Var EXTRA_REGISTRY_VALUE_INDEX
-Var EXTRA_REGISTRY_VALUE_NAME
-Var EXTRA_REGISTRY_VALUE_DATA
+Var EXTRA_REG_ROOT
+Var EXTRA_REG_PATH
+Var EXTRA_REG_DEFAULT_VALUE
+Var EXTRA_REG_VALUE_INDEX
+Var EXTRA_REG_VALUE_NAME
+Var EXTRA_REG_VALUE_DATA
 Function "WriteRegistryEntry"
     LogEx::Write "WriteRegistryEntry: $ITEM_NAME"
 
-    ReadINIStr $EXTRA_REGISTRY_ENTRY_ROOT "${INIPATH}" "$ITEM_NAME" "Root"
-    ReadINIStr $EXTRA_REGISTRY_ENTRY_PATH "${INIPATH}" "$ITEM_NAME" "Path"
-    ReadINIStr $EXTRA_REGISTRY_ENTRY_DEFAULT_VALUE "${INIPATH}" "$ITEM_NAME" "DefaultValue"
+    ReadINIStr $EXTRA_REG_ROOT "${INIPATH}" "$ITEM_NAME" "Root"
+    ReadINIStr $EXTRA_REG_PATH "${INIPATH}" "$ITEM_NAME" "Path"
+    ReadINIStr $EXTRA_REG_DEFAULT_VALUE "${INIPATH}" "$ITEM_NAME" "DefaultValue"
 
-    ${If} "$EXTRA_REGISTRY_ENTRY_ROOT" == "HKCU"
-    ${OrIf} "$EXTRA_REGISTRY_ENTRY_ROOT" == "HKEY_CURRENT_USER"
-      StrCpy $EXTRA_REGISTRY_ENTRY_ROOT HKCU
+    ${If} "$EXTRA_REG_ROOT" == "HKCU"
+    ${OrIf} "$EXTRA_REG_ROOT" == "HKEY_CURRENT_USER"
+      StrCpy $EXTRA_REG_ROOT HKCU
     ${Else}
-      StrCpy $EXTRA_REGISTRY_ENTRY_ROOT HKLM
+      StrCpy $EXTRA_REG_ROOT HKLM
     ${EndIf}
 
-    ${If} "$EXTRA_REGISTRY_ENTRY_ROOT" == "HKCU"
-      WriteRegStr HKCU "$EXTRA_REGISTRY_ENTRY_PATH" "" "$EXTRA_REGISTRY_ENTRY_DEFAULT_VALUE"
+    ${If} "$EXTRA_REG_ROOT" == "HKCU"
+      WriteRegStr HKCU "$EXTRA_REG_PATH" "" "$EXTRA_REG_DEFAULT_VALUE"
     ${Else}
-      WriteRegStr HKLM "$EXTRA_REGISTRY_ENTRY_PATH" "" "$EXTRA_REGISTRY_ENTRY_DEFAULT_VALUE"
+      WriteRegStr HKLM "$EXTRA_REG_PATH" "" "$EXTRA_REG_DEFAULT_VALUE"
     ${EndIf}
 
-    StrCpy $EXTRA_REGISTRY_VALUE_INDEX 0
+    StrCpy $EXTRA_REG_VALUE_INDEX 0
     ${While} 1 == 1
-      ReadINIStr $EXTRA_REGISTRY_VALUE_NAME "${INIPATH}" "$ITEM_NAME" "DwordValue$EXTRA_REGISTRY_VALUE_INDEX"
-      ${IfThen} "$EXTRA_REGISTRY_VALUE_NAME" == "" ${|} ${Break} ${|}
+      ReadINIStr $EXTRA_REG_VALUE_NAME "${INIPATH}" "$ITEM_NAME" "DwordValue$EXTRA_REG_VALUE_INDEX"
+      ${IfThen} "$EXTRA_REG_VALUE_NAME" == "" ${|} ${Break} ${|}
 
-      ReadINIStr $EXTRA_REGISTRY_VALUE_DATA "${INIPATH}" "$ITEM_NAME" "DwordData$EXTRA_REGISTRY_VALUE_INDEX"
+      ReadINIStr $EXTRA_REG_VALUE_DATA "${INIPATH}" "$ITEM_NAME" "DwordData$EXTRA_REG_VALUE_INDEX"
 
-      ${If} "$EXTRA_REGISTRY_ENTRY_ROOT" == "HKCU"
-        WriteRegDWORD HKCU "$EXTRA_REGISTRY_ENTRY_PATH" "$EXTRA_REGISTRY_VALUE_NAME" $EXTRA_REGISTRY_VALUE_DATA
+      ${If} "$EXTRA_REG_ROOT" == "HKCU"
+        WriteRegDWORD HKCU "$EXTRA_REG_PATH" "$EXTRA_REG_VALUE_NAME" $EXTRA_REG_VALUE_DATA
       ${Else}
-        WriteRegDWORD HKLM "$EXTRA_REGISTRY_ENTRY_PATH" "$EXTRA_REGISTRY_VALUE_NAME" $EXTRA_REGISTRY_VALUE_DATA
+        WriteRegDWORD HKLM "$EXTRA_REG_PATH" "$EXTRA_REG_VALUE_NAME" $EXTRA_REG_VALUE_DATA
       ${EndIf}
 
-      IntOp $EXTRA_REGISTRY_VALUE_INDEX $EXTRA_REGISTRY_VALUE_INDEX + 1
+      IntOp $EXTRA_REG_VALUE_INDEX $EXTRA_REG_VALUE_INDEX + 1
     ${EndWhile}
 
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryRoot$ITEM_INDEX" "$EXTRA_REGISTRY_ENTRY_ROOT"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryPath$ITEM_INDEX" "$EXTRA_REGISTRY_ENTRY_PATH"
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryRoot$ITEM_INDEX" "$EXTRA_REG_ROOT"
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryPath$ITEM_INDEX" "$EXTRA_REG_PATH"
 
     LogEx::Write "  $ITEM_NAME successfully processed"
 FunctionEnd
