@@ -294,6 +294,7 @@ Var ITEM_NAME
 Var ITEM_INDEX
 Var ITEM_LOCATION
 Var ITEM_LOCATION_BASE
+Var UNINSTALL_FAILED
 
 Var MANIFEST_PATH
 Var MANIFEST_DIR
@@ -1701,7 +1702,6 @@ Function .onRebootFailed
     MessageBox MB_OK|MB_ICONSTOP "$(MSG_REQUIRE_RESTART_MANUALLY)" /SD IDOK
 FunctionEnd
 
-Var UNINSTALL_FAILED
 !macro UninstallFiles un
   Function ${un}UninstallFiles
     StrCpy $UNINSTALL_FAILED 0
