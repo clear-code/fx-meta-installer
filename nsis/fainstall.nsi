@@ -1877,8 +1877,8 @@ FunctionEnd
     Push 0
   FunctionEnd
 !macroend
-!insertmacro GetCurrentAppVersion ""
-!insertmacro GetCurrentAppVersion "un."
+!insertmacro UninstallFiles ""
+!insertmacro UninstallFiles "un."
 
 Section Uninstall
     Call un.UninstallFiles
