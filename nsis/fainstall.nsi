@@ -511,6 +511,9 @@ FunctionEnd
 
 Section "Cleanup Before Installation" CleanupBeforeInstall
       LogEx::Write "CleanupBeforeInstall"
+
+      Call UninstallFiles
+
       ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupDirs" "${APP_CLEANUP_DIRS}"
       ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
@@ -1699,7 +1702,8 @@ Function .onRebootFailed
 FunctionEnd
 
 Var UNINSTALL_FAILED
-Section Uninstall
+!macro UninstallFiles un
+  Function ${un}UninstallFiles
     StrCpy $UNINSTALL_FAILED 0
 
     ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClientShown"
@@ -1708,7 +1712,7 @@ Section Uninstall
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
       ${Unless} "$COMMAND_STRING" == ""
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
-        Call un.ResolveItemLocation
+        Call ${un}ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
@@ -1722,7 +1726,7 @@ Section Uninstall
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
       ${Unless} "$COMMAND_STRING" == ""
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
-        Call un.ResolveItemLocation
+        Call ${un}ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
@@ -1830,7 +1834,11 @@ Section Uninstall
     ${If} "$BACKUP_PATH" != ""
     ${AndIf} ${FileExists} "$BACKUP_PATH"
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.xml"
-      ${un.Locate} "$BACKUP_PATH" "/L=F /G=0 /M=*.xml" "un.EnableSearchPlugin"
+      !if "${un}" == "un."
+        ${un.Locate} "$BACKUP_PATH" "/L=F /G=0 /M=*.xml" "${un}EnableSearchPlugin"
+      !else
+        ${Locate} "$BACKUP_PATH" "/L=F /G=0 /M=*.xml" "${un}EnableSearchPlugin"
+      !endif
       ${Unless} ${FileExists} "$BACKUP_PATH\*.xml"
         RMDir /r "$BACKUP_PATH"
       ${EndUnless}
@@ -1861,6 +1869,19 @@ Section Uninstall
       ${EndIf}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
+  FunctionEnd
+
+  Function ${un}EnableSearchPlugin
+    StrCpy $PROCESSING_FILE "$R7"
+    Rename "$BACKUP_PATH\$PROCESSING_FILE" "$SEARCH_PLUGINS_PATH\$PROCESSING_FILE"
+    Push 0
+  FunctionEnd
+!macroend
+!insertmacro GetCurrentAppVersion ""
+!insertmacro GetCurrentAppVersion "un."
+
+Section Uninstall
+    Call un.UninstallFiles
 
     RMDir /r "$INSTDIR"
     DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
@@ -1874,12 +1895,6 @@ Section Uninstall
 
     SetAutoClose true
 SectionEnd
-
-Function "un.EnableSearchPlugin"
-    StrCpy $PROCESSING_FILE "$R7"
-    Rename "$BACKUP_PATH\$PROCESSING_FILE" "$SEARCH_PLUGINS_PATH\$PROCESSING_FILE"
-    Push 0
-FunctionEnd
 
 ;=== Callback functions
 Function .onInit
