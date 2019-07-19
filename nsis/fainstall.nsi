@@ -1697,8 +1697,7 @@ Function .onRebootFailed
     MessageBox MB_OK|MB_ICONSTOP "$(MSG_REQUIRE_RESTART_MANUALLY)" /SD IDOK
 FunctionEnd
 
-!macro UninstallFiles un
-  Function ${un}UninstallFiles
+Section Uninstall
     LogEx::Write "UninstallFiles"
     StrCpy $UNINSTALL_FAILED 0
 
@@ -1709,7 +1708,7 @@ FunctionEnd
       ${Unless} "$COMMAND_STRING" == ""
         LogEx::Write "  DefaultClientShown: Execute $COMMAND_STRING"
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
-        Call ${un}ResolveItemLocation
+        Call un.ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
@@ -1724,7 +1723,7 @@ FunctionEnd
       ${Unless} "$COMMAND_STRING" == ""
         LogEx::Write "  HiddenClient: Execute $COMMAND_STRING"
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
-        Call ${un}ResolveItemLocation
+        Call un.ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
@@ -1841,11 +1840,7 @@ FunctionEnd
     ${AndIf} ${FileExists} "$BACKUP_PATH"
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.xml"
       LogEx::Write "  DisabledSearchPlugins/EnabledSearchPlugins: Restore $BACKUP_PATH"
-      !if "${un}" == "un."
-        ${un.Locate} "$BACKUP_PATH" "/L=F /G=0 /M=*.xml" "${un}EnableSearchPlugin"
-      !else
-        ${Locate} "$BACKUP_PATH" "/L=F /G=0 /M=*.xml" "${un}EnableSearchPlugin"
-      !endif
+      ${un.Locate} "$BACKUP_PATH" "/L=F /G=0 /M=*.xml" "un.EnableSearchPlugin"
       ${Unless} ${FileExists} "$BACKUP_PATH\*.xml"
         RMDir /r "$BACKUP_PATH"
       ${EndUnless}
@@ -1879,20 +1874,6 @@ FunctionEnd
       ${EndIf}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndWhile}
-  FunctionEnd
-
-  Function ${un}EnableSearchPlugin
-    StrCpy $PROCESSING_FILE "$R7"
-    LogEx::Write "  EnableSearchPlugin: Restore $BACKUP_PATH\$PROCESSING_FILE"
-    Rename "$BACKUP_PATH\$PROCESSING_FILE" "$SEARCH_PLUGINS_PATH\$PROCESSING_FILE"
-    Push 0
-  FunctionEnd
-!macroend
-!insertmacro UninstallFiles ""
-!insertmacro UninstallFiles "un."
-
-Section Uninstall
-    Call un.UninstallFiles
 
     RMDir /r "$INSTDIR"
     DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
@@ -1906,6 +1887,13 @@ Section Uninstall
 
     SetAutoClose true
 SectionEnd
+
+Function un.EnableSearchPlugin
+    StrCpy $PROCESSING_FILE "$R7"
+    LogEx::Write "  EnableSearchPlugin: Restore $BACKUP_PATH\$PROCESSING_FILE"
+    Rename "$BACKUP_PATH\$PROCESSING_FILE" "$SEARCH_PLUGINS_PATH\$PROCESSING_FILE"
+    Push 0
+FunctionEnd
 
 ;=== Callback functions
 Function .onInit
@@ -1930,6 +1918,10 @@ Function .onInit
 FunctionEnd
 
 Function un.onInit
+    LogEx::Init "$INSTDIR\install.log"
+    LogEx::Write "----------------------un.onInit------------------------"
+    LogEx::Write "Uninstall from $INSTDIR"
+
     Call un.CheckAppProc
     !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
       MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(MSG_UNINST_CONFIRM)" IDYES +2
@@ -2105,7 +2097,6 @@ Function CheckInstalled
         ; then we should keep the state.
         ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
         ${IfThen} "$APP_VERSION" != "" ${|} StrCpy $APP_INSTALLED "1" ${|}
-        Call UninstallFiles
         ; Run the uninstaller directly. If we copy the exe file into the
         ; temporary directory, it doesn't work as we expect.
         ExecWait '$R0 /AddonOnly _?=$INSTDIR'
