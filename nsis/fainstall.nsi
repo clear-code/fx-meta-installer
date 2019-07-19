@@ -1257,29 +1257,6 @@ Function "InstallShortcut"
     LogEx::Write "  $ITEM_NAME successfully installed"
 FunctionEnd
 
-Var INSTALLING_APPLICATION_SPECIFIC_FILES
-Section "Install Extra Files" InstallExtraFiles
-    LogEx::Write "InstallExtraFiles"
-    ; Disable install guard for ExtraFiles=
-    StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
-    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraFiles" "${EXTRA_FILES}"
-    ${Unless} "$ITEMS_LIST" == ""
-      StrCpy $ITEMS_LIST_INDEX 0
-      ${While} 1 == 1
-        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
-        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
-        LogEx::Write "  WordFind ITEM_NAME ($ITEM_NAME) in ITEMS_LIST ($ITEMS_LIST)"
-        ${If} $ITEMS_LIST_INDEX > 1
-          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
-        ${EndIf}
-        StrCpy $PROCESSING_FILE "$ITEM_NAME"
-        LogEx::Write "  PROCESSING_FILE: $PROCESSING_FILE"
-        Call InstallNormalFile
-      ${EndWhile}
-    ${EndUnless}
-    StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 1
-SectionEnd
-
 Section "Install Extra Installers" InstallExtraInstallers
     LogEx::Write "InstallExtraInstallers"
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Installers" "${EXTRA_INSTALLERS}"
@@ -1328,6 +1305,7 @@ Function "ApplyRegistryChange"
     ${EnableX64FSRedirection}
 FunctionEnd
 
+Var INSTALLING_APPLICATION_SPECIFIC_FILES
 Function InstallAdditionalFiles
     LogEx::Write "InstallAdditionalFiles"
     StrCpy $ITEM_INDEX 0
@@ -1398,6 +1376,26 @@ Function InstallAdditionalFiles
       StrCpy $DIST_DIR "$APP_DIR\browser\plugins"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFileForLocate"
     !endif
+
+    LogEx::Write "InstallExtraFiles"
+    ; Disable install guard for ExtraFiles=
+    StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
+    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraFiles" "${EXTRA_FILES}"
+    ${Unless} "$ITEMS_LIST" == ""
+      StrCpy $ITEMS_LIST_INDEX 0
+      ${While} 1 == 1
+        IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
+        ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
+        LogEx::Write "  WordFind ITEM_NAME ($ITEM_NAME) in ITEMS_LIST ($ITEMS_LIST)"
+        ${If} $ITEMS_LIST_INDEX > 1
+          ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
+        ${EndIf}
+        StrCpy $PROCESSING_FILE "$ITEM_NAME"
+        LogEx::Write "  PROCESSING_FILE: $PROCESSING_FILE"
+        Call InstallNormalFile
+      ${EndWhile}
+    ${EndUnless}
+    StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 1
 FunctionEnd
 
 Function "InstallNormalFileForLocate"
