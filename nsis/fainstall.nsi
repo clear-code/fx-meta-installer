@@ -1704,6 +1704,7 @@ FunctionEnd
 
 !macro UninstallFiles un
   Function ${un}UninstallFiles
+    LogEx::Write "UninstallFiles"
     StrCpy $UNINSTALL_FAILED 0
 
     ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClientShown"
@@ -1711,6 +1712,7 @@ FunctionEnd
       ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient"
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
       ${Unless} "$COMMAND_STRING" == ""
+        LogEx::Write "  DefaultClientShown: Execute $COMMAND_STRING"
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call ${un}ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
@@ -1725,6 +1727,7 @@ FunctionEnd
       ${IfThen} "$ITEM_NAME" == "" ${|} ${Break} ${|}
       ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
       ${Unless} "$COMMAND_STRING" == ""
+        LogEx::Write "  HiddenClient: Execute $COMMAND_STRING"
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call ${un}ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
@@ -1738,6 +1741,7 @@ FunctionEnd
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
+      LogEx::Write "  InstalledDefaultProfiles: Delete $INSTALLED_FILE"
       RMDir /r "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
@@ -1746,6 +1750,7 @@ FunctionEnd
         ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackups$ITEM_INDEX"
         ${If} "$BACKUP_PATH" != ""
         ${AndIf} ${FileExists} "$BACKUP_PATH"
+          LogEx::Write "  InstalledDefaultProfiles: Restore $BACKUP_PATH"
           Rename "$BACKUP_PATH" "$INSTALLED_FILE"
         ${EndIf}
       ${EndIf}
@@ -1757,6 +1762,7 @@ FunctionEnd
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX"
       ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
+      LogEx::Write "  InstalledFile: Delete $INSTALLED_FILE"
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
@@ -1765,6 +1771,7 @@ FunctionEnd
       ${EndIf}
       ${If} "$BACKUP_PATH" != ""
       ${AndIf} ${FileExists} "$BACKUP_PATH"
+        LogEx::Write "  InstalledFile: Restore $BACKUP_PATH"
         Rename "$BACKUP_PATH" "$INSTALLED_FILE"
       ${EndIf}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
@@ -1775,6 +1782,7 @@ FunctionEnd
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       ${If} ${FileExists} "$INSTALLED_FILE"
+        LogEx::Write "  InstalledShortcut: Delete $INSTALLED_FILE"
         ${If} ${FileExists} "$INSTALLED_FILE\*.*"
           RMDir /r "$INSTALLED_FILE"
         ${Else}
@@ -1793,6 +1801,7 @@ FunctionEnd
     ${While} 1 == 1
       ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledQuickLaunchShortcut$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
+      LogEx::Write "  InstalledQuickLaunchShortcut: Delete $INSTALLED_FILE"
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
@@ -1807,6 +1816,7 @@ FunctionEnd
       ReadRegStr $ITEM_LOCATION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
       ${IfThen} "$ITEM_LOCATION" == "" ${|} ${Break} ${|}
 
+      LogEx::Write "  InstalledAddon: Delete $ITEM_LOCATION"
       ${If} ${DirExists} "$ITEM_LOCATION"
         RMDir /r "$ITEM_LOCATION"
       ${ElseIf} ${FileExists} "$ITEM_LOCATION"
@@ -1817,6 +1827,7 @@ FunctionEnd
       ReadRegStr $MANIFEST_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledManagedStorage$ITEM_INDEX"
       ${If} "$MANIFEST_PATH" != ""
       ${AndIf} ${FileExists} "$MANIFEST_PATH"
+        LogEx::Write "  InstalledAddon: Delete $MANIFEST_PATH"
         Delete "$MANIFEST_PATH"
       ${EndIf}
 
@@ -1834,6 +1845,7 @@ FunctionEnd
     ${If} "$BACKUP_PATH" != ""
     ${AndIf} ${FileExists} "$BACKUP_PATH"
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.xml"
+      LogEx::Write "  DisabledSearchPlugins/EnabledSearchPlugins: Restore $BACKUP_PATH"
       !if "${un}" == "un."
         ${un.Locate} "$BACKUP_PATH" "/L=F /G=0 /M=*.xml" "${un}EnableSearchPlugin"
       !else
@@ -1848,11 +1860,13 @@ FunctionEnd
     ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup"
     ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer"
     ${If} "$INSTALLED_FILE" != ""
+      LogEx::Write "  DistributonCustomizerBackup: Delete $INSTALLED_FILE"
       RMDir /r "$INSTALLED_FILE"
     ${EndIf}
     ${If} "$BACKUP_PATH" != ""
     ${AndIf} ${FileExists} "$BACKUP_PATH"
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.*"
+      LogEx::Write "  DistributonCustomizerBackup: Restore $BACKUP_PATH"
       Rename "$BACKUP_PATH" "$INSTALLED_FILE"
     ${EndIf}
 
@@ -1862,6 +1876,7 @@ FunctionEnd
       ReadRegStr $EXTRA_REG_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryPath$ITEM_INDEX"
       ${IfThen} "$EXTRA_REG_PATH" == "" ${|} ${Break} ${|}
       ReadRegStr $EXTRA_REG_ROOT HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryRoot$ITEM_INDEX"
+      LogEx::Write "  InstalledExtraRegistryEntryPath: Delete $EXTRA_REG_ROOT $EXTRA_REG_PATH"
       ${If} "$EXTRA_REG_ROOT" == "HKCU"
         DeleteRegKey HKCU "$EXTRA_REG_PATH"
       ${Else}
@@ -1873,6 +1888,7 @@ FunctionEnd
 
   Function ${un}EnableSearchPlugin
     StrCpy $PROCESSING_FILE "$R7"
+    LogEx::Write "  EnableSearchPlugin: Restore $BACKUP_PATH\$PROCESSING_FILE"
     Rename "$BACKUP_PATH\$PROCESSING_FILE" "$SEARCH_PLUGINS_PATH\$PROCESSING_FILE"
     Push 0
   FunctionEnd
