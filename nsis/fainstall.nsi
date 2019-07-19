@@ -512,9 +512,6 @@ FunctionEnd
 
 Section "Cleanup Before Installation" CleanupBeforeInstall
       LogEx::Write "CleanupBeforeInstall"
-
-      Call UninstallFiles
-
       ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupDirs" "${APP_CLEANUP_DIRS}"
       ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
@@ -2110,6 +2107,7 @@ Function CheckInstalled
         ; then we should keep the state.
         ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
         ${IfThen} "$APP_VERSION" != "" ${|} StrCpy $APP_INSTALLED "1" ${|}
+        Call UninstallFiles
         ; Run the uninstaller directly. If we copy the exe file into the
         ; temporary directory, it doesn't work as we expect.
         ExecWait '$R0 /AddonOnly _?=$INSTDIR'
