@@ -92,6 +92,7 @@ ${DefineDefaultValue} APP_EULA_URL      ""
 ${DefineDefaultValue} APP_APP_HASH      ""
 ${DefineDefaultValue} APP_INSTALL_MODE  "QUIET"
 ${DefineDefaultValue} APP_IS_64BIT      "false"
+${DefineDefaultValue} APP_IS_ESR        "false"
 ${DefineDefaultValue} APP_CLEANUP_DIRS ""
 
 ${DefineDefaultValue} FX_ENABLED_SEARCH_PLUGINS  "*"
@@ -277,6 +278,7 @@ Var APP_ALLOW_DOWNGRADE
 Var APP_EULA_DL_FAILED
 Var APP_WRONG_VERSION
 Var APP_IS_64BIT
+Var APP_IS_ESR
 Var APP_PROGRAMFILES
 
 Var PROCESSING_FILE
@@ -1657,6 +1659,7 @@ Section -Post
       WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion" "$APP_VERSION"
     ${EndIf}
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "AppIs64bit" "$APP_IS_64BIT"
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "AppIsESR" "$APP_IS_ESR"
 SectionEnd
 
 Section "Show Finish Message" ShowFinishMessage
@@ -2150,20 +2153,8 @@ FunctionEnd
 
 Function GetCurrentAppRegKey
   LogEx::Write "GetCurrentAppRegKey"
-  ReadINIStr $INI_TEMP ${INIPATH} ${INSTALLER_NAME} "AppIsESR"
-  ${If} "$INI_TEMP" == ""
-    ReadINIStr $INI_TEMP ${INIPATH} ${INSTALLER_NAME} "AppIsEsr"
-  ${EndIf}
-  ${If} "$INI_TEMP" == ""
-    !ifdef APP_IS_ESR
-      StrCpy $INI_TEMP "yes"
-    !else
-      StrCpy $INI_TEMP "no"
-    !endif
-  ${EndIf}
-
-  ${IsTrue} $R0 "$INI_TEMP"
-  ${If} "$R0" == "1"
+  ${ReadINIStrWithDefault} $APP_IS_ESR "${INIPATH}" "${INSTALLER_NAME}" "AppIsESR" "${APP_IS_ESR}"
+  ${If} "$APP_IS_ESR" == "true"
     StrCpy $APP_REG_KEY "Software\${APP_KEY_ESR}"
     StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY}"
   ${Else}
