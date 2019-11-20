@@ -150,7 +150,7 @@ cp ./7z/pack.bat "./$product_name-source/$product_name.bat"
 #cp ./7z/pack.sh "./$product_name-source/$product_name.sh"
 cp ./fainstall.sh "./$product_name-source/"
 
-VERSION="$(cat "./$product_name-source/fainstall.ini" | egrep '(Display|AppMin)Version=' | head -n 1 | cut -d = -f 2$)"
+installer_version="$(cat "./$product_name-source/fainstall.ini" | egrep '^(Display|AppMin)Version=' | head -n 1 | cut -d = -f 2)"
 if cat "./$product_name-source/fainstall.ini" | egrep '^AppIsESR=(yes|true|1)'
 then
   esr_suffix="esr"
@@ -165,7 +165,7 @@ else
 fi
 cat ./templates/README.txt |
   sed -r -e "s/%INSTALLER_NAME%/$product_name/g" \
-         -e "s/%VERSION%//g" \
+         -e "s/%INSTALLER_VERSION%/$installer_version/g" \
          -e "s/%ESR_SUFFIX%/$esr_suffix/g" \
          -e "s/%BINARY_BITS%/$binary_bits/g" \
   > "./$product_name-source/README.txt"
