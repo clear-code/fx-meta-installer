@@ -149,10 +149,29 @@ cp ./7z/7zr.exe "./$product_name-source/"
 cp ./7z/pack.bat "./$product_name-source/$product_name.bat"
 #cp ./7z/pack.sh "./$product_name-source/$product_name.sh"
 cp ./fainstall.sh "./$product_name-source/"
-cd "$product_name-source"
 
+VERSION="$(cat "./$product_name-source/fainstall.ini" | egrep '(Display|AppMin)Version=' | head -n 1 | cut -d = -f 2$)"
+if cat "./$product_name-source/fainstall.ini" | egrep '^AppIsESR=(yes|true|1)'
+then
+  esr_suffix="esr"
+else
+  esr_suffix=""
+fi
+if cat "./$product_name-source/fainstall.ini" | egrep '^AppIs64bit=(yes|true|1)'
+then
+  binary_bits=64
+else
+  binary_bits=32
+fi
+cat ./templates/README.txt |
+  sed -r -e "s/%INSTALLER_NAME%/$product_name/g" \
+         -e "s/%VERSION%//g" \
+         -e "s/%ESR_SUFFIX%/$esr_suffix/g" \
+         -e "s/%BINARY_BITS%/$binary_bits/g" \
+  > "./$product_name-source/README.txt"
+
+# cd "$product_name-source"
 # bash ./$product_name.sh
-
-cd ..
+# cd ..
 
 echo -e "\033[1;32mSuccess\033[0m"
