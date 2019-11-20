@@ -147,7 +147,7 @@ cp ./7z/pack.list "./$product_name-source/"
 cat ./7z/7zS2.sfx.with-manifest ./7z/FxMetaInstaller.tag > "./$product_name-source/fainstall.sfx"
 cp ./7z/7zr.exe "./$product_name-source/"
 cp ./7z/pack.bat "./$product_name-source/$product_name.bat"
-cp ./7z/pack.sh "./$product_name-source/$product_name.sh"
+#cp ./7z/pack.sh "./$product_name-source/$product_name.sh"
 cp ./fainstall.sh "./$product_name-source/"
 cd "$product_name-source"
 
