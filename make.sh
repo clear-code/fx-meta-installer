@@ -67,6 +67,7 @@ cat > $inifile << EOS
 [fainstall]
 AppMinVersion=$(read_config "APP_MIN_VERSION")
 AppMaxVersion=$(read_config "APP_MAX_VERSION")
+AppDisplayVersion=$(read_config "DISPLAY_VERSION")
 AppDownloadPath=$(read_config "APP_DOWNLOAD_PATH")
 AppDownloadUrl=$(read_config "APP_DOWNLOAD_URL")
 AppEulaPath=$(read_config "APP_EULA_PATH")
@@ -74,6 +75,8 @@ AppEulaUrl=$(read_config "APP_EULA_URL")
 AppHash=$(read_config "APP_HASH")
 AppEnableCrashReport=$(read_boolean_config "APP_ENABLE_CRASH_REPORT")
 AppAllowDowngrade=$(read_boolean_config "APP_ALLOW_DOWNGRADE")
+AppIs64bit=$(read_config "APP_IS_64BIT")
+AppIsESR=$(read_config "APP_IS_ESR")
 FinishTitle=$(read_config "FINISH_TITLE")
 FinishMessage=$(read_config "FINISH_MESSAGE")
 CleanInstallPreferredTitle=$(read_config "CLEAN_PREFERRED_TITLE")
@@ -89,7 +92,6 @@ Installers=$(read_config "EXTRA_INSTALLERS")
 Shortcuts=$(read_config "EXTRA_SHORTCUTS")
 FxEnabledSearchPlugins=$(read_config "FX_ENABLED_SEARCH_PLUGINS")
 FxDisabledSearchPlugins=$(read_config "FX_DISABLEd_SEARCH_PLUGINS")
-;AppIsESR=true
 
 EOS
 
