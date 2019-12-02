@@ -2058,7 +2058,10 @@ Function CheckAdminPrivilege
     ; check by file writing
     ${ReadINIStrWithDefault} $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory" "${ADMIN_CHECK_DIR}"
     Call ResolveItemLocation
-    ${IfThen} "$ITEM_LOCATION" == "" ${|} StrCpy $ITEM_LOCATION "$APP_PROGRAMFILES" ${|}
+    ${If} "$ITEM_LOCATION" == ""
+      StrCpy $ITEM_LOCATION "$APP_PROGRAMFILES"
+      Call ResolveItemLocation
+    ${EndIf}
     LogEx::Write "  Checking access rights by file access to $ITEM_LOCATION"
     ${Unless} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\_${INSTALLER_NAME}.lock"
