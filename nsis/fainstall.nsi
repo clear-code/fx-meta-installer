@@ -443,7 +443,7 @@ Var CLEAN_INSTALL
   !endif
 !endif
 
-Section "Initialize Variables" InitializeVariables
+Function InitializeVariables
     LogEx::Write "InitializeVariables"
 
     ${ReadINIStrWithDefault} $APP_IS_64BIT "${INIPATH}" "${INSTALLER_NAME}" "AppIs64bit" "${APP_IS_64BIT}"
@@ -496,7 +496,7 @@ Section "Initialize Variables" InitializeVariables
     ${EndIf}
 
     ${ReadINIStrWithDefault} $DISPLAY_VERSION "${INIPATH}" "${INSTALLER_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
-SectionEnd
+FunctionEnd
 
 Function "DetectAppInstallerPath"
     StrCpy $PROCESSING_FILE "$R7"
@@ -1910,6 +1910,7 @@ Function .onInit
     Call CheckAppProc
 
     Call LoadINI
+    Call InitializeVariables
     Call CheckCleanInstall
 
     Call CheckAdminPrivilege
