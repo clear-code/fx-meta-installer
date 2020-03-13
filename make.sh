@@ -65,9 +65,9 @@ read_boolean_config() {
 
 cat > $inifile << EOS
 [fainstall]
+DisplayVersion=$(read_config "DISPLAY_VERSION")
 AppMinVersion=$(read_config "APP_MIN_VERSION")
 AppMaxVersion=$(read_config "APP_MAX_VERSION")
-AppDisplayVersion=$(read_config "DISPLAY_VERSION")
 AppDownloadPath=$(read_config "APP_DOWNLOAD_PATH")
 AppDownloadUrl=$(read_config "APP_DOWNLOAD_URL")
 AppEulaPath=$(read_config "APP_EULA_PATH")
@@ -113,6 +113,10 @@ do
     echo "" >> $inifile
   fi
 done
+
+nkf -Lw $inifile > $inifile.crlf
+rm $inifile
+mv $inifile.crlf $inifile
 
 addon_files=$(echo "$addon_files" | $sed 's/^\|//')
 
