@@ -385,6 +385,7 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
                ウィザードを表示せず、APP_EULA_PATHまたはAPP_EULA_URLによって
                取得した利用許諾書への同意を以てサイレントインストールを行う。
     "SKIP"   : Mozillaアプリケーションをインストールしない。
+    "EXTRACT" : インストーラをキックせず、ファイルを抽出・配置だけする。
   デフォルト値             ："QUIET"
 ■■Mozillaアプリケーションの名称
   config.nshでの設定キー   ：APP_NAME

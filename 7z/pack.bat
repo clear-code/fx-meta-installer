@@ -18,6 +18,8 @@ set INSTALLER_NAME=%~n0
 del "packed.7z"
 del "%INSTALLER_NAME%.exe"
 del "%INSTALLER_NAME%-*.exe"
+del "resources\7zr.exe"
+copy 7zr.exe resources\7zr.exe
 
 7zr.exe a -t7z packed.7z @pack.list -mx=9 -xr!*.svn -xr!*.sample
 
@@ -29,6 +31,7 @@ if not "%VERSION%" == "" set INSTALLER_NAME=%INSTALLER_NAME%-%VERSION%
 copy /b fainstall.sfx + packed.7z "%INSTALLER_NAME%.exe"
 
 del "packed.7z"
+del "resources\7zr.exe"
 
 
 :SIGN_TO_PACKAGE

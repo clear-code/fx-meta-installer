@@ -194,8 +194,10 @@ ${DefineDefaultValue} APP_DIRECTORY_NAME "${APP_NAME}"
   !else if ${APP_INSTALL_MODE} != "SKIP"
     !if ${APP_INSTALL_MODE} != "QUIET"
       !if ${APP_INSTALL_MODE} != "NORMAL"
-        !undef APP_INSTALL_MODE
-        !define APP_INSTALL_MODE "QUIET"
+        !if ${APP_INSTALL_MODE} != "EXTRACT"
+          !undef APP_INSTALL_MODE
+          !define APP_INSTALL_MODE "QUIET"
+        !endif
       !endif
     !endif
   !endif
@@ -610,7 +612,37 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
       Call CheckShortcutsExistence
 
+      LogEx::Write "  APP_EXISTS: $APP_EXISTS"
+      LogEx::Write "  APP_INSTALL_MODE: ${APP_INSTALL_MODE}"
+
       ${Unless} "$APP_EXISTS" == "1"
+
+    !if "${APP_INSTALL_MODE}" == "EXTRACT"
+
+        LogEx::Write "  Let's extract files"
+        LogEx::Write "    $APP_INSTALLER_FINAL_PATH"
+        LogEx::Write "    => $APP_DIR"
+        ${If} ${FileExists} "$APP_DIR"
+          LogEx::Write "    => try to delete old files"
+          RMDir /r "$APP_DIR"
+        ${EndIf}
+        CreateDirectory "$APP_DIR"
+        LogEx::Write '    "$RES_DIR\7zr.exe" x "$APP_INSTALLER_FINAL_PATH" -y -o"$RES_DIR\..\"'
+        nsExec::Exec '"$RES_DIR\7zr.exe" x "$APP_INSTALLER_FINAL_PATH" -y -o"$RES_DIR\..\"'
+        LogEx::Write "    files extracted: $0"
+        SetOutPath "$APP_DIR"
+        CopyFiles /SILENT "$RES_DIR\..\core\*" "$APP_DIR"
+        LogEx::Write "    files copied"
+        LogEx::Write "  Registering accessibility libraries"
+        LogEx::Write '    "$SYSDIR\regsvr32.exe" /s "$APP_DIR\AccessibleMarshal.dll"'
+        nsExec::Exec '"$SYSDIR\regsvr32.exe" /s "$APP_DIR\AccessibleMarshal.dll"'
+        LogEx::Write "    => $0"
+        LogEx::Write '    "$SYSDIR\regsvr32.exe" /s "$APP_DIR\AccessibleHandler.dll"'
+        nsExec::Exec '"$SYSDIR\regsvr32.exe" /s "$APP_DIR\AccessibleHandler.dll"'
+        LogEx::Write "    => $0"
+
+    !else
+
         LogEx::Write "  Let's run installer"
         ${If} ${FileExists} "$APP_INSTALLER_INI"
           ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
@@ -621,6 +653,8 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
             ExecWait '$APP_INSTALLER_FINAL_PATH'
           !endif
         ${EndIf}
+
+    !endif
 
         Call GetAppPath
         Call CheckAppVersion
@@ -2212,6 +2246,8 @@ Function GetAppPath
 
     LogEx::Write "  Application installed"
 
+  !if ${APP_INSTALL_MODE} != "EXTRACT"
+
     Call GetCurrentAppVersion
     ${IfThen} "$APP_VERSION" == "" ${|} GoTo ERR ${|}
     StrCpy $0 "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main"
@@ -2239,6 +2275,8 @@ Function GetAppPath
     ${IfThen} "$APP_DIR" == "" ${|} GoTo ERR ${|}
 
     LogEx::Write "  APP_DIR: $APP_DIR"
+
+  !endif
 
     ${If} ${FileExists} "$APP_INSTALLER_INI"
       ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"

@@ -43,6 +43,7 @@
 ; Type of installation of Firefox/Thunderbird itself
 ;  NORMAL : Show full wizard
 ;  QUIET  : Silent install (recommended)
+;  EXTRACT: Extract files without running installer
 ;  SKIP   : Do not install Firefox/Thunderbird
 !define APP_INSTALL_MODE    "QUIET"
 
