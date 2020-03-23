@@ -22,6 +22,7 @@ ${UnStrStrAdv} ; activate macro for uninstallation
 !include "logiclib_dir_exists.nsh"
 !include "ExecWaitJob.nsh"
 !include "x64.nsh"
+!include NSISArray.nsh
 
 ;== Definition of utilities
 !define DefineDefaultValue "!insertmacro DefineDefaultValue"
@@ -65,6 +66,48 @@ FunctionEnd
   Push `${SubString}`
   Call IsFalse
   Pop `${ResultVar}`
+!macroend
+
+!macro GetServerName SERVER_NAME_OUT
+  System::Call 'kernel32.dll::GetComputerNameExW(i 4,w .r0,*i ${NSIS_MAX_STRLEN} r1)i.r2'
+  ${If} $2 = 1
+   StrCpy ${SERVER_NAME_OUT} "\\$0"
+  ${Else}
+   System::Call "kernel32.dll::GetComputerNameW(t .r0,*i ${NSIS_MAX_STRLEN} r1)i.r2"
+   ${If} $2 = 1
+    StrCpy ${SERVER_NAME_OUT} "\\$0"
+   ${Else}
+    StrCpy ${SERVER_NAME_OUT} ""
+   ${EndIf}
+  ${EndIf}
+!macroend
+
+!macro EnumerateUsers SERVER_NAME USER_ARRAY_NAME
+  # Enumerate the local users
+  !define Index "Line${__LINE__}"
+  # $R1 holds the number of entries processed
+  # $R2 holds the total number of entries
+  System::Call 'netapi32::NetUserEnum(w "${SERVER_NAME}",i 0,i 2,*i .R0,i ${NSIS_MAX_STRLEN}, *i .R1,*i .R2,*i .r1)i .r2'
+  StrCpy $R8 $R0
+  # dump them into an array object
+  StrCpy $9 0
+  NSISArray::New ${USER_ARRAY_NAME} 5 ${NSIS_MAX_STRLEN}
+  ${Index}-loop:
+    StrCmp $9 $R2 ${Index}-stop +1
+    System::Call "*$R0(w.R9)"
+    NSISArray::Write ${USER_ARRAY_NAME} $9 "$R9"
+    IntOp $R0 $R0 + 4
+    IntOp $9 $9 + 1
+    Goto ${Index}-loop
+  ${Index}-stop:
+  NSISArray::SizeOf ${USER_ARRAY_NAME}
+  Pop $0
+  Pop $0
+  Pop $0
+  StrCmp $0 $R2 +2 +1
+    MessageBox MB_OK|MB_ICONEXCLAMATION 'Could not place all the user accounts into an array!'
+  System::Call 'netapi32.dll::NetApiBufferFree(i R8)i .R1'
+  !undef Index
 !macroend
 
 ;== Basic Information
@@ -298,6 +341,66 @@ Var ITEM_NAME
 Var ITEM_INDEX
 Var ITEM_LOCATION
 Var ITEM_LOCATION_BASE
+Var ITEM_LOCATION_BACKUP
+
+Function "NormalizePathDelimiter"
+  ${StrStrAdv} $0 "$ITEM_LOCATION" "://" ">" "<" "1" "0" "0"
+  ; Don't normalize as a local file path, if it is an URI.
+  ${If} "$0" == ""
+  ${OrIf} "$0" == "://"
+    ${WordReplace} "$ITEM_LOCATION" "/" "\" "+*" $ITEM_LOCATION
+  ${EndIf}
+FunctionEnd
+
+Function "un.NormalizePathDelimiter"
+  ${UnStrStrAdv} $0 "$ITEM_LOCATION" "://" ">" "<" "1" "0" "0"
+  ; Don't normalize as a local file path, if it is an URI.
+  ${If} "$0" == ""
+  ${OrIf} "$0" == "://"
+    ${un.WordReplace} "$ITEM_LOCATION" "/" "\" "+*" $ITEM_LOCATION
+  ${EndIf}
+FunctionEnd
+
+!define FillPlaceHolder "!insertmacro FillPlaceHolder"
+!macro FillPlaceHolder Name Value
+  ${WordReplace} "$ITEM_LOCATION" "%${Name}%" "${Value}" "+*" $ITEM_LOCATION
+!macroend
+
+!define un.FillPlaceHolder "!insertmacro un.FillPlaceHolder"
+!macro un.FillPlaceHolder Name Value
+  ${un.WordReplace} "$ITEM_LOCATION" "%${Name}%" "${Value}" "+*" $ITEM_LOCATION
+!macroend
+
+!define FillPlaceHolderWithATerm "!insertmacro FillPlaceHolderWithATerm"
+!macro FillPlaceHolderWithATerm Name1 Name2 Name3 Value
+    ${FillPlaceHolder} ${Name1} "${Value}"
+    ${FillPlaceHolder} ${Name2} "${Value}"
+    ${FillPlaceHolder} ${Name3} "${Value}"
+!macroend
+
+!define un.FillPlaceHolderWithATerm "!insertmacro un.FillPlaceHolderWithATerm"
+!macro un.FillPlaceHolderWithATerm Name1 Name2 Name3 Value
+    ${un.FillPlaceHolder} ${Name1} "${Value}"
+    ${un.FillPlaceHolder} ${Name2} "${Value}"
+    ${un.FillPlaceHolder} ${Name3} "${Value}"
+!macroend
+
+!define FillPlaceHolderWithTerms "!insertmacro FillPlaceHolderWithTerms"
+!macro FillPlaceHolderWithTerms Name1 Name2 Name3 Name4 Value
+    ${FillPlaceHolder} ${Name1} "${Value}"
+    ${FillPlaceHolder} ${Name2} "${Value}"
+    ${FillPlaceHolder} ${Name3} "${Value}"
+    ${FillPlaceHolder} ${Name4} "${Value}"
+!macroend
+
+!define un.FillPlaceHolderWithTerms "!insertmacro un.FillPlaceHolderWithTerms"
+!macro un.FillPlaceHolderWithTerms Name1 Name2 Name3 Name4 Value
+    ${un.FillPlaceHolder} ${Name1} "${Value}"
+    ${un.FillPlaceHolder} ${Name2} "${Value}"
+    ${un.FillPlaceHolder} ${Name3} "${Value}"
+    ${un.FillPlaceHolder} ${Name4} "${Value}"
+!macroend
+
 Var UNINSTALL_FAILED
 
 Var MANIFEST_PATH
@@ -915,8 +1018,13 @@ Section "Install Profiles" InstallProfiles
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} "$ITEM_LOCATION" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
-        Call ResolveItemLocation
-        Call InstallProfile
+        ReadINIStr $INI_TEMP "${INIPATH}" "profile" "TargetUser"
+        ${If} "$INI_TEMP" == "all"
+          Call InstallProfileToEachUser
+        ${Else}
+          Call ResolveItemLocation
+          Call InstallProfile
+        ${EndIf}
       ${EndWhile}
     ${EndUnless}
 
@@ -932,8 +1040,13 @@ Section "Install Profiles" InstallProfiles
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} "$ITEM_LOCATION" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
-        Call ResolveItemLocation
-        Call InstallProfile
+        ReadINIStr $INI_TEMP "${INIPATH}" "profile" "TargetUser"
+        ${If} "$INI_TEMP" == "all"
+          Call InstallProfileToEachUser
+        ${Else}
+          Call ResolveItemLocation
+          Call InstallProfile
+        ${EndIf}
         ${Unless} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
           WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX" "$CREATED_TOP_REQUIRED_DIRECTORY"
           IntOp $ITEM_INDEX $ITEM_INDEX + 1
@@ -958,6 +1071,42 @@ Section "Install Profiles" InstallProfiles
     ${EndIf}
 
 SectionEnd
+
+Function "InstallProfileToEachUser"
+    LogEx::Write "InstallProfileToEachUser"
+
+    StrCpy $ITEM_LOCATION_BACKUP "$ITEM_LOCATION"
+
+    !insertmacro GetServerName $0
+    !insertmacro EnumerateUsers "$0" "LocalUsers"
+    ${While} 1 == 1
+      NSISArray::SizeOf LocalUsers
+      Pop $0
+      Pop $0
+      Pop $0
+      LogEx::Write "  Rest users count: $0"
+      ${IfThen} "$0" == "0" ${|} ${Break} ${|}
+
+      NSISArray::Pop LocalUsers
+      Pop $0
+      LogEx::Write "  Local User: $0"
+
+      ${IfThen} "$0" == "Guest" ${|} ${Continue} ${|}
+
+      StrCpy $ITEM_LOCATION "$ITEM_LOCATION_BACKUP"
+      ;XXX We need to resolve path to appdata and others more intelligently...
+      ${FillPlaceHolderWithTerms} AppData Appdata appdata APPDATA         "%HOMEPATH%\AppData\Roaming"
+      ${FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH     "%HOMEDRIVE%\Users\%USERNAME%"
+      ${FillPlaceHolderWithTerms} HomeDrive Homedrive homedrive HOMEDRIVE "C:"
+      ${FillPlaceHolderWithTerms} UserName Username username USERNAME     "$0"
+
+      Call ResolveItemLocation
+      Call InstallProfile
+      ;XXX We need to change the owner of the created file to the user...
+    ${EndWhile}
+    NSISArray::Delete LocalUsers
+
+FunctionEnd
 
 Var PROFILE_INDEX
 Function "InstallProfile"
@@ -2443,74 +2592,10 @@ Function "SetUpRequiredDirectories"
     ${EndWhile}
 FunctionEnd
 
-Function "NormalizePathDelimiter"
-  ${StrStrAdv} $0 "$ITEM_LOCATION" "://" ">" "<" "1" "0" "0"
-  ; Don't normalize as a local file path, if it is an URI.
-  ${If} "$0" == ""
-  ${OrIf} "$0" == "://"
-    ${WordReplace} "$ITEM_LOCATION" "/" "\" "+*" $ITEM_LOCATION
-  ${EndIf}
-FunctionEnd
-
-Function "un.NormalizePathDelimiter"
-  ${UnStrStrAdv} $0 "$ITEM_LOCATION" "://" ">" "<" "1" "0" "0"
-  ; Don't normalize as a local file path, if it is an URI.
-  ${If} "$0" == ""
-  ${OrIf} "$0" == "://"
-    ${un.WordReplace} "$ITEM_LOCATION" "/" "\" "+*" $ITEM_LOCATION
-  ${EndIf}
-FunctionEnd
-
-!define FillPlaceHolder "!insertmacro FillPlaceHolder"
-!macro FillPlaceHolder Name Value
-  ${WordReplace} "$ITEM_LOCATION" "%${Name}%" "${Value}" "+*" $ITEM_LOCATION
-!macroend
-
-!define un.FillPlaceHolder "!insertmacro un.FillPlaceHolder"
-!macro un.FillPlaceHolder Name Value
-  ${un.WordReplace} "$ITEM_LOCATION" "%${Name}%" "${Value}" "+*" $ITEM_LOCATION
-!macroend
-
-!define FillPlaceHolderWithATerm "!insertmacro FillPlaceHolderWithATerm"
-!macro FillPlaceHolderWithATerm Name1 Name2 Name3 Value
-    ${FillPlaceHolder} ${Name1} "${Value}"
-    ${FillPlaceHolder} ${Name2} "${Value}"
-    ${FillPlaceHolder} ${Name3} "${Value}"
-!macroend
-
-!define un.FillPlaceHolderWithATerm "!insertmacro un.FillPlaceHolderWithATerm"
-!macro un.FillPlaceHolderWithATerm Name1 Name2 Name3 Value
-    ${un.FillPlaceHolder} ${Name1} "${Value}"
-    ${un.FillPlaceHolder} ${Name2} "${Value}"
-    ${un.FillPlaceHolder} ${Name3} "${Value}"
-!macroend
-
-!define FillPlaceHolderWithTerms "!insertmacro FillPlaceHolderWithTerms"
-!macro FillPlaceHolderWithTerms Name1 Name2 Name3 Name4 Value
-    ${FillPlaceHolder} ${Name1} "${Value}"
-    ${FillPlaceHolder} ${Name2} "${Value}"
-    ${FillPlaceHolder} ${Name3} "${Value}"
-    ${FillPlaceHolder} ${Name4} "${Value}"
-!macroend
-
-!define un.FillPlaceHolderWithTerms "!insertmacro un.FillPlaceHolderWithTerms"
-!macro un.FillPlaceHolderWithTerms Name1 Name2 Name3 Name4 Value
-    ${un.FillPlaceHolder} ${Name1} "${Value}"
-    ${un.FillPlaceHolder} ${Name2} "${Value}"
-    ${un.FillPlaceHolder} ${Name3} "${Value}"
-    ${un.FillPlaceHolder} ${Name4} "${Value}"
-!macroend
-
 Function "ResolveItemLocation"
     LogEx::Write "ResolveItemLocation for $ITEM_LOCATION"
     Call ResolveItemLocationBasic
-
-    ; Windows Environment Variables
-    ${FillPlaceHolderWithTerms} AppData Appdata appdata APPDATA         "$APPDATA"
-    ${FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH     "$PROFILE"
-    ${FillPlaceHolderWithTerms} HomeDrive Homedrive homedrive HOMEDRIVE "$%homedrive%"
-    ${FillPlaceHolderWithTerms} UserName Username username USERNAME     "$%username%"
-
+    ExpandEnvStrings $ITEM_LOCATION "$ITEM_LOCATION"
     Call NormalizePathDelimiter
     LogEx::Write "  => $ITEM_LOCATION"
 FunctionEnd
@@ -2548,13 +2633,7 @@ FunctionEnd
 
 Function "un.ResolveItemLocation"
     Call un.ResolveItemLocationBasic
-
-    ; Windows Environment Variables
-    ${un.FillPlaceHolderWithTerms} AppData Appdata appdata APPDATA         "$APPDATA"
-    ${un.FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH     "$PROFILE"
-    ${un.FillPlaceHolderWithTerms} HomeDrive Homedrive homedrive HOMEDRIVE "$%homedrive%"
-    ${un.FillPlaceHolderWithTerms} UserName Username username USERNAME     "$%username%"
-
+    ExpandEnvStrings $ITEM_LOCATION "$ITEM_LOCATION"
     Call un.NormalizePathDelimiter
 FunctionEnd
 
