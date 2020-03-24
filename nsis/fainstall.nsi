@@ -1072,6 +1072,8 @@ Section "Install Profiles" InstallProfiles
 
 SectionEnd
 
+Var UserName
+
 Function "InstallProfileToEachUser"
     LogEx::Write "InstallProfileToEachUser"
 
@@ -1088,21 +1090,21 @@ Function "InstallProfileToEachUser"
       ${IfThen} "$0" == "0" ${|} ${Break} ${|}
 
       NSISArray::Pop LocalUsers
-      Pop $0
-      LogEx::Write "  Local User: $0"
+      Pop $UserName
+      LogEx::Write "  Local User: $UserName"
 
-      ${IfThen} "$0" == "Guest" ${|} ${Continue} ${|}
+      ${IfThen} "$UserName" == "Guest" ${|} ${Continue} ${|}
 
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION_BACKUP"
       ;XXX We need to resolve path to appdata and others more intelligently...
-      ${FillPlaceHolderWithTerms} AppData Appdata appdata APPDATA         "%HOMEPATH%\AppData\Roaming"
-      ${FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH     "%HOMEDRIVE%\Users\%USERNAME%"
-      ${FillPlaceHolderWithTerms} HomeDrive Homedrive homedrive HOMEDRIVE "C:"
-      ${FillPlaceHolderWithTerms} UserName Username username USERNAME     "$0"
+      ;homedribe may become blank, so we need to get it from other environment variable...
+      ${FillPlaceHolderWithTerms} AppData Appdata appdata APPDATA     "%HOMEPATH%\AppData\Roaming"
+      ${FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH "%HOMEDRIVE%\Users\%USERNAME%"
+      ${FillPlaceHolderWithTerms} UserName Username username USERNAME "$UserName"
 
       Call ResolveItemLocation
       Call InstallProfile
-      ;XXX We need to change the owner of the created file to the user...
+      AccessControl::SetFileOwner "$ITEM_LOCATION" "$UserName"
     ${EndWhile}
     NSISArray::Delete LocalUsers
 
