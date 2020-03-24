@@ -1112,12 +1112,8 @@ Function "InstallProfileToEachUser"
       ${FillPlaceHolderWithTerms} UserName Username username USERNAME "$USERNAME"
 
       ${WordReplace} "$HOMEPATH_TEMPLATE" "%USERNAME%" "$USERNAME" "+" $0
-      ${If} ${FileExists} "$0"
-        Call ResolveItemLocation
-        Call InstallProfile
-      ${Else}
-        LogEx::Write "  $0 does not exist, skip"
-      ${EndIf}
+      Call ResolveItemLocation
+      Call InstallProfile
     ${EndWhile}
     NSISArray::Delete LocalUsers
     StrCpy $USERNAME ""
