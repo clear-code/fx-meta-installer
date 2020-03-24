@@ -1072,7 +1072,7 @@ Section "Install Profiles" InstallProfiles
 
 SectionEnd
 
-Var UserName
+Var USERNAME
 
 Function "InstallProfileToEachUser"
     LogEx::Write "InstallProfileToEachUser"
@@ -1090,21 +1090,21 @@ Function "InstallProfileToEachUser"
       ${IfThen} "$0" == "0" ${|} ${Break} ${|}
 
       NSISArray::Pop LocalUsers
-      Pop $UserName
-      LogEx::Write "  Local User: $UserName"
+      Pop $USERNAME
+      LogEx::Write "  Local User: $USERNAME"
 
-      ${IfThen} "$UserName" == "Guest" ${|} ${Continue} ${|}
+      ${IfThen} "$USERNAME" == "Guest" ${|} ${Continue} ${|}
 
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION_BACKUP"
       ;XXX We need to resolve path to appdata and others more intelligently...
       ;homedribe may become blank, so we need to get it from other environment variable...
       ${FillPlaceHolderWithTerms} AppData Appdata appdata APPDATA     "%HOMEPATH%\AppData\Roaming"
       ${FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH "%HOMEDRIVE%\Users\%USERNAME%"
-      ${FillPlaceHolderWithTerms} UserName Username username USERNAME "$UserName"
+      ${FillPlaceHolderWithTerms} UserName Username username USERNAME "$USERNAME"
 
       Call ResolveItemLocation
       Call InstallProfile
-      AccessControl::SetFileOwner "$ITEM_LOCATION" "$UserName"
+      AccessControl::SetFileOwner "$ITEM_LOCATION" "$USERNAME"
     ${EndWhile}
     NSISArray::Delete LocalUsers
 
