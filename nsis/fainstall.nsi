@@ -343,6 +343,10 @@ Var ITEM_LOCATION
 Var ITEM_LOCATION_BASE
 Var ITEM_LOCATION_BACKUP
 
+Var USERNAME
+Var APPDATA_TEMPLATE
+Var HOMEPATH_TEMPLATE
+
 Function "NormalizePathDelimiter"
   ${StrStrAdv} $0 "$ITEM_LOCATION" "://" ">" "<" "1" "0" "0"
   ; Don't normalize as a local file path, if it is an URI.
@@ -601,6 +605,15 @@ Function InitializeVariables
     ${EndIf}
 
     ${ReadINIStrWithDefault} $DISPLAY_VERSION "${INIPATH}" "${INSTALLER_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
+
+    ExpandEnvStrings $USERNAME "%USERNAME%"
+    ExpandEnvStrings $APPDATA_TEMPLATE "$APPDATA"
+    ${WordReplace} "$APPDATA_TEMPLATE" "$USERNAME" "%USERNAME%" "+" $APPDATA_TEMPLATE
+    LogEx::Write "  APPDATA_TEMPLATE is $APPDATA_TEMPLATE"
+    ExpandEnvStrings $HOMEPATH_TEMPLATE "$PROFILE"
+    ${WordReplace} "$HOMEPATH_TEMPLATE" "$USERNAME" "%USERNAME%" "+" $HOMEPATH_TEMPLATE
+    LogEx::Write "  HOMEPATH_TEMPLATE is $HOMEPATH_TEMPLATE"
+    StrCpy $USERNAME ""
 FunctionEnd
 
 Function "DetectAppInstallerPath"
@@ -896,15 +909,15 @@ Function "UpdateShortcutsExistence"
         ${EndIf}
       ${EndIf}
     ${EndIf}
+    StrCpy $USERNAME ""
 FunctionEnd
 
-Var USER_NAME
 Function "UpdateQuickLaunchShortcutForOneUser"
     LogEx::Write "UpdateQuickLaunchShortcutForOneUser"
 
-    StrCpy $USER_NAME "$R7"
-    LogEx::Write "  USER_NAME: $USER_NAME"
-    ${WordReplace} "$ITEM_LOCATION_BASE" "%USERNAME%" "$USER_NAME" "+*" $ITEM_LOCATION
+    StrCpy $USERNAME "$R7"
+    LogEx::Write "  USERNAME: $USERNAME"
+    ${WordReplace} "$ITEM_LOCATION_BASE" "%USERNAME%" "$USERNAME" "+*" $ITEM_LOCATION
     LogEx::Write "  ITEM_LOCATION: $ITEM_LOCATION"
 
     ${If} "$INI_TEMP" == "false"
@@ -920,7 +933,7 @@ Function "UpdateQuickLaunchShortcutForOneUser"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
-    Push $USER_NAME ; for ${Locate}
+    Push $USERNAME ; for ${Locate}
 FunctionEnd
 
 Section "Set Default Client" SetDefaultClient
@@ -1072,8 +1085,6 @@ Section "Install Profiles" InstallProfiles
 
 SectionEnd
 
-Var USERNAME
-
 Function "InstallProfileToEachUser"
     LogEx::Write "InstallProfileToEachUser"
 
@@ -1096,17 +1107,20 @@ Function "InstallProfileToEachUser"
       ${IfThen} "$USERNAME" == "Guest" ${|} ${Continue} ${|}
 
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION_BACKUP"
-      ;XXX We need to resolve path to appdata and others more intelligently...
-      ;homedribe may become blank, so we need to get it from other environment variable...
-      ${FillPlaceHolderWithTerms} AppData Appdata appdata APPDATA     "%HOMEPATH%\AppData\Roaming"
-      ${FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH "%HOMEDRIVE%\Users\%USERNAME%"
+      ${FillPlaceHolderWithTerms} AppData Appdata appdata APPDATA     "$APPDATA_TEMPLATE"
+      ${FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH "$HOMEPATH_TEMPLATE"
       ${FillPlaceHolderWithTerms} UserName Username username USERNAME "$USERNAME"
+
+      ${WordReplace} "$HOMEPATH_TEMPLATE" "%USERNAME%" "$USERNAME" "+" $0
+      ${Unless} ${FileExists} "$0"
+        ${Continue}
+      ${EndUnless}
 
       Call ResolveItemLocation
       Call InstallProfile
-      AccessControl::SetFileOwner "$ITEM_LOCATION" "$USERNAME"
     ${EndWhile}
     NSISArray::Delete LocalUsers
+    StrCpy $USERNAME ""
 
 FunctionEnd
 
@@ -1129,6 +1143,7 @@ Function "InstallProfile"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "IsRelative" "1"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "Path" "Profiles/$INI_TEMP"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "Default" "1"
+      ${IfThen} "$USERNAME" != "" ${|} AccessControl::SetFileOwner "$ITEM_LOCATION\profiles.ini" "$USERNAME" ${|}
     ${Else}
       LogEx::Write "  CreateProfile: profile exists"
       ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
@@ -1152,6 +1167,7 @@ Function "InstallProfile"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "IsRelative" "1"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "Path" "Profiles/$INI_TEMP"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "Default" "1"
+      ${IfThen} "$USERNAME" != "" ${|} AccessControl::SetFileOwner "$ITEM_LOCATION\profiles.ini" "$USERNAME" ${|}
     ${EndIf}
 
     ${If} ${FileExists} "$RES_DIR\profile.zip"
@@ -2587,6 +2603,7 @@ Function "SetUpRequiredDirectories"
       ${EndIf}
       LogEx::Write "  create $ITEM_LOCATION"
       CreateDirectory "$ITEM_LOCATION"
+      ${IfThen} "$USERNAME" != "" ${|} AccessControl::SetFileOwner "$ITEM_LOCATION" "$USERNAME" ${|}
       ${If} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
         StrCpy $CREATED_TOP_REQUIRED_DIRECTORY "$ITEM_LOCATION"
         LogEx::Write "  top level = $ITEM_LOCATION"
