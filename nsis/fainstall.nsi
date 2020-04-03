@@ -1576,6 +1576,8 @@ Function InstallAdditionalFiles
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFileForLocate"
     !endif
 
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.msi" "RunMSISilentlyForLocate"
+
     LogEx::Write "InstallExtraFiles"
     ; Disable install guard for ExtraFiles=
     StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
@@ -1648,6 +1650,25 @@ Function "InstallNormalFile"
     LogEx::Write "  $PROCESSING_FILE is successfully installed"
 
   RETURN:
+    Push $PROCESSING_FILE ; for ${Locate}
+FunctionEnd
+
+Function "RunMSISilentlyForLocate"
+    StrCpy $PROCESSING_FILE "$R7"
+    Call RunMSISilently
+FunctionEnd
+
+Function "RunMSISilently"
+    ClearErrors
+    ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
+    ;       otherwise only the first found file will be installed and others are ignored.
+    LogEx::Write "RunMSISilently: installing $PROCESSING_FILE"
+    !if ${PRODUCT_INSTALL_MODE} == "QUIET"
+      nsExec::Exec '"$SYSDIR\msiexec.exe" "$RES_DIR\$PROCESSING_FILE" /quiet'
+    !else
+      nsExec::Exec '"$SYSDIR\msiexec.exe" "$RES_DIR\$PROCESSING_FILE" /passive'
+    !endif
+    LogEx::Write "  $PROCESSING_FILE is successfully executed"
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
