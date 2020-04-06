@@ -1664,9 +1664,9 @@ Function "RunMSISilently"
     ;       otherwise only the first found file will be installed and others are ignored.
     LogEx::Write "RunMSISilently: installing $PROCESSING_FILE"
     !if ${PRODUCT_INSTALL_MODE} == "QUIET"
-      nsExec::Exec '"$SYSDIR\msiexec.exe" "$RES_DIR\$PROCESSING_FILE" /quiet'
+      nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /quiet'
     !else
-      nsExec::Exec '"$SYSDIR\msiexec.exe" "$RES_DIR\$PROCESSING_FILE" /passive'
+      nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /passive'
     !endif
     LogEx::Write "  $PROCESSING_FILE is successfully executed"
     Push $PROCESSING_FILE ; for ${Locate}
