@@ -1513,7 +1513,8 @@ Function InstallAdditionalFiles
     StrCpy $DIST_DIR "$APP_DIR"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cfg" "InstallNormalFileForLocate"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.properties" "InstallNormalFileForLocate"
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=override.ini" "InstallNormalFileForLocate"
+    ; mainly for override.ini, but accept other file names also
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.ini" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cer" "InstallNormalFileForLocate"
