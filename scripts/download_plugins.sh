@@ -4,16 +4,17 @@
 set -e
 
 URI="
-http://nsis.sourceforge.net/mediawiki/images/3/3c/FindProc.zip
-http://nsis.sourceforge.net/mediawiki/images/c/c9/Inetc.zip
-http://nsis.sourceforge.net/mediawiki/images/d/d9/ZipDLL.zip
-http://nsis.sourceforge.net/mediawiki/images/b/b3/CustomLicense.zip
-http://nsis.sourceforge.net/mediawiki/images/5/55/Xml.zip
-http://nsis.sourceforge.net/mediawiki/images/d/d7/Md5dll.zip
-http://nsis.sourceforge.net/mediawiki/images/8/8f/UAC.zip
-http://nsis.sourceforge.net/mediawiki/images/4/4a/AccessControl.zip
-http://nsis.sourceforge.net/mediawiki/images/0/08/UserMgr.zip
-http://nsis.sourceforge.net/mediawiki/images/d/d1/LogEx.zip
+https://nsis.sourceforge.io/mediawiki/images/3/3c/FindProc.zip
+https://nsis.sourceforge.io/mediawiki/images/c/c9/Inetc.zip
+https://nsis.sourceforge.io/mediawiki/images/d/d9/ZipDLL.zip
+https://nsis.sourceforge.io/mediawiki/images/b/b3/CustomLicense.zip
+https://nsis.sourceforge.io/mediawiki/images/5/55/Xml.zip
+https://nsis.sourceforge.io/mediawiki/images/d/d7/Md5dll.zip
+https://nsis.sourceforge.io/mediawiki/images/8/8f/UAC.zip
+https://nsis.sourceforge.io/mediawiki/images/4/4a/AccessControl.zip
+https://nsis.sourceforge.io/mediawiki/images/0/08/UserMgr.zip
+https://nsis.sourceforge.io/mediawiki/images/d/d1/LogEx.zip
+https://nsis.sourceforge.io/mediawiki/images/4/44/NSISArray.zip
 "
 
 mkdir -p plugins
