@@ -296,6 +296,8 @@ Var APP_REG_KEY
 Var APP_VERSIONS_ROOT_REG_KEY
 Var NORMALIZED_APP_VERSION
 Var APP_VERSION_NUM
+; "acceptable", "too low", or "too high"
+Var APP_VERSION_STATUS
 Var APP_EXE_PATH
 Var APP_EULA_FINAL_PATH
 Var APP_INSTALLER_FINAL_PATH
@@ -321,7 +323,6 @@ Var APP_MAX_VERSION
 Var APP_MIN_VERSION
 Var APP_ALLOW_DOWNGRADE
 Var APP_EULA_DL_FAILED
-Var APP_WRONG_VERSION
 Var APP_IS_64BIT
 Var APP_IS_ESR
 Var APP_PROGRAMFILES
@@ -776,9 +777,9 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
         Call CheckAppVersion
 
         ${Unless} "$APP_EXISTS" == "1"
-          ${If} "$APP_WRONG_VERSION" == "1"
+          ${If} "$APP_VERSION_STATUS" == "too low"
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_ERROR)" /SD IDOK
-          ${ElseIf} "$APP_WRONG_VERSION" == "2"
+          ${ElseIf} "$APP_VERSION_STATUS" == "too high"
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_HIGH_ERROR)" /SD IDOK
           ${Else}
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_INSTALL_ERROR)" /SD IDOK
@@ -2517,9 +2518,6 @@ Function CheckAppVersion
     LogEx::Write "  APP_MAX_VERSION        = $APP_MAX_VERSION"
     LogEx::Write "  APP_ALLOW_DOWNGRADE    = $APP_ALLOW_DOWNGRADE"
 
-    ${VersionConvert} "$NORMALIZED_APP_VERSION" "abcdefghijklmnopqrstuvwxyz" $APP_VERSION_NUM
-    StrCpy $APP_WRONG_VERSION "0"
-
     ${ReadINIStrWithDefault} $APP_ALLOW_DOWNGRADE "${INIPATH}" "${INSTALLER_NAME}" "AppAllowDowngrade" "${APP_ALLOW_DOWNGRADE}"
     ${If} "$APP_ALLOW_DOWNGRADE" == "1"
     ${OrIf} "$APP_ALLOW_DOWNGRADE" == "yes"
@@ -2530,26 +2528,35 @@ Function CheckAppVersion
 
     LogEx::Write "  Application exists"
 
-    ${ReadINIStrWithDefault} $0 "${INIPATH}" "${INSTALLER_NAME}" "AppMaxVersion" "${APP_MAX_VERSION}"
-    ${VersionConvert} "$0" "abcdefghijklmnopqrstuvwxyz" $1
-    ${VersionCompare} "$APP_VERSION_NUM" "$1" $0
-    ${If} "$0" == "1"
-      StrCpy $APP_WRONG_VERSION "2"
-      StrCpy $APP_EXISTS "0"
-      LogEx::Write "  Installed version is too new"
-      GoTo RETURN
-    ${EndIf}
-
     ${ReadINIStrWithDefault} $0 "${INIPATH}" "${INSTALLER_NAME}" "AppMinVersion" "${APP_MIN_VERSION}"
-    ${VersionConvert} "$0" "abcdefghijklmnopqrstuvwxyz" $1
-    ${VersionCompare} "$APP_VERSION_NUM" "$1" $0
-    ${If} "$0" == "2"
-      StrCpy $APP_WRONG_VERSION "1"
+    ${ReadINIStrWithDefault} $1 "${INIPATH}" "${INSTALLER_NAME}" "AppMaxVersion" "${APP_MAX_VERSION}"
+    Call IsInAcceptableVersionRange
+    ${Unless} "$APP_VERSION_STATUS" == "acceptable"
       StrCpy $APP_EXISTS "0"
-      LogEx::Write "  Installed version is too old"
-      GoTo RETURN
-    ${EndIf}
+    ${EndUnless}
   RETURN:
+FunctionEnd
+
+Var ACCEPTABLE_MIN_VERSION
+Var ACCEPTABLE_MAX_VERSION
+Function IsInAcceptableVersionRange
+    StrCpy $ACCEPTABLE_MIN_VERSION "$0"
+    StrCpy $ACCEPTABLE_MAX_VERSION "$1"
+    LogEx::Write "IsInAcceptableVersionRange $ACCEPTABLE_MIN_VERSION-$ACCEPTABLE_MAX_VERSION"
+
+    StrCpy $APP_VERSION_STATUS "acceptable"
+    ${VersionConvert} "$NORMALIZED_APP_VERSION" "abcdefghijklmnopqrstuvwxyz" $APP_VERSION_NUM
+    ${VersionConvert} "$ACCEPTABLE_MIN_VERSION" "abcdefghijklmnopqrstuvwxyz" $ACCEPTABLE_MIN_VERSION
+    ${VersionConvert} "$ACCEPTABLE_MAX_VERSION" "abcdefghijklmnopqrstuvwxyz" $ACCEPTABLE_MAX_VERSION
+
+    ${VersionCompare} "$APP_VERSION_NUM" "$ACCEPTABLE_MIN_VERSION" $0
+    ${VersionCompare} "$ACCEPTABLE_MAX_VERSION" "$APP_VERSION_NUM" $1
+    ${If} "$0" == "2" ; APP_VERSION_NUM < ACCEPTABLE_MIN_VERSION
+      StrCpy $APP_VERSION_STATUS "too low"
+    ${ElseIf} "$1" == "2" ; ACCEPTABLE_MAX_VERSION < APP_VERSION_NUM
+      StrCpy $APP_VERSION_STATUS "too high"
+    ${EndIf}
+    LogEx::Write "  => Installed version $APP_VERSION_NUM is $APP_VERSION_STATUS"
 FunctionEnd
 
 Function CheckAppVersionWithMessage
@@ -2557,11 +2564,9 @@ Function CheckAppVersionWithMessage
     ${IfThen} "$APP_EXISTS" != "1" ${|} GoTo RETURN ${|}
 
     Call CheckAppVersion
+    ${Switch} $APP_VERSION_STATUS
 
-    LogEx::Write "  APP_WRONG_VERSION = $APP_WRONG_VERSION"
-    ${Switch} $APP_WRONG_VERSION
-
-      ${Case} 1
+      ${Case} "too low"
         !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
           MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_CONFIRM)" IDOK RETURN
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_LOW_ERROR)" /SD IDOK
@@ -2571,7 +2576,7 @@ Function CheckAppVersionWithMessage
         Abort
         ${Break}
 
-      ${Case} 2
+      ${Case} "too high"
         ${If} "$APP_ALLOW_DOWNGRADE" == "true"
           !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
             MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(MSG_APP_VERSION_TOO_HIGH_CONFIRM)" IDOK RETURN
