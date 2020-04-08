@@ -1242,6 +1242,14 @@ Function "InstallAddon"
 
     LogEx::Write "  ADDON_NAME: $ADDON_NAME"
 
+    ${ReadINIStrWithDefault} $0 "${INIPATH}" "$ITEM_NAME" "AppMinVersion" "0"
+    ${ReadINIStrWithDefault} $1 "${INIPATH}" "$ITEM_NAME" "AppMaxVersion" "9999"
+    Call IsInAcceptableVersionRange
+    ${Unless} "$APP_VERSION_STATUS" == "acceptable"
+      LogEx::Write "  => skip install"
+      GoTo CANCELED
+    ${EndUnless}
+
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$ITEM_NAME" "TargetLocation"
     ${Unless} "$ITEM_LOCATION" == ""
       Call ResolveItemLocation
@@ -1607,6 +1615,14 @@ Function "InstallNormalFileForLocate"
 FunctionEnd
 
 Function "InstallNormalFile"
+    ${ReadINIStrWithDefault} $0 "${INIPATH}" "$PROCESSING_FILE" "AppMinVersion" "0"
+    ${ReadINIStrWithDefault} $1 "${INIPATH}" "$PROCESSING_FILE" "AppMaxVersion" "9999"
+    Call IsInAcceptableVersionRange
+    ${Unless} "$APP_VERSION_STATUS" == "acceptable"
+      LogEx::Write "  => skip install"
+      GoTo RETURN
+    ${EndUnless}
+
     ReadINIStr $ITEM_LOCATION "${INIPATH}" "$PROCESSING_FILE" "TargetLocation"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
