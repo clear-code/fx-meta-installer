@@ -1117,8 +1117,17 @@ Function "InstallProfileToEachUser"
       Call InstallProfile
     ${EndWhile}
     NSISArray::Delete LocalUsers
-    StrCpy $USERNAME ""
 
+    StrCpy $USERNAME "Default"
+    StrCpy $ITEM_LOCATION "$ITEM_LOCATION_BACKUP"
+    ${FillPlaceHolderWithTerms} AppData Appdata appdata APPDATA     "$APPDATA_TEMPLATE"
+    ${FillPlaceHolderWithTerms} HomePath Homepath homepath HOMEPATH "$HOMEPATH_TEMPLATE"
+    ${FillPlaceHolderWithTerms} UserName Username username USERNAME "$USERNAME"
+    ${WordReplace} "$HOMEPATH_TEMPLATE" "%USERNAME%" "$USERNAME" "+" $0
+    Call ResolveItemLocation
+    Call InstallProfile
+
+    StrCpy $USERNAME ""
 FunctionEnd
 
 Var PROFILE_INDEX
