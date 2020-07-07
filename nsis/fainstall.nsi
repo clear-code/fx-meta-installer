@@ -286,7 +286,7 @@ CRCCheck on
 ShowInstDetails nevershow
 ShowUnInstDetails nevershow
 
-!ifndef REQUIRE_ADMIN
+!if ${REQUIRE_ADMIN} == "false"
   RequestExecutionLevel user
 !endif
 

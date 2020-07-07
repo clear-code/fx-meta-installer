@@ -13,7 +13,7 @@
 !define PRODUCT_WEB_LABEL    "Go to Clear Code Inc."
 !define PRODUCT_LANGUAGE     "Japanese"
 
-!define REQUIRE_ADMIN
+!define REQUIRE_ADMIN "true"
 ;!define ADMIN_CHECK_DIR ""
 
 ; Type of the wizard
