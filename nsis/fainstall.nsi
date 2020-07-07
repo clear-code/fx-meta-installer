@@ -285,7 +285,10 @@ XPStyle on
 CRCCheck on
 ShowInstDetails nevershow
 ShowUnInstDetails nevershow
-RequestExecutionLevel user
+
+!ifndef REQUIRE_ADMIN
+  RequestExecutionLevel user
+!endif
 
 ;=== Program Icon
 Icon "${INSTALLER_NAME}.ico"
