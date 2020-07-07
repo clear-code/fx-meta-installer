@@ -1625,6 +1625,7 @@ FunctionEnd
 Function "InstallNormalFileForLocate"
     StrCpy $PROCESSING_FILE "$R7"
     Call InstallNormalFile
+    Push 0
 FunctionEnd
 
 Function "InstallNormalFile"
@@ -1687,6 +1688,7 @@ FunctionEnd
 Function "RunMSISilentlyForLocate"
     StrCpy $PROCESSING_FILE "$R7"
     Call RunMSISilently
+    Push 0
 FunctionEnd
 
 Function "RunMSISilently"
