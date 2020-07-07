@@ -1524,6 +1524,7 @@ Function "ApplyRegistryChange"
     ${DisableX64FSRedirection}
     ExecWait '"$SYSDIR\reg.exe" import "$RES_DIR\$PROCESSING_FILE"'
     ${EnableX64FSRedirection}
+    Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
 Var INSTALLING_APPLICATION_SPECIFIC_FILES
@@ -1625,7 +1626,7 @@ FunctionEnd
 Function "InstallNormalFileForLocate"
     StrCpy $PROCESSING_FILE "$R7"
     Call InstallNormalFile
-    Push 0
+    Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
 Function "InstallNormalFile"
@@ -1688,7 +1689,7 @@ FunctionEnd
 Function "RunMSISilentlyForLocate"
     StrCpy $PROCESSING_FILE "$R7"
     Call RunMSISilently
-    Push 0
+    Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
 Function "RunMSISilently"
