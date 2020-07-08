@@ -2294,6 +2294,7 @@ Function CheckAdminPrivilege
     LogEx::Write "CheckAdminPrivilege"
     ${ReadINIStrWithDefault} $REQUIRE_ADMIN "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege" "${REQUIRE_ADMIN}"
     ${If} "$REQUIRE_ADMIN" == "false"
+      LogEx::Write "    => skip administrator privilege check"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
