@@ -382,6 +382,13 @@ FunctionEnd
   ${IfThen} "${OutVariable}" == "" ${|} ReadRegStr ${OutVariable} HKCU "${SubKey}" "${Entry}" ${|}
 !macroend
 
+!define WriteRegStrSafely "!insertmacro WriteRegStrSafely"
+!macro WriteRegStrSafely SubKey Entry Value
+  WriteRegStr HKLM "${SubKey}" "${Entry}" "${Value}"
+  ReadRegStr $0 HKLM "${SubKey}" "${Entry}"
+  ${IfThen} "$0" == "" ${|} WriteRegStr HKCU "${SubKey}" "${Entry}" "${Value}" ${|}
+!macroend
+
 !define FillPlaceHolder "!insertmacro FillPlaceHolder"
 !macro FillPlaceHolder Name Value
   ${WordReplace} "$ITEM_LOCATION" "%${Name}%" "${Value}" "+*" $ITEM_LOCATION
@@ -946,7 +953,7 @@ Function "UpdateQuickLaunchShortcutForOneUser"
         SetOutPath "$APP_DIR"
         CreateShortCut "$ITEM_LOCATION\$SHORTCUT_NAME.lnk" "$APP_EXE_PATH" "" "$APP_EXE_PATH" 0
       ${EndUnless}
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledQuickLaunchShortcut$ITEM_INDEX" "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledQuickLaunchShortcut$ITEM_INDEX" "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
@@ -971,8 +978,8 @@ Section "Set Default Client" SetDefaultClient
           LogEx::Write "  Running: $COMMAND_STRING"
           ExecWait "$COMMAND_STRING"
           WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
-          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient" "$ITEM_NAME"
-          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultClientShown" "true"
+          ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DefaultClient" "$ITEM_NAME"
+          ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DefaultClientShown" "true"
         ${EndUnless}
       ${EndIf}
 
@@ -1024,7 +1031,7 @@ Function "DisableClient"
         LogEx::Write "  Running: $COMMAND_STRING"
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
-        WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX" "$ITEM_NAME"
+        ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX" "$ITEM_NAME"
       ${EndUnless}
     ${EndIf}
 
@@ -1078,7 +1085,7 @@ Section "Install Profiles" InstallProfiles
           Call InstallProfile
         ${EndIf}
         ${Unless} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
-          WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX" "$CREATED_TOP_REQUIRED_DIRECTORY"
+          ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX" "$CREATED_TOP_REQUIRED_DIRECTORY"
           IntOp $ITEM_INDEX $ITEM_INDEX + 1
         ${EndUnless}
       ${EndWhile}
@@ -1094,10 +1101,10 @@ Section "Install Profiles" InstallProfiles
         StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
       ${EndWhile}
       Rename "$DIST_PATH" "$BACKUP_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackups$ITEM_INDEX" "$BACKUP_PATH"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DefaultProfileBackups$ITEM_INDEX" "$BACKUP_PATH"
 
       ZipDLL::extractall "$RES_DIR\profile.zip" "$DIST_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX" "$DIST_PATH"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX" "$DIST_PATH"
     ${EndIf}
 
 SectionEnd
@@ -1214,11 +1221,11 @@ Section "Old Distribution Directory Existence Check" OldDistDirExistenceCheck
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
     ${EndWhile}
     ${If} ${FileExists} "$DIST_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup" "$BACKUP_PATH"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup" "$BACKUP_PATH"
       Rename "$DIST_PATH" "$BACKUP_PATH"
       LogEx::Write "  BACKUP_PATH: $BACKUP_PATH"
     ${EndIf}
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
 SectionEnd
 
 Section "Install Add-ons" InstallAddons
@@ -1329,18 +1336,18 @@ Function "InstallAddon"
       Rename "$MANIFEST_DIR\$ITEM_NAME.ManagedStorage" "$MANIFEST_DIR\$ADDON_NAME.json"
 
       ${If} "$UNINSTALL" != "false"
-        WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledManagedStorage$ITEM_INDEX" "$MANIFEST_DIR\$ADDON_NAME.json"
+        ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledManagedStorage$ITEM_INDEX" "$MANIFEST_DIR\$ADDON_NAME.json"
       ${EndIf}
 
       ; For native messaging manifests, the registry key should not be created under
       ; Wow6432Node, even if the app is 32-bit.
       SetRegView 64
-      WriteRegStr HKLM "Software\Mozilla\ManagedStorage\$ADDON_NAME" "" "$MANIFEST_DIR\$ADDON_NAME.json"
+      ${WriteRegStrSafely} "Software\Mozilla\ManagedStorage\$ADDON_NAME" "" "$MANIFEST_DIR\$ADDON_NAME.json"
       SetRegView 32
     ${EndIf}
 
     ${If} "$UNINSTALL" != "false"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ITEM_LOCATION"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX" "$ITEM_LOCATION"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
@@ -1388,7 +1395,7 @@ Function "InstallShortcut"
     ReadINIStr $REQUIRED_DIRECTORY "${INIPATH}" "$ITEM_NAME" "TargetLocation"
     Call SetUpRequiredDirectories
     ${Unless} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$CREATED_TOP_REQUIRED_DIRECTORY"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$CREATED_TOP_REQUIRED_DIRECTORY"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndUnless}
 
@@ -1452,7 +1459,7 @@ Function "InstallShortcut"
     ${EndIf}
 
     ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX" "$ITEM_LOCATION"
 
     SetShellVarContext current
 
@@ -1680,7 +1687,7 @@ Function "InstallNormalFile"
       ${EndWhile}
       LogEx::Write "  backup old file as $BACKUP_PATH"
       Rename "$DIST_PATH" "$BACKUP_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup" "$BACKUP_PATH"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup" "$BACKUP_PATH"
     ${EndIf}
 
     SetOutPath $ITEM_LOCATION
@@ -1688,7 +1695,7 @@ Function "InstallNormalFile"
     CopyFiles /SILENT "$RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
     ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
     ${If} $ITEM_INDEX > -1
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
@@ -1746,8 +1753,8 @@ Section "Initialize Search Plugins" InitSearchPlugins
     ${EndIf}
 
     ${If} ${FileExists} "$BACKUP_PATH\*.xml"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisabledSearchPlugins" "$BACKUP_PATH"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "EnabledSearchPlugins" "$DIST_PATH"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DisabledSearchPlugins" "$BACKUP_PATH"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "EnabledSearchPlugins" "$DIST_PATH"
     ${Else}
       RMDir /r "$BACKUP_PATH"
     ${EndIf}
@@ -1900,8 +1907,8 @@ Function "WriteRegistryEntry"
       IntOp $EXTRA_REG_VALUE_INDEX $EXTRA_REG_VALUE_INDEX + 1
     ${EndWhile}
 
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryRoot$ITEM_INDEX" "$EXTRA_REG_ROOT"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryPath$ITEM_INDEX" "$EXTRA_REG_PATH"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryRoot$ITEM_INDEX" "$EXTRA_REG_ROOT"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryPath$ITEM_INDEX" "$EXTRA_REG_PATH"
 
     LogEx::Write "  $ITEM_NAME successfully processed"
 FunctionEnd
@@ -1910,20 +1917,20 @@ FunctionEnd
 Section -Post
     LogEx::Write "Post process"
     WriteUninstaller "${PRODUCT_UNINST_PATH}"
-    WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayName"     "${PRODUCT_FULL_NAME}"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "UninstallString" "${PRODUCT_UNINST_PATH}"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayIcon"     "${PRODUCT_UNINST_PATH}"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayVersion"  "$DISPLAY_VERSION"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "URLInfoAbout"    "${PRODUCT_WEB_SITE}"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "Publisher"       "${PRODUCT_PUBLISHER}"
+    ${WriteRegStrSafely} "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DisplayName"     "${PRODUCT_FULL_NAME}"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "UninstallString" "${PRODUCT_UNINST_PATH}"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DisplayIcon"     "${PRODUCT_UNINST_PATH}"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DisplayVersion"  "$DISPLAY_VERSION"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "URLInfoAbout"    "${PRODUCT_WEB_SITE}"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "Publisher"       "${PRODUCT_PUBLISHER}"
     ${If} "$APP_INSTALLED" == "1"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppRegKey"  "$APP_REG_KEY"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersionsRootRegKey"  "$APP_VERSIONS_ROOT_REG_KEY"
-      WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion" "$APP_VERSION"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledAppRegKey"  "$APP_REG_KEY"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledAppVersionsRootRegKey"  "$APP_VERSIONS_ROOT_REG_KEY"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledAppVersion" "$APP_VERSION"
     ${EndIf}
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "AppIs64bit" "$APP_IS_64BIT"
-    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "AppIsESR" "$APP_IS_ESR"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "AppIs64bit" "$APP_IS_64BIT"
+    ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "AppIsESR" "$APP_IS_ESR"
 SectionEnd
 
 Section "Show Finish Message" ShowFinishMessage
