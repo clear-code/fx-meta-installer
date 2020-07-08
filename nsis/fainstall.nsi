@@ -1644,7 +1644,9 @@ FunctionEnd
 
 Function "InstallNormalFileForLocate"
     StrCpy $PROCESSING_FILE "$R7"
+    LogEx::Write "InstallNormalFileForLocate: $PROCESSING_FILE start"
     Call InstallNormalFile
+    LogEx::Write "InstallNormalFileForLocate: $PROCESSING_FILE done"
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
@@ -1702,7 +1704,6 @@ Function "InstallNormalFile"
     LogEx::Write "  $PROCESSING_FILE is successfully installed"
 
   RETURN:
-    Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
 Function "RunMSISilentlyForLocate"
@@ -1722,7 +1723,6 @@ Function "RunMSISilently"
       nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /passive'
     !endif
     LogEx::Write "  $PROCESSING_FILE is successfully executed"
-    Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
 Section "Initialize Search Plugins" InitSearchPlugins
