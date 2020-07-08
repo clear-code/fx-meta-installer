@@ -49,6 +49,10 @@ cd nsis
 
 inifile=../fainstall.ini
 
+has_config() {
+  cat ../config.nsh | grep -v -E "^;" | grep $1 >/dev/null 2&>1
+}
+
 read_config() {
   cat ../config.nsh | grep -v -E "^;" | grep $1 | cut -d '"' -f 2
 }
@@ -150,7 +154,12 @@ mv fainstall.ini "./$product_name-source/"
 
 $tar -c -f- --exclude-vcs -C resources . | $tar -x -C "./$product_name-source/resources"
 cp ./7z/pack.list "./$product_name-source/"
-cat ./7z/7zS2.sfx.with-manifest ./7z/FxMetaInstaller.tag > "./$product_name-source/fainstall.sfx"
+if has_config "ALLOW_USER_INSTALL"
+then
+  cat ./7z/7zS2.sfx.with-manifest-userinstall ./7z/FxMetaInstaller.tag > "./$product_name-source/fainstall.sfx"
+else
+  cat ./7z/7zS2.sfx.with-manifest ./7z/FxMetaInstaller.tag > "./$product_name-source/fainstall.sfx"
+fi
 cp ./7z/7zr.exe "./$product_name-source/"
 cp ./7z/pack.bat "./$product_name-source/$product_name.bat"
 #cp ./7z/pack.sh "./$product_name-source/$product_name.sh"
