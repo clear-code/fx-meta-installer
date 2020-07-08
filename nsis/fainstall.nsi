@@ -2298,6 +2298,33 @@ Function CheckAdminPrivilege
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
+    ; check by file writing
+    ${ReadINIStrWithDefault} $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory" "${ADMIN_CHECK_DIR}"
+    Call ResolveItemLocation
+    ${If} "$ITEM_LOCATION" == ""
+      StrCpy $ITEM_LOCATION "$APP_PROGRAMFILES"
+      Call ResolveItemLocation
+    ${EndIf}
+    LogEx::Write "  Checking access rights by file access to $ITEM_LOCATION"
+    ${Unless} "$ITEM_LOCATION" == ""
+      StrCpy $ITEM_LOCATION "$ITEM_LOCATION\_${INSTALLER_NAME}.lock"
+      ${If} ${FileExists} "$ITEM_LOCATION"
+        Delete "$ITEM_LOCATION"
+        ${Unless} ${FileExists} "$ITEM_LOCATION"
+          LogEx::Write "  => has access right: writable to ${ITEM_LOCATION}"
+          GoTo PRIVILEGE_TEST_DONE
+        ${EndUnless}
+      ${Else}
+        WriteINIStr "$ITEM_LOCATION" "${INSTALLER_NAME}" "test" "true"
+        FlushINI "$ITEM_LOCATION"
+        ${If} ${FileExists} "$ITEM_LOCATION"
+          LogEx::Write "  => has access right: writable to ${ITEM_LOCATION}"
+          Delete "$ITEM_LOCATION"
+          GoTo PRIVILEGE_TEST_DONE
+        ${EndIf}
+      ${EndIf}
+    ${EndUnless}
+
     LogEx::Write "  Checking access rights by sid"
     ; check by sid (administrator ends with -500)
     AccessControl::GetCurrentUserName
@@ -2327,33 +2354,6 @@ Function CheckAdminPrivilege
       LogEx::Write "    => local administrators"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
-
-    ; check by file writing
-    ${ReadINIStrWithDefault} $ITEM_LOCATION "${INIPATH}" "${INSTALLER_NAME}" "AdminPrivilegeCheckDirectory" "${ADMIN_CHECK_DIR}"
-    Call ResolveItemLocation
-    ${If} "$ITEM_LOCATION" == ""
-      StrCpy $ITEM_LOCATION "$APP_PROGRAMFILES"
-      Call ResolveItemLocation
-    ${EndIf}
-    LogEx::Write "  Checking access rights by file access to $ITEM_LOCATION"
-    ${Unless} "$ITEM_LOCATION" == ""
-      StrCpy $ITEM_LOCATION "$ITEM_LOCATION\_${INSTALLER_NAME}.lock"
-      ${If} ${FileExists} "$ITEM_LOCATION"
-        Delete "$ITEM_LOCATION"
-        ${Unless} ${FileExists} "$ITEM_LOCATION"
-          LogEx::Write "  => has access right: writable to ${ITEM_LOCATION}"
-          GoTo PRIVILEGE_TEST_DONE
-        ${EndUnless}
-      ${Else}
-        WriteINIStr "$ITEM_LOCATION" "${INSTALLER_NAME}" "test" "true"
-        FlushINI "$ITEM_LOCATION"
-        ${If} ${FileExists} "$ITEM_LOCATION"
-          LogEx::Write "  => has access right: writable to ${ITEM_LOCATION}"
-          Delete "$ITEM_LOCATION"
-          GoTo PRIVILEGE_TEST_DONE
-        ${EndIf}
-      ${EndIf}
-    ${EndUnless}
 
     LogEx::Write "  No access rights."
     MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_ADMIN_ERROR_BEFORE)$ITEM_LOCATION$(MSG_APP_NOT_ADMIN_ERROR_AFTER)" /SD IDOK
