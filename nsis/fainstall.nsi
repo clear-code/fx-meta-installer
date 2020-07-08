@@ -2340,12 +2340,14 @@ Function CheckAdminPrivilege
       ${If} ${FileExists} "$ITEM_LOCATION"
         Delete "$ITEM_LOCATION"
         ${Unless} ${FileExists} "$ITEM_LOCATION"
+          LogEx::Write "  => has access right: writable to ${ITEM_LOCATION}"
           GoTo PRIVILEGE_TEST_DONE
         ${EndUnless}
       ${Else}
         WriteINIStr "$ITEM_LOCATION" "${INSTALLER_NAME}" "test" "true"
         FlushINI "$ITEM_LOCATION"
         ${If} ${FileExists} "$ITEM_LOCATION"
+          LogEx::Write "  => has access right: writable to ${ITEM_LOCATION}"
           Delete "$ITEM_LOCATION"
           GoTo PRIVILEGE_TEST_DONE
         ${EndIf}
