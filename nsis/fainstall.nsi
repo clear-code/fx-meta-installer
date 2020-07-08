@@ -370,6 +370,18 @@ Function "un.NormalizePathDelimiter"
   ${EndIf}
 FunctionEnd
 
+!define ReadRegStrSafely "!insertmacro ReadRegStrSafely"
+!macro ReadRegStrSafely OutVariable SubKey Entry
+  ReadRegStr ${OutVariable} HKLM "${SubKey}" "${Entry}"
+  ${IfThen} "${OutVariable}" == "" ${|} ReadRegStr ${OutVariable} HKCU "${SubKey}" "${Entry}" ${|}
+!macroend
+
+!define un.ReadRegStrSafely "!insertmacro un.ReadRegStrSafely"
+!macro un.ReadRegStrSafely OutVariable SubKey Entry
+  ReadRegStr ${OutVariable} HKLM "${SubKey}" "${Entry}"
+  ${IfThen} "${OutVariable}" == "" ${|} ReadRegStr ${OutVariable} HKCU "${SubKey}" "${Entry}" ${|}
+!macroend
+
 !define FillPlaceHolder "!insertmacro FillPlaceHolder"
 !macro FillPlaceHolder Name Value
   ${WordReplace} "$ITEM_LOCATION" "%${Name}%" "${Value}" "+*" $ITEM_LOCATION
@@ -950,7 +962,7 @@ Section "Set Default Client" SetDefaultClient
       ReadRegDWORD $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible"
       ${If} $COMMAND_STRING < 1
         LogEx::Write "  Hidden => Visible: $ITEM_NAME"
-        ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
+        ${ReadRegStrSafely} $COMMAND_STRING "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
         LogEx::Write "  Command: $COMMAND_STRING"
         ${Unless} "$COMMAND_STRING" == ""
           StrCpy $ITEM_LOCATION "$COMMAND_STRING"
@@ -964,7 +976,7 @@ Section "Set Default Client" SetDefaultClient
         ${EndUnless}
       ${EndIf}
 
-      ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ReinstallCommand"
+      ${ReadRegStrSafely} $COMMAND_STRING "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ReinstallCommand"
       ${Unless} "$COMMAND_STRING" == ""
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call ResolveItemLocation
@@ -1003,7 +1015,7 @@ Function "DisableClient"
     ReadRegDWORD $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible"
     ${If} $COMMAND_STRING > 0
       LogEx::Write "  Visible => Hidden: $ITEM_NAME"
-      ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
+      ${ReadRegStrSafely} $COMMAND_STRING "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
       LogEx::Write "  Command: $COMMAND_STRING"
       ${Unless} "$COMMAND_STRING" == ""
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
@@ -1956,10 +1968,10 @@ Section Uninstall
     LogEx::Write "UninstallFiles"
     StrCpy $UNINSTALL_FAILED 0
 
-    ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClientShown"
+    ${ReadRegStrSafely} $ITEM_NAME "${PRODUCT_UNINST_KEY}" "DefaultClientShown"
     ${If} "$ITEM_NAME" == "true"
-      ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "DefaultClient"
-      ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
+      ${ReadRegStrSafely} $ITEM_NAME "${PRODUCT_UNINST_KEY}" "DefaultClient"
+      ${ReadRegStrSafely} $COMMAND_STRING "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
       ${Unless} "$COMMAND_STRING" == ""
         LogEx::Write "  DefaultClientShown: Execute $COMMAND_STRING"
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
@@ -1972,9 +1984,9 @@ Section Uninstall
 
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
-      ReadRegStr $ITEM_NAME HKLM "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX"
+      ${ReadRegStrSafely} $ITEM_NAME "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX"
       ${IfThen} "$ITEM_NAME" == "" ${|} ${Break} ${|}
-      ReadRegStr $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
+      ${ReadRegStrSafely} $COMMAND_STRING "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
       ${Unless} "$COMMAND_STRING" == ""
         LogEx::Write "  HiddenClient: Execute $COMMAND_STRING"
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
@@ -1988,7 +2000,7 @@ Section Uninstall
 
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
-      ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX"
+      ${ReadRegStrSafely} $INSTALLED_FILE "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       LogEx::Write "  InstalledDefaultProfiles: Delete $INSTALLED_FILE"
       RMDir /r "$INSTALLED_FILE"
@@ -1996,7 +2008,7 @@ Section Uninstall
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
         StrCpy $UNINSTALL_FAILED 1
       ${Else}
-        ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DefaultProfileBackups$ITEM_INDEX"
+        ${ReadRegStrSafely} $BACKUP_PATH "${PRODUCT_UNINST_KEY}" "DefaultProfileBackups$ITEM_INDEX"
         ${If} "$BACKUP_PATH" != ""
         ${AndIf} ${FileExists} "$BACKUP_PATH"
           LogEx::Write "  InstalledDefaultProfiles: Restore $BACKUP_PATH"
@@ -2008,8 +2020,8 @@ Section Uninstall
 
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
-      ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX"
-      ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup"
+      ${ReadRegStrSafely} $INSTALLED_FILE "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX"
+      ${ReadRegStrSafely} $BACKUP_PATH "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       LogEx::Write "  InstalledFile: Delete $INSTALLED_FILE"
       Delete "$INSTALLED_FILE"
@@ -2028,7 +2040,7 @@ Section Uninstall
 
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
-      ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
+      ${ReadRegStrSafely} $INSTALLED_FILE "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       ${If} ${FileExists} "$INSTALLED_FILE"
         LogEx::Write "  InstalledShortcut: Delete $INSTALLED_FILE"
@@ -2048,7 +2060,7 @@ Section Uninstall
 
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
-      ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledQuickLaunchShortcut$ITEM_INDEX"
+      ${ReadRegStrSafely} $INSTALLED_FILE "${PRODUCT_UNINST_KEY}" "InstalledQuickLaunchShortcut$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       LogEx::Write "  InstalledQuickLaunchShortcut: Delete $INSTALLED_FILE"
       Delete "$INSTALLED_FILE"
@@ -2062,7 +2074,7 @@ Section Uninstall
 
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
-      ReadRegStr $ITEM_LOCATION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
+      ${ReadRegStrSafely} $ITEM_LOCATION "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
       ${IfThen} "$ITEM_LOCATION" == "" ${|} ${Break} ${|}
 
       LogEx::Write "  InstalledAddon: Delete $ITEM_LOCATION"
@@ -2073,7 +2085,7 @@ Section Uninstall
       ${EndIf}
 
       ; Remove the manifest files for the addon, too
-      ReadRegStr $MANIFEST_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledManagedStorage$ITEM_INDEX"
+      ${ReadRegStrSafely} $MANIFEST_PATH "${PRODUCT_UNINST_KEY}" "InstalledManagedStorage$ITEM_INDEX"
       ${If} "$MANIFEST_PATH" != ""
       ${AndIf} ${FileExists} "$MANIFEST_PATH"
         LogEx::Write "  InstalledAddon: Delete $MANIFEST_PATH"
@@ -2089,8 +2101,8 @@ Section Uninstall
     ${EndWhile}
 
     ; search plugins
-    ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DisabledSearchPlugins"
-    ReadRegStr $SEARCH_PLUGINS_PATH HKLM "${PRODUCT_UNINST_KEY}" "EnabledSearchPlugins"
+    ${ReadRegStrSafely} $BACKUP_PATH "${PRODUCT_UNINST_KEY}" "DisabledSearchPlugins"
+    ${ReadRegStrSafely} $SEARCH_PLUGINS_PATH "${PRODUCT_UNINST_KEY}" "EnabledSearchPlugins"
     ${If} "$BACKUP_PATH" != ""
     ${AndIf} ${FileExists} "$BACKUP_PATH"
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.xml"
@@ -2102,8 +2114,8 @@ Section Uninstall
     ${EndIf}
 
     ; distributon customizer
-    ReadRegStr $BACKUP_PATH HKLM "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup"
-    ReadRegStr $INSTALLED_FILE HKLM "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer"
+    ${ReadRegStrSafely} $BACKUP_PATH "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup"
+    ${ReadRegStrSafely} $INSTALLED_FILE "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer"
     ${If} "$INSTALLED_FILE" != ""
       LogEx::Write "  DistributonCustomizerBackup: Delete $INSTALLED_FILE"
       RMDir /r "$INSTALLED_FILE"
@@ -2118,9 +2130,9 @@ Section Uninstall
     ; extra registry entries
     StrCpy $ITEM_INDEX 0
     ${While} 1 == 1
-      ReadRegStr $EXTRA_REG_PATH HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryPath$ITEM_INDEX"
+      ${ReadRegStrSafely} $EXTRA_REG_PATH "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryPath$ITEM_INDEX"
       ${IfThen} "$EXTRA_REG_PATH" == "" ${|} ${Break} ${|}
-      ReadRegStr $EXTRA_REG_ROOT HKLM "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryRoot$ITEM_INDEX"
+      ${ReadRegStrSafely} $EXTRA_REG_ROOT "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryRoot$ITEM_INDEX"
       LogEx::Write "  InstalledExtraRegistryEntryPath: Delete $EXTRA_REG_ROOT $EXTRA_REG_PATH"
       ${If} "$EXTRA_REG_ROOT" == "HKCU"
         DeleteRegKey HKCU "$EXTRA_REG_PATH"
@@ -2185,7 +2197,7 @@ Function un.onInit
     !else
       SetSilent silent
     !endif
-    ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
+    ${un.ReadRegStrSafely} $APP_VERSION "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
 
     ; This must be called here, because all registory keys are
     ; already cleared at "onUninstSuccess".
@@ -2209,7 +2221,7 @@ Function un.onUninstSuccess
       ${If} "$APP_IS_64BIT" == "true"
         SetRegView 64
       ${EndIf}
-      ReadRegStr $APP_DIR HKLM "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
+      ${un.ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
       ${If} "$APP_IS_64BIT" == "true"
         SetRegView 32
       ${EndIf}
@@ -2342,7 +2354,7 @@ FunctionEnd
 
 Function CheckInstalled
     LogEx::Write "CheckInstalled"
-    ReadRegStr $R0 HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
+    ${ReadRegStrSafely} $R0 "${PRODUCT_UNINST_KEY}" "UninstallString"
     ${Unless} "$R0" == ""
       !if ${APP_INSTALL_MODE} != "SKIP"
         !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
@@ -2354,7 +2366,7 @@ Function CheckInstalled
         LogEx::Write "CheckInstalled: Application is installed by meta installer"
         ; If the Firefox/Thunderbird is installed by this meta installer,
         ; then we should keep the state.
-        ReadRegStr $APP_VERSION HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
+        ${ReadRegStrSafely} $APP_VERSION "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
         ${IfThen} "$APP_VERSION" != "" ${|} StrCpy $APP_INSTALLED "1" ${|}
         ; Run the uninstaller directly. If we copy the exe file into the
         ; temporary directory, it doesn't work as we expect.
@@ -2437,9 +2449,9 @@ Function GetCurrentAppRegKey
 FunctionEnd
 
 Function un.GetCurrentAppRegKey
-  ReadRegStr $APP_IS_64BIT HKLM "${PRODUCT_UNINST_KEY}" "AppIs64bit"
-  ReadRegStr $APP_REG_KEY HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppRegKey"
-  ReadRegStr $APP_VERSIONS_ROOT_REG_KEY HKLM "${PRODUCT_UNINST_KEY}" "InstalledAppVersionsRootRegKey"
+  ${un.ReadRegStrSafely} $APP_IS_64BIT "${PRODUCT_UNINST_KEY}" "AppIs64bit"
+  ${un.ReadRegStrSafely} $APP_REG_KEY "${PRODUCT_UNINST_KEY}" "InstalledAppRegKey"
+  ${un.ReadRegStrSafely} $APP_VERSIONS_ROOT_REG_KEY "${PRODUCT_UNINST_KEY}" "InstalledAppVersionsRootRegKey"
 FunctionEnd
 
 !macro GetCurrentAppVersion un
@@ -2448,7 +2460,7 @@ FunctionEnd
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 64
     ${EndIf}
-    ReadRegStr $APP_VERSION HKLM "$APP_REG_KEY" "CurrentVersion"
+    ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
     ;MessageBox MB_OK|MB_ICONEXCLAMATION "APP_IS_64BIT = $APP_IS_64BIT / APP_REG_KEY = $APP_REG_KEY / APP_VERSION = $APP_VERSION" /SD IDOK
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 32
@@ -2468,13 +2480,12 @@ Function GetAppPath
 
     Call GetCurrentAppVersion
     ${IfThen} "$APP_VERSION" == "" ${|} GoTo ERR ${|}
-    StrCpy $0 "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main"
 
     ; EXE path
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 64
     ${EndIf}
-    ReadRegStr $APP_EXE_PATH HKLM $0 "PathToExe"
+    ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 32
     ${EndIf}
@@ -2486,7 +2497,7 @@ Function GetAppPath
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 64
     ${EndIf}
-    ReadRegStr $APP_DIR HKLM $0 "Install Directory"
+    ${ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 32
     ${EndIf}
