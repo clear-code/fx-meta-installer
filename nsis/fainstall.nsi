@@ -1300,8 +1300,8 @@ Function "InstallAddon"
     ReadINIStr $UNPACK "${INIPATH}" "$ITEM_NAME" "Unpack"
     ReadINIStr $UNINSTALL "${INIPATH}" "$ITEM_NAME" "Uninstall"
 
-    ${IsFalse} $R0 "$UNPACK"
-    ${Unless} "$R0" == "1"
+    ${IsTrue} $R0 "$UNPACK"
+    ${If} "$R0" == "1"
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME"
       ReadINIStr $INI_TEMP "${INIPATH}" "$ITEM_NAME" "Overwrite"
       ${If} "$INI_TEMP" == "false"
@@ -1310,20 +1310,20 @@ Function "InstallAddon"
         LogEx::Write "  $ADDON_NAME installation is canceled (already installed)"
         GoTo CANCELED
       ${EndIf}
-    ${EndUnless}
+    ${EndIf}
 
     SetOutPath $ITEM_LOCATION
     LogEx::Write "  Install to $ITEM_LOCATION"
 
-    ${IsFalse} $R0 "$UNPACK"
+    ${IsTrue} $R0 "$UNPACK"
     ${If} "$R0" == "1"
+      ZipDLL::extractall "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
+      ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
+    ${Else}
       Rename "$RES_DIR\$ITEM_NAME" "$RES_DIR\$ADDON_NAME.xpi"
       CopyFiles /SILENT "$RES_DIR\$ADDON_NAME.xpi" "$ITEM_LOCATION"
       ${Touch} "$ITEM_LOCATION\$ADDON_NAME.xpi"
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME.xpi"
-    ${Else}
-      ZipDLL::extractall "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
-      ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     ${EndIf}
 
     ; Install the "Managed Storage" manifest for the addon (if one exists)
