@@ -20,6 +20,7 @@ ${StrStrAdv} ; activate macro for installation
 ${UnStrStrAdv} ; activate macro for uninstallation
 !include "native_message_box.nsh"
 !include "logiclib_dir_exists.nsh"
+!include "touch.nsh"
 !include "ExecWaitJob.nsh"
 !include "x64.nsh"
 !include NSISArray.nsh
@@ -1318,6 +1319,7 @@ Function "InstallAddon"
     ${If} "$R0" == "1"
       Rename "$RES_DIR\$ITEM_NAME" "$RES_DIR\$ADDON_NAME.xpi"
       CopyFiles /SILENT "$RES_DIR\$ADDON_NAME.xpi" "$ITEM_LOCATION"
+      ${Touch} "$ITEM_LOCATION\$ADDON_NAME.xpi"
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME.xpi"
     ${Else}
       ZipDLL::extractall "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
@@ -1334,6 +1336,7 @@ Function "InstallAddon"
       ; Distribute 'addon.xpi.ManagedStorage' as 'myaddon@clearcode.com.json'
       CopyFiles /SILENT "$RES_DIR\$ITEM_NAME.ManagedStorage" $MANIFEST_DIR
       Rename "$MANIFEST_DIR\$ITEM_NAME.ManagedStorage" "$MANIFEST_DIR\$ADDON_NAME.json"
+      ${Touch} "$MANIFEST_DIR\$ADDON_NAME.json"
 
       ${If} "$UNINSTALL" != "false"
         ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledManagedStorage$ITEM_INDEX" "$MANIFEST_DIR\$ADDON_NAME.json"
@@ -1697,6 +1700,7 @@ Function "InstallNormalFile"
     CopyFiles /SILENT "$RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
     ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
     ${If} $ITEM_INDEX > -1
+      ${Touch} "$DIST_PATH"
       ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
