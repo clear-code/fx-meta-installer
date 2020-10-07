@@ -21,6 +21,7 @@ ${UnStrStrAdv} ; activate macro for uninstallation
 !include "native_message_box.nsh"
 !include "logiclib_dir_exists.nsh"
 !include "touch.nsh"
+!include "timestamp.nsh"
 !include "ExecWaitJob.nsh"
 !include "x64.nsh"
 !include NSISArray.nsh
@@ -31,6 +32,12 @@ ${UnStrStrAdv} ; activate macro for uninstallation
   !ifndef ${Name}
     !define ${Name} "${Value}"
   !endif
+!macroend
+
+Var TimeStampString
+!macro LogWithTimestamp Message
+  ${TimeStamp} $TimeStampString
+  ${LogWithTimestamp} "${TimeStampString}: ${Message}"
 !macroend
 
 Function IsTrue
@@ -453,7 +460,7 @@ Var INI_TEMP2
   StrCpy ${OutVariable} "${Default}"
   ${If} ${FileExists} ${File}
     ReadINIStr ${OutVariable} ${File} ${Section} ${Name}
-    LogEx::Write "LoadINI: ${Name} = ${OutVariable}"
+    ${LogWithTimestamp} "LoadINI: ${Name} = ${OutVariable}"
     ${IfThen} "${OutVariable}" == "" ${|} StrCpy ${OutVariable} "${Default}" ${|}
   ${EndIf}
 !macroend
@@ -531,17 +538,17 @@ Var CLEAN_INSTALL
 !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
   !if ${APP_INSTALL_MODE} == "QUIET"
     Function AppEULAPageCheck
-        LogEx::Write "AppEULAPageCheck"
+        ${LogWithTimestamp} "AppEULAPageCheck"
         StrCpy $APP_EULA_DL_FAILED "0"
 
         Call GetAppPath
         Call CheckAppVersionWithMessage
 
         ${If} "$APP_EXISTS" == "1"
-          LogEx::Write "  EULA does not exist"
+          ${LogWithTimestamp} "  EULA does not exist"
           Abort
         ${Else}
-          LogEx::Write "  Application does not exist so show EULA"
+          ${LogWithTimestamp} "  Application does not exist so show EULA"
           StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
           ${Unless} ${FileExists} "$APP_EULA_PATH"
             StrCpy $APP_EULA_FINAL_PATH "$RES_DIR\${APP_NAME}-EULA.txt"
@@ -564,7 +571,7 @@ Var CLEAN_INSTALL
             ${EndUnless}
           ${EndIf}
           EULADownloadDone:
-          LogEx::Write "  EULA = $APP_EULA_FINAL_PATH"
+          ${LogWithTimestamp} "  EULA = $APP_EULA_FINAL_PATH"
         ${EndIf}
     FunctionEnd
 
@@ -578,7 +585,7 @@ Var CLEAN_INSTALL
 !endif
 
 Function InitializeVariables
-    LogEx::Write "InitializeVariables"
+    ${LogWithTimestamp} "InitializeVariables"
 
     ${ReadINIStrWithDefault} $APP_IS_64BIT "${INIPATH}" "${INSTALLER_NAME}" "AppIs64bit" "${APP_IS_64BIT}"
     ${If} "$APP_IS_64BIT" == "true"
@@ -586,7 +593,7 @@ Function InitializeVariables
     ${Else}
       StrCpy $APP_PROGRAMFILES "$PROGRAMFILES32"
     ${EndIf}
-    LogEx::Write "  APP_PROGRAMFILES = $APP_PROGRAMFILES"
+    ${LogWithTimestamp} "  APP_PROGRAMFILES = $APP_PROGRAMFILES"
 
     !if ${APP_INSTALL_MODE} == "SKIP"
       Call GetAppPath
@@ -605,7 +612,7 @@ Function InitializeVariables
     ${Else}
       StrCpy $RES_DIR "$EXEDIR\$RES_DIR"
     ${EndIf}
-    LogEx::Write "  resources is $RES_DIR"
+    ${LogWithTimestamp} "  resources is $RES_DIR"
 
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.exe" "DetectAppInstallerPath"
     ${If} "$APP_INSTALLER_PATH" == ""
@@ -634,10 +641,10 @@ Function InitializeVariables
     ExpandEnvStrings $USERNAME "%USERNAME%"
     ExpandEnvStrings $APPDATA_TEMPLATE "$APPDATA"
     ${WordReplace} "$APPDATA_TEMPLATE" "$USERNAME" "%USERNAME%" "+" $APPDATA_TEMPLATE
-    LogEx::Write "  APPDATA_TEMPLATE is $APPDATA_TEMPLATE"
+    ${LogWithTimestamp} "  APPDATA_TEMPLATE is $APPDATA_TEMPLATE"
     ExpandEnvStrings $HOMEPATH_TEMPLATE "$PROFILE"
     ${WordReplace} "$HOMEPATH_TEMPLATE" "$USERNAME" "%USERNAME%" "+" $HOMEPATH_TEMPLATE
-    LogEx::Write "  HOMEPATH_TEMPLATE is $HOMEPATH_TEMPLATE"
+    ${LogWithTimestamp} "  HOMEPATH_TEMPLATE is $HOMEPATH_TEMPLATE"
     StrCpy $USERNAME ""
 FunctionEnd
 
@@ -656,7 +663,7 @@ Function "DetectAppInstallerIni"
 FunctionEnd
 
 Section "Cleanup Before Installation" CleanupBeforeInstall
-      LogEx::Write "CleanupBeforeInstall"
+      ${LogWithTimestamp} "CleanupBeforeInstall"
       ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "AppCleanupDirs" "${APP_CLEANUP_DIRS}"
       ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
@@ -669,7 +676,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
         StrCpy $ITEM_LOCATION "$ITEM_NAME"
         Call ResolveItemLocation
         ${If} ${FileExists} "$ITEM_LOCATION\uninstall\helper.exe"
-          LogEx::Write "  Running $ITEM_LOCATION\uninstall\helper.exe"
+          ${LogWithTimestamp} "  Running $ITEM_LOCATION\uninstall\helper.exe"
           !insertmacro ExecWaitJob `"$ITEM_LOCATION\uninstall\helper.exe" /S`
         ${EndIf}
         ${EndWhile}
@@ -678,7 +685,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
 !if ${APP_INSTALL_MODE} != "SKIP"
   Section "Download Application" DownloadApp
-      LogEx::Write "DownloadApp"
+      ${LogWithTimestamp} "DownloadApp"
       Call GetAppPath
       !if ${APP_INSTALL_MODE} == "QUIET"
         Call CheckAppVersion
@@ -687,7 +694,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
       !endif
 
       ${Unless} "$APP_EXISTS" == "1"
-        LogEx::Write "  Application not exist so do installation"
+        ${LogWithTimestamp} "  Application not exist so do installation"
         StrCpy $APP_INSTALLER_FINAL_PATH "$APP_INSTALLER_PATH"
 
         ${IfThen} ${FileExists} "$APP_INSTALLER_FINAL_PATH" ${|} GoTo AppDownloadDone ${|}
@@ -696,7 +703,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
           !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
             ${If} "$APP_EULA_DL_FAILED" == "1"
               MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
-              LogEx::Write "  Application's EULA does not exist"
+              ${LogWithTimestamp} "  Application's EULA does not exist"
               Abort
             ${EndIf}
           !endif
@@ -708,7 +715,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
           GoTo AppDownloadDone
         ${EndIf}
 
-        LogEx::Write "  Let's download from the Internet"
+        ${LogWithTimestamp} "  Let's download from the Internet"
 
         ; overwrite subtitle
         SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_APP_DOWNLOAD_START)"
@@ -726,7 +733,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
         ${If} "$R0" != "OK"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_DOWNLOAD_ERROR)" /SD IDOK
-          LogEx::Write "  Download failed"
+          ${LogWithTimestamp} "  Download failed"
           Abort
         ${EndIf}
 
@@ -738,12 +745,12 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
         ${If} "$APP_HASH" != ""
         ${AndIf} "$0" != "$APP_HASH"
           MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_HASH_ERROR)" /SD IDOK
-          LogEx::Write "  Downloaded file is broken"
+          ${LogWithTimestamp} "  Downloaded file is broken"
           Abort
         ${EndIf}
 
         AppDownloadDone:
-        LogEx::Write "  installer is $APP_INSTALLER_FINAL_PATH"
+        ${LogWithTimestamp} "  installer is $APP_INSTALLER_FINAL_PATH"
       ${EndUnless}
   SectionEnd
 
@@ -753,38 +760,38 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
       Call CheckShortcutsExistence
 
-      LogEx::Write "  APP_EXISTS: $APP_EXISTS"
-      LogEx::Write "  APP_INSTALL_MODE: ${APP_INSTALL_MODE}"
+      ${LogWithTimestamp} "  APP_EXISTS: $APP_EXISTS"
+      ${LogWithTimestamp} "  APP_INSTALL_MODE: ${APP_INSTALL_MODE}"
 
       ${Unless} "$APP_EXISTS" == "1"
 
     !if "${APP_INSTALL_MODE}" == "EXTRACT"
 
-        LogEx::Write "  Let's extract files"
-        LogEx::Write "    $APP_INSTALLER_FINAL_PATH"
-        LogEx::Write "    => $APP_DIR"
+        ${LogWithTimestamp} "  Let's extract files"
+        ${LogWithTimestamp} "    $APP_INSTALLER_FINAL_PATH"
+        ${LogWithTimestamp} "    => $APP_DIR"
         ${If} ${FileExists} "$APP_DIR"
-          LogEx::Write "    => try to delete old files"
+          ${LogWithTimestamp} "    => try to delete old files"
           RMDir /r "$APP_DIR"
         ${EndIf}
         CreateDirectory "$APP_DIR"
-        LogEx::Write '    "$RES_DIR\7zr.exe" x "$APP_INSTALLER_FINAL_PATH" -y -o"$RES_DIR\..\"'
+        ${LogWithTimestamp} '    "$RES_DIR\7zr.exe" x "$APP_INSTALLER_FINAL_PATH" -y -o"$RES_DIR\..\"'
         nsExec::Exec '"$RES_DIR\7zr.exe" x "$APP_INSTALLER_FINAL_PATH" -y -o"$RES_DIR\..\"'
-        LogEx::Write "    files extracted: $0"
+        ${LogWithTimestamp} "    files extracted: $0"
         SetOutPath "$APP_DIR"
         CopyFiles /SILENT "$RES_DIR\..\core\*" "$APP_DIR"
-        LogEx::Write "    files copied"
-        LogEx::Write "  Registering accessibility libraries"
-        LogEx::Write '    "$SYSDIR\regsvr32.exe" /s "$APP_DIR\AccessibleMarshal.dll"'
+        ${LogWithTimestamp} "    files copied"
+        ${LogWithTimestamp} "  Registering accessibility libraries"
+        ${LogWithTimestamp} '    "$SYSDIR\regsvr32.exe" /s "$APP_DIR\AccessibleMarshal.dll"'
         nsExec::Exec '"$SYSDIR\regsvr32.exe" /s "$APP_DIR\AccessibleMarshal.dll"'
-        LogEx::Write "    => $0"
-        LogEx::Write '    "$SYSDIR\regsvr32.exe" /s "$APP_DIR\AccessibleHandler.dll"'
+        ${LogWithTimestamp} "    => $0"
+        ${LogWithTimestamp} '    "$SYSDIR\regsvr32.exe" /s "$APP_DIR\AccessibleHandler.dll"'
         nsExec::Exec '"$SYSDIR\regsvr32.exe" /s "$APP_DIR\AccessibleHandler.dll"'
-        LogEx::Write "    => $0"
+        ${LogWithTimestamp} "    => $0"
 
     !else
 
-        LogEx::Write "  Let's run installer"
+        ${LogWithTimestamp} "  Let's run installer"
         ${If} ${FileExists} "$APP_INSTALLER_INI"
           ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
         ${Else}
@@ -808,7 +815,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
           ${Else}
             MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_INSTALL_ERROR)" /SD IDOK
           ${EndIf}
-          LogEx::Write "  Version check failed"
+          ${LogWithTimestamp} "  Version check failed"
           Abort
         ${EndUnless}
 
@@ -846,7 +853,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 !endif
 
 Function "CheckShortcutsExistence"
-    LogEx::Write "CheckShortcutsExistence"
+    ${LogWithTimestamp} "CheckShortcutsExistence"
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
@@ -857,8 +864,8 @@ Function "CheckShortcutsExistence"
     ${IfThen} "$SHORTCUT_NAME" == "" ${|} StrCpy $SHORTCUT_NAME "${APP_FULL_NAME}" ${|}
     ${IfThen} "$PROGRAM_FOLDER_NAME" == "" ${|} StrCpy $PROGRAM_FOLDER_NAME "${APP_FULL_NAME}" ${|}
 
-    LogEx::Write "  SHORTCUT_NAME : $SHORTCUT_NAME"
-    LogEx::Write "  PROGRAM_FOLDER_NAME : $PROGRAM_FOLDER_NAME"
+    ${LogWithTimestamp} "  SHORTCUT_NAME : $SHORTCUT_NAME"
+    ${LogWithTimestamp} "  PROGRAM_FOLDER_NAME : $PROGRAM_FOLDER_NAME"
 
     SetShellVarContext all
     StrCpy $SHORTCUT_PATH_DESKTOP "$DESKTOP\$SHORTCUT_NAME.lnk"
@@ -877,21 +884,21 @@ Function "CheckShortcutsExistence"
       StrCpy $EXISTS_SHORTCUT_STARTMENU_PROGRAM "1"
     ${EndIf}
 
-    LogEx::Write "  EXISTS_SHORTCUT_DESKTOP           : $EXISTS_SHORTCUT_DESKTOP"
-    LogEx::Write "  EXISTS_SHORTCUT_STARTMENU         : $EXISTS_SHORTCUT_STARTMENU"
-    LogEx::Write "  EXISTS_SHORTCUT_STARTMENU_PROGRAM : $EXISTS_SHORTCUT_STARTMENU_PROGRAM"
-    LogEx::Write "  EXISTS_SHORTCUT_QUICKLAUNCH       : $EXISTS_SHORTCUT_QUICKLAUNCH"
+    ${LogWithTimestamp} "  EXISTS_SHORTCUT_DESKTOP           : $EXISTS_SHORTCUT_DESKTOP"
+    ${LogWithTimestamp} "  EXISTS_SHORTCUT_STARTMENU         : $EXISTS_SHORTCUT_STARTMENU"
+    ${LogWithTimestamp} "  EXISTS_SHORTCUT_STARTMENU_PROGRAM : $EXISTS_SHORTCUT_STARTMENU_PROGRAM"
+    ${LogWithTimestamp} "  EXISTS_SHORTCUT_QUICKLAUNCH       : $EXISTS_SHORTCUT_QUICKLAUNCH"
 FunctionEnd
 
 Function "UpdateShortcutsExistence"
-    LogEx::Write "UpdateShortcutsExistence"
+    ${LogWithTimestamp} "UpdateShortcutsExistence"
 
     StrCpy $SHORTCUT_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
     StrCpy $PROGRAM_FOLDER_DEFAULT_NAME "${APP_NAME} $APP_VERSION_NUM"
 
     ${If} ${FileExists} "$APP_INSTALLER_INI"
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "DesktopShortcut"
-      LogEx::Write "  DesktopShortcut: $1"
+      ${LogWithTimestamp} "  DesktopShortcut: $1"
       ${If} "$1" == "false"
         ${If} "$EXISTS_SHORTCUT_DESKTOP" == ""
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_DESKTOP"
@@ -900,7 +907,7 @@ Function "UpdateShortcutsExistence"
       ${EndIf}
 
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "StartMenuShortcuts"
-      LogEx::Write "  StartMenuShortcuts: $1"
+      ${LogWithTimestamp} "  StartMenuShortcuts: $1"
       ${If} "$1" == "false"
         ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
@@ -914,15 +921,15 @@ Function "UpdateShortcutsExistence"
 
       ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcutAllUsers"
       ReadINIStr $2 "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcut"
-      LogEx::Write "  QuickLaunchShortcutAllUsers: $1"
+      ${LogWithTimestamp} "  QuickLaunchShortcutAllUsers: $1"
       ${If} "$1" == "true"
         SetShellVarContext current
         StrCpy $ITEM_LOCATION_BASE "$APPDATA\Microsoft\Internet Explorer\Quick Launch"
         ${WordReplace} "$ITEM_LOCATION_BASE" "$PROFILE" "" "+*" $ITEM_LOCATION_BASE
         ${GetParent} "$PROFILE" $1 ; $1 is parent of "HOME"
         StrCpy $ITEM_LOCATION_BASE "$1\%USERNAME%$ITEM_LOCATION_BASE"
-        LogEx::Write "  parent of HOME: $1"
-        LogEx::Write "  ITEM_LOCATION_BASE: $ITEM_LOCATION_BASE"
+        ${LogWithTimestamp} "  parent of HOME: $1"
+        ${LogWithTimestamp} "  ITEM_LOCATION_BASE: $ITEM_LOCATION_BASE"
         StrCpy $ITEM_INDEX 0
         ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "QuickLaunchShortcut"
         ${Locate} "$1" "/L=D /G=0 /M=*" "UpdateQuickLaunchShortcutForOneUser"
@@ -938,19 +945,19 @@ Function "UpdateShortcutsExistence"
 FunctionEnd
 
 Function "UpdateQuickLaunchShortcutForOneUser"
-    LogEx::Write "UpdateQuickLaunchShortcutForOneUser"
+    ${LogWithTimestamp} "UpdateQuickLaunchShortcutForOneUser"
 
     StrCpy $USERNAME "$R7"
-    LogEx::Write "  USERNAME: $USERNAME"
+    ${LogWithTimestamp} "  USERNAME: $USERNAME"
     ${WordReplace} "$ITEM_LOCATION_BASE" "%USERNAME%" "$USERNAME" "+*" $ITEM_LOCATION
-    LogEx::Write "  ITEM_LOCATION: $ITEM_LOCATION"
+    ${LogWithTimestamp} "  ITEM_LOCATION: $ITEM_LOCATION"
 
     ${If} "$INI_TEMP" == "false"
-      LogEx::Write "  Delete $ITEM_LOCATION\$SHORTCUT_NAME.lnk"
+      ${LogWithTimestamp} "  Delete $ITEM_LOCATION\$SHORTCUT_NAME.lnk"
       Delete "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
     ${Else}
       ${Unless} ${FileExists} "$ITEM_LOCATION\$SHORTCUT_NAME.lnk"
-        LogEx::Write "  Create $ITEM_LOCATION\$SHORTCUT_NAME.lnk"
+        ${LogWithTimestamp} "  Create $ITEM_LOCATION\$SHORTCUT_NAME.lnk"
         SetOutPath "$APP_DIR"
         CreateShortCut "$ITEM_LOCATION\$SHORTCUT_NAME.lnk" "$APP_EXE_PATH" "" "$APP_EXE_PATH" 0
       ${EndUnless}
@@ -962,21 +969,21 @@ Function "UpdateQuickLaunchShortcutForOneUser"
 FunctionEnd
 
 Section "Set Default Client" SetDefaultClient
-    LogEx::Write "SetDefaultClient"
+    ${LogWithTimestamp} "SetDefaultClient"
     ${ReadINIStrWithDefault} $ITEM_NAME "${INIPATH}" "${INSTALLER_NAME}" "DefaultClient" "${DEFAULT_CLIENT}"
     ${Unless} "$ITEM_NAME" == ""
-      LogEx::Write "  ITEM_NAME: $ITEM_NAME"
+      ${LogWithTimestamp} "  ITEM_NAME: $ITEM_NAME"
 
       ReadRegDWORD $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible"
       ${If} $COMMAND_STRING < 1
-        LogEx::Write "  Hidden => Visible: $ITEM_NAME"
+        ${LogWithTimestamp} "  Hidden => Visible: $ITEM_NAME"
         ${ReadRegStrSafely} $COMMAND_STRING "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
-        LogEx::Write "  Command: $COMMAND_STRING"
+        ${LogWithTimestamp} "  Command: $COMMAND_STRING"
         ${Unless} "$COMMAND_STRING" == ""
           StrCpy $ITEM_LOCATION "$COMMAND_STRING"
           Call ResolveItemLocation
           StrCpy $COMMAND_STRING "$ITEM_LOCATION"
-          LogEx::Write "  Running: $COMMAND_STRING"
+          ${LogWithTimestamp} "  Running: $COMMAND_STRING"
           ExecWait "$COMMAND_STRING"
           WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 1
           ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DefaultClient" "$ITEM_NAME"
@@ -989,19 +996,19 @@ Section "Set Default Client" SetDefaultClient
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
-        LogEx::Write "  Running: $COMMAND_STRING"
+        ${LogWithTimestamp} "  Running: $COMMAND_STRING"
         ExecWait "$COMMAND_STRING"
 
         ; re-installation can re-create shortcuts, so we have to remove them manually
         Call UpdateShortcutsExistence
       ${EndUnless}
 
-      LogEx::Write "  Complete: $ITEM_NAME"
+      ${LogWithTimestamp} "  Complete: $ITEM_NAME"
     ${EndUnless}
 SectionEnd
 
 Section "Disable Clients" DisableClients
-    LogEx::Write "DisableClients"
+    ${LogWithTimestamp} "DisableClients"
     StrCpy $ITEM_INDEX 0
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "DisabledClients" "${DISABLED_CLIENTS}"
     ${Unless} "$ITEMS_LIST" == ""
@@ -1018,18 +1025,18 @@ Section "Disable Clients" DisableClients
 SectionEnd
 
 Function "DisableClient"
-    LogEx::Write "DisableClient $ITEM_NAME"
+    ${LogWithTimestamp} "DisableClient $ITEM_NAME"
 
     ReadRegDWORD $COMMAND_STRING HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible"
     ${If} $COMMAND_STRING > 0
-      LogEx::Write "  Visible => Hidden: $ITEM_NAME"
+      ${LogWithTimestamp} "  Visible => Hidden: $ITEM_NAME"
       ${ReadRegStrSafely} $COMMAND_STRING "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
-      LogEx::Write "  Command: $COMMAND_STRING"
+      ${LogWithTimestamp} "  Command: $COMMAND_STRING"
       ${Unless} "$COMMAND_STRING" == ""
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
-        LogEx::Write "  Running: $COMMAND_STRING"
+        ${LogWithTimestamp} "  Running: $COMMAND_STRING"
         ExecWait "$COMMAND_STRING"
         WriteRegDWORD HKLM "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "IconsVisible" 0
         ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "HiddenClient$ITEM_INDEX" "$ITEM_NAME"
@@ -1040,7 +1047,7 @@ Function "DisableClient"
 FunctionEnd
 
 Section "Install Profiles" InstallProfiles
-    LogEx::Write "InstallProfiles"
+    ${LogWithTimestamp} "InstallProfiles"
 
     StrCpy $ITEM_INDEX 0
 
@@ -1093,7 +1100,7 @@ Section "Install Profiles" InstallProfiles
     ${EndUnless}
 
     ${If} ${FileExists} "$RES_DIR\profile.zip"
-      LogEx::Write "  Install Default Profile"
+      ${LogWithTimestamp} "  Install Default Profile"
       StrCpy $DIST_PATH "$APP_DIR\defaults\profile"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
       StrCpy $BACKUP_COUNT 0
@@ -1111,7 +1118,7 @@ Section "Install Profiles" InstallProfiles
 SectionEnd
 
 Function "InstallProfileToEachUser"
-    LogEx::Write "InstallProfileToEachUser"
+    ${LogWithTimestamp} "InstallProfileToEachUser"
 
     StrCpy $ITEM_LOCATION_BACKUP "$ITEM_LOCATION"
 
@@ -1122,12 +1129,12 @@ Function "InstallProfileToEachUser"
       Pop $0
       Pop $0
       Pop $0
-      LogEx::Write "  Rest users count: $0"
+      ${LogWithTimestamp} "  Rest users count: $0"
       ${IfThen} "$0" == "0" ${|} ${Break} ${|}
 
       NSISArray::Pop LocalUsers
       Pop $USERNAME
-      LogEx::Write "  Local User: $USERNAME"
+      ${LogWithTimestamp} "  Local User: $USERNAME"
 
       ${IfThen} "$USERNAME" == "Guest" ${|} ${Continue} ${|}
 
@@ -1156,7 +1163,7 @@ FunctionEnd
 
 Var PROFILE_INDEX
 Function "InstallProfile"
-    LogEx::Write "InstallProfile: start for $ITEM_LOCATION"
+    ${LogWithTimestamp} "InstallProfile: start for $ITEM_LOCATION"
 
     StrCpy $1 "$ITEM_LOCATION"
     ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
@@ -1166,7 +1173,7 @@ Function "InstallProfile"
 
     ReadINIStr $INI_TEMP "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile"
     ${If} "$INI_TEMP" == ""
-      LogEx::Write "  CreateProfile: there is no profile"
+      ${LogWithTimestamp} "  CreateProfile: there is no profile"
       ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "General" "StartWithLastProfile" "1"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "Name" "$INI_TEMP"
@@ -1175,7 +1182,7 @@ Function "InstallProfile"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "Default" "1"
       ${IfThen} "$USERNAME" != "" ${|} AccessControl::SetFileOwner "$ITEM_LOCATION\profiles.ini" "$USERNAME" ${|}
     ${Else}
-      LogEx::Write "  CreateProfile: profile exists"
+      ${LogWithTimestamp} "  CreateProfile: profile exists"
       ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
 
       StrCpy $PROFILE_INDEX 0
@@ -1212,11 +1219,11 @@ Section "Install Additional Files" DoInstallAdditionalFiles
 SectionEnd
 
 Section "Old Distribution Directory Existence Check" OldDistDirExistenceCheck
-    LogEx::Write "OldDistDirExistenceCheck"
+    ${LogWithTimestamp} "OldDistDirExistenceCheck"
     StrCpy $DIST_PATH   "${APP_DISTRIBUTION_DIR}"
     StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
     StrCpy $BACKUP_COUNT 0
-    LogEx::Write "  install to $DIST_PATH"
+    ${LogWithTimestamp} "  install to $DIST_PATH"
     ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
       IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
@@ -1224,19 +1231,19 @@ Section "Old Distribution Directory Existence Check" OldDistDirExistenceCheck
     ${If} ${FileExists} "$DIST_PATH"
       ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup" "$BACKUP_PATH"
       Rename "$DIST_PATH" "$BACKUP_PATH"
-      LogEx::Write "  BACKUP_PATH: $BACKUP_PATH"
+      ${LogWithTimestamp} "  BACKUP_PATH: $BACKUP_PATH"
     ${EndIf}
     ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
 SectionEnd
 
 Section "Install Add-ons" InstallAddons
-    LogEx::Write "InstallAddons"
+    ${LogWithTimestamp} "InstallAddons"
     StrCpy $ITEM_INDEX 0
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons" "${INSTALL_ADDONS}"
     ${If} "$ITEMS_LIST" == ""
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
     ${EndIf}
-    LogEx::Write "  ADDONS: $ITEMS_LIST"
+    ${LogWithTimestamp} "  ADDONS: $ITEMS_LIST"
     ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
       ${While} 1 == 1
@@ -1251,7 +1258,7 @@ Section "Install Add-ons" InstallAddons
 SectionEnd
 
 Function "CollectAddonFiles"
-    LogEx::Write "CollectAddonFiles: $R7"
+    ${LogWithTimestamp} "CollectAddonFiles: $R7"
     ${If} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST "$R7"
     ${Else}
@@ -1265,7 +1272,7 @@ Var ADDON_NAME
 Var UNPACK
 Var UNINSTALL
 Function "InstallAddon"
-    LogEx::Write "InstallAddon: install $ITEM_NAME"
+    ${LogWithTimestamp} "InstallAddon: install $ITEM_NAME"
 
     ReadINIStr $ADDON_NAME "${INIPATH}" "$ITEM_NAME" "AddonId"
     ${If} "$ADDON_NAME" == ""
@@ -1273,13 +1280,13 @@ Function "InstallAddon"
       StrCpy $ADDON_NAME "$ADDON_NAME@${PRODUCT_DOMAIN}"
     ${EndIf}
 
-    LogEx::Write "  ADDON_NAME: $ADDON_NAME"
+    ${LogWithTimestamp} "  ADDON_NAME: $ADDON_NAME"
 
     ${ReadINIStrWithDefault} $0 "${INIPATH}" "$ITEM_NAME" "AppMinVersion" "0"
     ${ReadINIStrWithDefault} $1 "${INIPATH}" "$ITEM_NAME" "AppMaxVersion" "9999"
     Call IsInAcceptableVersionRange
     ${Unless} "$APP_VERSION_STATUS" == "acceptable"
-      LogEx::Write "  => skip install"
+      ${LogWithTimestamp} "  => skip install"
       GoTo CANCELED
     ${EndUnless}
 
@@ -1307,13 +1314,13 @@ Function "InstallAddon"
       ${If} "$INI_TEMP" == "false"
       ${AndIf} ${FileExists} "$ITEM_LOCATION"
       ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
-        LogEx::Write "  $ADDON_NAME installation is canceled (already installed)"
+        ${LogWithTimestamp} "  $ADDON_NAME installation is canceled (already installed)"
         GoTo CANCELED
       ${EndIf}
     ${EndIf}
 
     SetOutPath $ITEM_LOCATION
-    LogEx::Write "  Install to $ITEM_LOCATION"
+    ${LogWithTimestamp} "  Install to $ITEM_LOCATION"
 
     ${IsTrue} $R0 "$UNPACK"
     ${If} "$R0" == "1"
@@ -1328,7 +1335,7 @@ Function "InstallAddon"
 
     ; Install the "Managed Storage" manifest for the addon (if one exists)
     ${if} ${FileExists} "$RES_DIR\$ITEM_NAME.ManagedStorage"
-      LogEx::Write "  $ADDON_NAME native manifest found (ManagedStorage)"
+      ${LogWithTimestamp} "  $ADDON_NAME native manifest found (ManagedStorage)"
 
       StrCpy $MANIFEST_DIR "${APP_DISTRIBUTION_DIR}\ManagedStorage"
       SetOutPath $MANIFEST_DIR
@@ -1354,12 +1361,12 @@ Function "InstallAddon"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
-    LogEx::Write "  $ADDON_NAME successfully installed"
+    ${LogWithTimestamp} "  $ADDON_NAME successfully installed"
   CANCELED:
 FunctionEnd
 
 Section "Install Shortcuts" InstallShortcuts
-    LogEx::Write "InstallShortcuts"
+    ${LogWithTimestamp} "InstallShortcuts"
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Shortcuts" "${EXTRA_SHORTCUTS}"
     StrCpy $ITEM_INDEX 0
     ${Unless} "$ITEMS_LIST" == ""
@@ -1384,7 +1391,7 @@ Var SHORTCUT_ICON_PATH
 Var SHORTCUT_ICON_INDEX
 Var UPDATE_PINNED_SHORTCUTS
 Function "InstallShortcut"
-    LogEx::Write "InstallShortcuts: install $ITEM_NAME"
+    ${LogWithTimestamp} "InstallShortcuts: install $ITEM_NAME"
 
     ReadINIStr $SHORTCUT_NAME "${INIPATH}" "$ITEM_NAME" "Name"
 
@@ -1444,7 +1451,7 @@ Function "InstallShortcut"
     StrCpy $SHORTCUT_WORK_PATH "$SHORTCUT_PATH"
     ${StrStrAdv} $SHORTCUT_WORK_PATH "$SHORTCUT_PATH" "\" "<" "<" "0" "0" "0"
     SetOutPath $SHORTCUT_WORK_PATH
-    LogEx::Write "  install to $SHORTCUT_WORK_PATH"
+    ${LogWithTimestamp} "  install to $SHORTCUT_WORK_PATH"
 
     ${If} "$SHORTCUT_ICON_INDEX" == ""
     ${OrIf} "$SHORTCUT_ICON_INDEX" == "0"
@@ -1476,7 +1483,7 @@ Function "InstallShortcut"
       ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
         Delete "$SHORTCUT_WORK_PATH"
         ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "delete"
-          LogEx::Write "  $SHORTCUT_WORK_PATH => $SHORTCUT_FINAL_PATH"
+          ${LogWithTimestamp} "  $SHORTCUT_WORK_PATH => $SHORTCUT_FINAL_PATH"
           CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
         ${EndUnless}
       ${EndIf}
@@ -1489,7 +1496,7 @@ Function "InstallShortcut"
       ${If} ${FileExists} "$SHORTCUT_WORK_PATH"
         Delete "$SHORTCUT_WORK_PATH"
         ${Unless} "$UPDATE_PINNED_SHORTCUTS" == "delete"
-          LogEx::Write "  $SHORTCUT_WORK_PATH => $SHORTCUT_FINAL_PATH"
+          ${LogWithTimestamp} "  $SHORTCUT_WORK_PATH => $SHORTCUT_FINAL_PATH"
           CopyFiles /SILENT "$SHORTCUT_FINAL_PATH" "$SHORTCUT_WORK_PATH"
         ${EndUnless}
       ${EndIf}
@@ -1497,11 +1504,11 @@ Function "InstallShortcut"
 
     IntOp $ITEM_INDEX $ITEM_INDEX + 1
 
-    LogEx::Write "  $ITEM_NAME successfully installed"
+    ${LogWithTimestamp} "  $ITEM_NAME successfully installed"
 FunctionEnd
 
 Section "Install Extra Installers" InstallExtraInstallers
-    LogEx::Write "InstallExtraInstallers"
+    ${LogWithTimestamp} "InstallExtraInstallers"
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Installers" "${EXTRA_INSTALLERS}"
     ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
@@ -1519,30 +1526,30 @@ SectionEnd
 Var EXTRA_INSTALLER_NAME
 Var EXTRA_INSTALLER_OPTIONS
 Function "InstallExtraInstaller"
-    LogEx::Write "InstallExtraInstaller: install $ITEM_NAME"
+    ${LogWithTimestamp} "InstallExtraInstaller: install $ITEM_NAME"
 
     ReadINIStr $EXTRA_INSTALLER_NAME "${INIPATH}" "$ITEM_NAME" "Name"
-    LogEx::Write "  EXTRA_INSTALLER_NAME from INI: $EXTRA_INSTALLER_NAME"
+    ${LogWithTimestamp} "  EXTRA_INSTALLER_NAME from INI: $EXTRA_INSTALLER_NAME"
     ${If} "$EXTRA_INSTALLER_NAME" == ""
       StrCpy $EXTRA_INSTALLER_NAME "$ITEM_NAME"
     ${EndIf}
 
     ReadINIStr $EXTRA_INSTALLER_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
-    LogEx::Write "  EXTRA_INSTALLER_OPTIONS from INI: $EXTRA_INSTALLER_OPTIONS"
+    ${LogWithTimestamp} "  EXTRA_INSTALLER_OPTIONS from INI: $EXTRA_INSTALLER_OPTIONS"
 
     ExecWait '"$RES_DIR\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
 
-    LogEx::Write "  InstallExtraInstaller: $ITEM_NAME successfully installed"
+    ${LogWithTimestamp} "  InstallExtraInstaller: $ITEM_NAME successfully installed"
 FunctionEnd
 
 Section "Apply Registry Changes" ApplyRegistryChanges
-    LogEx::Write "ApplyRegistryChanges"
+    ${LogWithTimestamp} "ApplyRegistryChanges"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.reg" "ApplyRegistryChange"
 SectionEnd
 
 Function "ApplyRegistryChange"
     StrCpy $PROCESSING_FILE "$R7"
-    LogEx::Write "ApplyRegistryChange: $RES_DIR\$PROCESSING_FILE with $SYSDIR\reg.exe"
+    ${LogWithTimestamp} "ApplyRegistryChange: $RES_DIR\$PROCESSING_FILE with $SYSDIR\reg.exe"
     ${DisableX64FSRedirection}
     ExecWait '"$SYSDIR\reg.exe" import "$RES_DIR\$PROCESSING_FILE"'
     ${EnableX64FSRedirection}
@@ -1551,7 +1558,7 @@ FunctionEnd
 
 Var INSTALLING_APPLICATION_SPECIFIC_FILES
 Function InstallAdditionalFiles
-    LogEx::Write "InstallAdditionalFiles"
+    ${LogWithTimestamp} "InstallAdditionalFiles"
     StrCpy $ITEM_INDEX 0
     StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
 
@@ -1624,7 +1631,7 @@ Function InstallAdditionalFiles
 
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.msi" "RunMSISilentlyForLocate"
 
-    LogEx::Write "InstallExtraFiles"
+    ${LogWithTimestamp} "InstallExtraFiles"
     ; Disable install guard for ExtraFiles=
     StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 0
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraFiles" "${EXTRA_FILES}"
@@ -1633,12 +1640,12 @@ Function InstallAdditionalFiles
       ${While} 1 == 1
         IntOp $ITEMS_LIST_INDEX $ITEMS_LIST_INDEX + 1
         ${WordFind} $ITEMS_LIST "${SEPARATOR}" "+$ITEMS_LIST_INDEX" $ITEM_NAME
-        LogEx::Write "  WordFind ITEM_NAME ($ITEM_NAME) in ITEMS_LIST ($ITEMS_LIST)"
+        ${LogWithTimestamp} "  WordFind ITEM_NAME ($ITEM_NAME) in ITEMS_LIST ($ITEMS_LIST)"
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
         StrCpy $PROCESSING_FILE "$ITEM_NAME"
-        LogEx::Write "  PROCESSING_FILE: $PROCESSING_FILE"
+        ${LogWithTimestamp} "  PROCESSING_FILE: $PROCESSING_FILE"
         Call InstallNormalFile
       ${EndWhile}
     ${EndUnless}
@@ -1647,9 +1654,9 @@ FunctionEnd
 
 Function "InstallNormalFileForLocate"
     StrCpy $PROCESSING_FILE "$R7"
-    LogEx::Write "InstallNormalFileForLocate: $PROCESSING_FILE start"
+    ${LogWithTimestamp} "InstallNormalFileForLocate: $PROCESSING_FILE start"
     Call InstallNormalFile
-    LogEx::Write "InstallNormalFileForLocate: $PROCESSING_FILE done"
+    ${LogWithTimestamp} "InstallNormalFileForLocate: $PROCESSING_FILE done"
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
@@ -1658,7 +1665,7 @@ Function "InstallNormalFile"
     ${ReadINIStrWithDefault} $1 "${INIPATH}" "$PROCESSING_FILE" "AppMaxVersion" "9999"
     Call IsInAcceptableVersionRange
     ${Unless} "$APP_VERSION_STATUS" == "acceptable"
-      LogEx::Write "  => skip install"
+      ${LogWithTimestamp} "  => skip install"
       GoTo RETURN
     ${EndUnless}
 
@@ -1666,22 +1673,22 @@ Function "InstallNormalFile"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
     ;       otherwise only the first found file will be installed and others are ignored.
-    LogEx::Write "InstallNormalFile: installing $PROCESSING_FILE to $ITEM_LOCATION"
+    ${LogWithTimestamp} "InstallNormalFile: installing $PROCESSING_FILE to $ITEM_LOCATION"
     ${Unless} "$ITEM_LOCATION" == ""
       ${If} $INSTALLING_APPLICATION_SPECIFIC_FILES == 1
         ; Don't install normal file twice to the location specified by "TargetLocation".
-        LogEx::Write "  block to install $PROCESSING_FILE to $ITEM_LOCATION twice"
+        ${LogWithTimestamp} "  block to install $PROCESSING_FILE to $ITEM_LOCATION twice"
         GoTo RETURN
       ${EndIf}
       Call ResolveItemLocation
     ${EndUnless}
     ${If} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$DIST_DIR"
-      LogEx::Write "  fallback to $ITEM_LOCATION"
+      ${LogWithTimestamp} "  fallback to $ITEM_LOCATION"
     ${EndIf}
     StrCpy $DIST_PATH "$ITEM_LOCATION\$PROCESSING_FILE"
 
-    LogEx::Write "  install $PROCESSING_FILE to $DIST_PATH"
+    ${LogWithTimestamp} "  install $PROCESSING_FILE to $DIST_PATH"
 
     ${If} ${FileExists} "$DIST_PATH"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
@@ -1690,7 +1697,7 @@ Function "InstallNormalFile"
         IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
         StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
       ${EndWhile}
-      LogEx::Write "  backup old file as $BACKUP_PATH"
+      ${LogWithTimestamp} "  backup old file as $BACKUP_PATH"
       Rename "$DIST_PATH" "$BACKUP_PATH"
       ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup" "$BACKUP_PATH"
     ${EndIf}
@@ -1705,7 +1712,7 @@ Function "InstallNormalFile"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
-    LogEx::Write "  $PROCESSING_FILE is successfully installed"
+    ${LogWithTimestamp} "  $PROCESSING_FILE is successfully installed"
 
   RETURN:
 FunctionEnd
@@ -1720,17 +1727,17 @@ Function "RunMSISilently"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
     ;       otherwise only the first found file will be installed and others are ignored.
-    LogEx::Write "RunMSISilently: installing $PROCESSING_FILE"
+    ${LogWithTimestamp} "RunMSISilently: installing $PROCESSING_FILE"
     !if ${PRODUCT_INSTALL_MODE} == "QUIET"
       nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /quiet'
     !else
       nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /passive'
     !endif
-    LogEx::Write "  $PROCESSING_FILE is successfully executed"
+    ${LogWithTimestamp} "  $PROCESSING_FILE is successfully executed"
 FunctionEnd
 
 Section "Initialize Search Plugins" InitSearchPlugins
-    LogEx::Write "InitSearchPlugins"
+    ${LogWithTimestamp} "InitSearchPlugins"
     StrCpy $DIST_PATH "$APP_DIR\browser\searchplugins"
     ${Unless} ${FileExists} "$DIST_PATH"
       StrCpy $DIST_PATH "$APP_DIR\searchplugins"
@@ -1738,14 +1745,14 @@ Section "Initialize Search Plugins" InitSearchPlugins
 
     StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
     StrCpy $BACKUP_COUNT 0
-    LogEx::Write "  install to $DIST_PATH"
+    ${LogWithTimestamp} "  install to $DIST_PATH"
     ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
       IntOp $BACKUP_COUNT $BACKUP_COUNT + 1
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.$BACKUP_COUNT"
     ${EndWhile}
 
     CreateDirectory "$BACKUP_PATH"
-    LogEx::Write "  BACKUP_PATH = $BACKUP_PATH"
+    ${LogWithTimestamp} "  BACKUP_PATH = $BACKUP_PATH"
 
     ${If} "$FX_ENABLED_SEARCH_PLUGINS" != ""
     ${AndIf} "$FX_ENABLED_SEARCH_PLUGINS" != "*"
@@ -1771,7 +1778,7 @@ Section "Initialize Search Plugins" InitSearchPlugins
 SectionEnd
 
 Function "CheckDisableSearchPlugin"
-    LogEx::Write "CheckDisableSearchPlugin"
+    ${LogWithTimestamp} "CheckDisableSearchPlugin"
     StrCpy $PROCESSING_FILE "$R7"
 
     ${Unless} "$FX_ENABLED_SEARCH_PLUGINS" == "*"
@@ -1800,7 +1807,7 @@ Function "CheckDisableSearchPlugin"
     ${EndSwitch}
 
   DISABLE_SEARCH_PLUGIN:
-    LogEx::Write "  $DIST_PATH\$PROCESSING_FILE to $BACKUP_PATH\$PROCESSING_FILE"
+    ${LogWithTimestamp} "  $DIST_PATH\$PROCESSING_FILE to $BACKUP_PATH\$PROCESSING_FILE"
     Rename "$DIST_PATH\$PROCESSING_FILE" "$BACKUP_PATH\$PROCESSING_FILE"
   RETURN:
 
@@ -1808,12 +1815,12 @@ Function "CheckDisableSearchPlugin"
 FunctionEnd
 
 Section "Initialize Distribution Customizer" InitDistributonCustomizer
-    LogEx::Write "InitDistributonCustomizer"
+    ${LogWithTimestamp} "InitDistributonCustomizer"
     StrCpy $DIST_PATH   "${APP_DISTRIBUTION_DIR}"
     StrCpy $DIST_DIR "$DIST_PATH"
     ${If} ${FileExists} "$RES_DIR\distribution.*"
     ${OrIf} ${FileExists} "$RES_DIR\policies.json"
-      LogEx::Write "  Preparing $DIST_PATH"
+      ${LogWithTimestamp} "  Preparing $DIST_PATH"
       CreateDirectory "$DIST_PATH"
       ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
 
@@ -1827,7 +1834,7 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
 SectionEnd
 
 Section "Write Extra Registry Values" WriteExtraRegistryValues
-    LogEx::Write "WriteExtraRegistryValues"
+    ${LogWithTimestamp} "WriteExtraRegistryValues"
     ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "ExtraRegistryEntries" "${EXTRA_REG_ENTRIES}"
     StrCpy $ITEM_INDEX 0
     ${Unless} "$ITEMS_LIST" == ""
@@ -1849,7 +1856,7 @@ Var EXTRA_REG_VALUE_INDEX
 Var EXTRA_REG_VALUE_NAME
 Var EXTRA_REG_VALUE_DATA
 Function "WriteRegistryEntry"
-    LogEx::Write "WriteRegistryEntry: $ITEM_NAME"
+    ${LogWithTimestamp} "WriteRegistryEntry: $ITEM_NAME"
 
     ReadINIStr $EXTRA_REG_ROOT "${INIPATH}" "$ITEM_NAME" "Root"
     ReadINIStr $EXTRA_REG_PATH "${INIPATH}" "$ITEM_NAME" "Path"
@@ -1914,12 +1921,12 @@ Function "WriteRegistryEntry"
     ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryRoot$ITEM_INDEX" "$EXTRA_REG_ROOT"
     ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryPath$ITEM_INDEX" "$EXTRA_REG_PATH"
 
-    LogEx::Write "  $ITEM_NAME successfully processed"
+    ${LogWithTimestamp} "  $ITEM_NAME successfully processed"
 FunctionEnd
 
 
 Section -Post
-    LogEx::Write "Post process"
+    ${LogWithTimestamp} "Post process"
     WriteUninstaller "${PRODUCT_UNINST_PATH}"
     ${WriteRegStrSafely} "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR"
     ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DisplayName"     "${PRODUCT_FULL_NAME}"
@@ -1938,7 +1945,7 @@ Section -Post
 SectionEnd
 
 Section "Show Finish Message" ShowFinishMessage
-    LogEx::Write "ShowFinishMessage"
+    ${LogWithTimestamp} "ShowFinishMessage"
     ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "FinishMessage" "${FINISH_MESSAGE}"
     ${ReadINIStrWithDefault} $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "FinishTitle" "${FINISH_TITLE}"
     ${Unless} "$INI_TEMP" == ""
@@ -1952,7 +1959,7 @@ Section "Show Finish Message" ShowFinishMessage
 SectionEnd
 
 Section "Confirm to Restart" ConfirmRestart
-    LogEx::Write "ConfirmRestart"
+    ${LogWithTimestamp} "ConfirmRestart"
     ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "ConfirmRestartMessage" "${CONFIRM_RESTART_MESSAGE}"
     ${ReadINIStrWithDefault} $INI_TEMP2 "${INIPATH}" "${INSTALLER_NAME}" "ConfirmRestartTitle" "${CONFIRM_RESTART_TITLE}"
     ${Unless} "$INI_TEMP" == ""
@@ -1976,7 +1983,7 @@ Function .onRebootFailed
 FunctionEnd
 
 Section Uninstall
-    LogEx::Write "UninstallFiles"
+    ${LogWithTimestamp} "UninstallFiles"
     StrCpy $UNINSTALL_FAILED 0
 
     ${ReadRegStrSafely} $ITEM_NAME "${PRODUCT_UNINST_KEY}" "DefaultClientShown"
@@ -1984,7 +1991,7 @@ Section Uninstall
       ${ReadRegStrSafely} $ITEM_NAME "${PRODUCT_UNINST_KEY}" "DefaultClient"
       ${ReadRegStrSafely} $COMMAND_STRING "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "HideIconsCommand"
       ${Unless} "$COMMAND_STRING" == ""
-        LogEx::Write "  DefaultClientShown: Execute $COMMAND_STRING"
+        ${LogWithTimestamp} "  DefaultClientShown: Execute $COMMAND_STRING"
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call un.ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
@@ -1999,7 +2006,7 @@ Section Uninstall
       ${IfThen} "$ITEM_NAME" == "" ${|} ${Break} ${|}
       ${ReadRegStrSafely} $COMMAND_STRING "${CLIENTS_KEY}\$ITEM_NAME\InstallInfo" "ShowIconsCommand"
       ${Unless} "$COMMAND_STRING" == ""
-        LogEx::Write "  HiddenClient: Execute $COMMAND_STRING"
+        ${LogWithTimestamp} "  HiddenClient: Execute $COMMAND_STRING"
         StrCpy $ITEM_LOCATION "$COMMAND_STRING"
         Call un.ResolveItemLocation
         StrCpy $COMMAND_STRING "$ITEM_LOCATION"
@@ -2013,7 +2020,7 @@ Section Uninstall
     ${While} 1 == 1
       ${ReadRegStrSafely} $INSTALLED_FILE "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
-      LogEx::Write "  InstalledDefaultProfiles: Delete $INSTALLED_FILE"
+      ${LogWithTimestamp} "  InstalledDefaultProfiles: Delete $INSTALLED_FILE"
       RMDir /r "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
@@ -2022,7 +2029,7 @@ Section Uninstall
         ${ReadRegStrSafely} $BACKUP_PATH "${PRODUCT_UNINST_KEY}" "DefaultProfileBackups$ITEM_INDEX"
         ${If} "$BACKUP_PATH" != ""
         ${AndIf} ${FileExists} "$BACKUP_PATH"
-          LogEx::Write "  InstalledDefaultProfiles: Restore $BACKUP_PATH"
+          ${LogWithTimestamp} "  InstalledDefaultProfiles: Restore $BACKUP_PATH"
           Rename "$BACKUP_PATH" "$INSTALLED_FILE"
         ${EndIf}
       ${EndIf}
@@ -2034,7 +2041,7 @@ Section Uninstall
       ${ReadRegStrSafely} $INSTALLED_FILE "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX"
       ${ReadRegStrSafely} $BACKUP_PATH "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
-      LogEx::Write "  InstalledFile: Delete $INSTALLED_FILE"
+      ${LogWithTimestamp} "  InstalledFile: Delete $INSTALLED_FILE"
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
@@ -2043,7 +2050,7 @@ Section Uninstall
       ${EndIf}
       ${If} "$BACKUP_PATH" != ""
       ${AndIf} ${FileExists} "$BACKUP_PATH"
-        LogEx::Write "  InstalledFile: Restore $BACKUP_PATH"
+        ${LogWithTimestamp} "  InstalledFile: Restore $BACKUP_PATH"
         Rename "$BACKUP_PATH" "$INSTALLED_FILE"
       ${EndIf}
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
@@ -2054,7 +2061,7 @@ Section Uninstall
       ${ReadRegStrSafely} $INSTALLED_FILE "${PRODUCT_UNINST_KEY}" "InstalledShortcut$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
       ${If} ${FileExists} "$INSTALLED_FILE"
-        LogEx::Write "  InstalledShortcut: Delete $INSTALLED_FILE"
+        ${LogWithTimestamp} "  InstalledShortcut: Delete $INSTALLED_FILE"
         ${If} ${FileExists} "$INSTALLED_FILE\*.*"
           RMDir /r "$INSTALLED_FILE"
         ${Else}
@@ -2073,7 +2080,7 @@ Section Uninstall
     ${While} 1 == 1
       ${ReadRegStrSafely} $INSTALLED_FILE "${PRODUCT_UNINST_KEY}" "InstalledQuickLaunchShortcut$ITEM_INDEX"
       ${IfThen} "$INSTALLED_FILE" == "" ${|} ${Break} ${|}
-      LogEx::Write "  InstalledQuickLaunchShortcut: Delete $INSTALLED_FILE"
+      ${LogWithTimestamp} "  InstalledQuickLaunchShortcut: Delete $INSTALLED_FILE"
       Delete "$INSTALLED_FILE"
       ${If} ${Errors}
       ${AndIf} ${FileExists} "$INSTALLED_FILE"
@@ -2088,7 +2095,7 @@ Section Uninstall
       ${ReadRegStrSafely} $ITEM_LOCATION "${PRODUCT_UNINST_KEY}" "InstalledAddon$ITEM_INDEX"
       ${IfThen} "$ITEM_LOCATION" == "" ${|} ${Break} ${|}
 
-      LogEx::Write "  InstalledAddon: Delete $ITEM_LOCATION"
+      ${LogWithTimestamp} "  InstalledAddon: Delete $ITEM_LOCATION"
       ${If} ${DirExists} "$ITEM_LOCATION"
         RMDir /r "$ITEM_LOCATION"
       ${ElseIf} ${FileExists} "$ITEM_LOCATION"
@@ -2099,7 +2106,7 @@ Section Uninstall
       ${ReadRegStrSafely} $MANIFEST_PATH "${PRODUCT_UNINST_KEY}" "InstalledManagedStorage$ITEM_INDEX"
       ${If} "$MANIFEST_PATH" != ""
       ${AndIf} ${FileExists} "$MANIFEST_PATH"
-        LogEx::Write "  InstalledAddon: Delete $MANIFEST_PATH"
+        ${LogWithTimestamp} "  InstalledAddon: Delete $MANIFEST_PATH"
         Delete "$MANIFEST_PATH"
       ${EndIf}
 
@@ -2117,7 +2124,7 @@ Section Uninstall
     ${If} "$BACKUP_PATH" != ""
     ${AndIf} ${FileExists} "$BACKUP_PATH"
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.xml"
-      LogEx::Write "  DisabledSearchPlugins/EnabledSearchPlugins: Restore $BACKUP_PATH"
+      ${LogWithTimestamp} "  DisabledSearchPlugins/EnabledSearchPlugins: Restore $BACKUP_PATH"
       ${un.Locate} "$BACKUP_PATH" "/L=F /G=0 /M=*.xml" "un.EnableSearchPlugin"
       ${Unless} ${FileExists} "$BACKUP_PATH\*.xml"
         RMDir /r "$BACKUP_PATH"
@@ -2128,13 +2135,13 @@ Section Uninstall
     ${ReadRegStrSafely} $BACKUP_PATH "${PRODUCT_UNINST_KEY}" "DistributonCustomizerBackup"
     ${ReadRegStrSafely} $INSTALLED_FILE "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer"
     ${If} "$INSTALLED_FILE" != ""
-      LogEx::Write "  DistributonCustomizerBackup: Delete $INSTALLED_FILE"
+      ${LogWithTimestamp} "  DistributonCustomizerBackup: Delete $INSTALLED_FILE"
       RMDir /r "$INSTALLED_FILE"
     ${EndIf}
     ${If} "$BACKUP_PATH" != ""
     ${AndIf} ${FileExists} "$BACKUP_PATH"
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.*"
-      LogEx::Write "  DistributonCustomizerBackup: Restore $BACKUP_PATH"
+      ${LogWithTimestamp} "  DistributonCustomizerBackup: Restore $BACKUP_PATH"
       Rename "$BACKUP_PATH" "$INSTALLED_FILE"
     ${EndIf}
 
@@ -2144,7 +2151,7 @@ Section Uninstall
       ${ReadRegStrSafely} $EXTRA_REG_PATH "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryPath$ITEM_INDEX"
       ${IfThen} "$EXTRA_REG_PATH" == "" ${|} ${Break} ${|}
       ${ReadRegStrSafely} $EXTRA_REG_ROOT "${PRODUCT_UNINST_KEY}" "InstalledExtraRegistryEntryRoot$ITEM_INDEX"
-      LogEx::Write "  InstalledExtraRegistryEntryPath: Delete $EXTRA_REG_ROOT $EXTRA_REG_PATH"
+      ${LogWithTimestamp} "  InstalledExtraRegistryEntryPath: Delete $EXTRA_REG_ROOT $EXTRA_REG_PATH"
       ${If} "$EXTRA_REG_ROOT" == "HKCU"
         DeleteRegKey HKCU "$EXTRA_REG_PATH"
       ${Else}
@@ -2168,7 +2175,7 @@ SectionEnd
 
 Function un.EnableSearchPlugin
     StrCpy $PROCESSING_FILE "$R7"
-    LogEx::Write "  EnableSearchPlugin: Restore $BACKUP_PATH\$PROCESSING_FILE"
+    ${LogWithTimestamp} "  EnableSearchPlugin: Restore $BACKUP_PATH\$PROCESSING_FILE"
     Rename "$BACKUP_PATH\$PROCESSING_FILE" "$SEARCH_PLUGINS_PATH\$PROCESSING_FILE"
     Push 0
 FunctionEnd
@@ -2179,8 +2186,8 @@ Function .onInit
     SetOutPath $INSTDIR
 
     LogEx::Init "$INSTDIR\install.log"
-    LogEx::Write "----------------------onInit------------------------"
-    LogEx::Write "Install to $INSTDIR"
+    ${LogWithTimestamp} "----------------------onInit------------------------"
+    ${LogWithTimestamp} "Install to $INSTDIR"
 
     Call CheckAppProc
 
@@ -2198,8 +2205,8 @@ FunctionEnd
 
 Function un.onInit
     LogEx::Init "$INSTDIR\install.log"
-    LogEx::Write "----------------------un.onInit------------------------"
-    LogEx::Write "Uninstall from $INSTDIR"
+    ${LogWithTimestamp} "----------------------un.onInit------------------------"
+    ${LogWithTimestamp} "Uninstall from $INSTDIR"
 
     Call un.CheckAppProc
     !if ${PRODUCT_INSTALL_MODE} == "NORMAL"
@@ -2261,7 +2268,7 @@ FunctionEnd
 
 ;=== Utility functions
 Function CheckCleanInstall
-  LogEx::Write "CheckCleanInstall"
+  ${LogWithTimestamp} "CheckCleanInstall"
   ${If} ${FileExists} "${APP_PROFILE_PATH}"
     ${If} "$CLEAN_INSTALL" == "REQUIRED"
       ${ReadINIStrWithDefault} $INI_TEMP "${INIPATH}" "${INSTALLER_NAME}" "CleanInstallRequiredMessage" "${CLEAN_REQUIRED_MESSAGE}"
@@ -2295,10 +2302,10 @@ FunctionEnd
 
 Var REQUIRE_ADMIN
 Function CheckAdminPrivilege
-    LogEx::Write "CheckAdminPrivilege"
+    ${LogWithTimestamp} "CheckAdminPrivilege"
     ${ReadINIStrWithDefault} $REQUIRE_ADMIN "${INIPATH}" "${INSTALLER_NAME}" "RequireAdminPrivilege" "${REQUIRE_ADMIN}"
     ${If} "$REQUIRE_ADMIN" == "false"
-      LogEx::Write "    => skip administrator privilege check"
+      ${LogWithTimestamp} "    => skip administrator privilege check"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
@@ -2309,57 +2316,57 @@ Function CheckAdminPrivilege
       StrCpy $ITEM_LOCATION "$APP_PROGRAMFILES"
       Call ResolveItemLocation
     ${EndIf}
-    LogEx::Write "  Checking access rights by file access to $ITEM_LOCATION"
+    ${LogWithTimestamp} "  Checking access rights by file access to $ITEM_LOCATION"
     ${Unless} "$ITEM_LOCATION" == ""
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\_${INSTALLER_NAME}.lock"
       ${If} ${FileExists} "$ITEM_LOCATION"
         Delete "$ITEM_LOCATION"
         ${Unless} ${FileExists} "$ITEM_LOCATION"
-          LogEx::Write "  => has access right: writable to $ITEM_LOCATION"
+          ${LogWithTimestamp} "  => has access right: writable to $ITEM_LOCATION"
           GoTo PRIVILEGE_TEST_DONE
         ${EndUnless}
       ${Else}
         WriteINIStr "$ITEM_LOCATION" "${INSTALLER_NAME}" "test" "true"
         FlushINI "$ITEM_LOCATION"
         ${If} ${FileExists} "$ITEM_LOCATION"
-          LogEx::Write "  => has access right: writable to $ITEM_LOCATION"
+          ${LogWithTimestamp} "  => has access right: writable to $ITEM_LOCATION"
           Delete "$ITEM_LOCATION"
           GoTo PRIVILEGE_TEST_DONE
         ${EndIf}
       ${EndIf}
     ${EndUnless}
 
-    LogEx::Write "  Checking access rights by sid"
+    ${LogWithTimestamp} "  Checking access rights by sid"
     ; check by sid (administrator ends with -500)
     AccessControl::GetCurrentUserName
     Pop $0
-    LogEx::Write "    name = $0"
+    ${LogWithTimestamp} "    name = $0"
     AccessControl::NameToSid $0
     Pop $0
-    LogEx::Write "    sid = $0"
+    ${LogWithTimestamp} "    sid = $0"
     ${WordFind} $0 "-" "-1" $1
     ${If} $1 == "500"
-      LogEx::Write "    => local administrator"
+      ${LogWithTimestamp} "    => local administrator"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
     ${If} $0 == "S-1-5-18"
-      LogEx::Write "    => local system"
+      ${LogWithTimestamp} "    => local system"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
-    LogEx::Write "  Checking access rights by local group"
+    ${LogWithTimestamp} "  Checking access rights by local group"
     ; check by local group
     UserMgr::GetCurrentUserName
     Pop $0
     UserMgr::IsMemberOfGroup "$0" "Administrators"
     Pop $0
     ${If} "$0" == "TRUE"
-      LogEx::Write "    => local administrators"
+      ${LogWithTimestamp} "    => local administrators"
       GoTo PRIVILEGE_TEST_DONE
     ${EndIf}
 
-    LogEx::Write "  No access rights."
+    ${LogWithTimestamp} "  No access rights."
     MessageBox MB_OK|MB_ICONEXCLAMATION "$(MSG_APP_NOT_ADMIN_ERROR_BEFORE)$ITEM_LOCATION$(MSG_APP_NOT_ADMIN_ERROR_AFTER)" /SD IDOK
     Abort
 
@@ -2367,7 +2374,7 @@ Function CheckAdminPrivilege
 FunctionEnd
 
 Function CheckInstalled
-    LogEx::Write "CheckInstalled"
+    ${LogWithTimestamp} "CheckInstalled"
     ${ReadRegStrSafely} $R0 "${PRODUCT_UNINST_KEY}" "UninstallString"
     ${Unless} "$R0" == ""
       !if ${APP_INSTALL_MODE} != "SKIP"
@@ -2377,7 +2384,7 @@ Function CheckInstalled
         !endif
 
       UNINST:
-        LogEx::Write "CheckInstalled: Application is installed by meta installer"
+        ${LogWithTimestamp} "CheckInstalled: Application is installed by meta installer"
         ; If the Firefox/Thunderbird is installed by this meta installer,
         ; then we should keep the state.
         ${ReadRegStrSafely} $APP_VERSION "${PRODUCT_UNINST_KEY}" "InstalledAppVersion"
@@ -2390,7 +2397,7 @@ Function CheckInstalled
 FunctionEnd
 
 Function LoadINI
-    LogEx::Write "LoadINI"
+    ${LogWithTimestamp} "LoadINI"
     ${ReadINIStrWithDefault} $APP_DOWNLOAD_PATH "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadPath" "${APP_DOWNLOAD_PATH}"
     ${ReadINIStrWithDefault} $APP_EULA_PATH     "${INIPATH}" "${INSTALLER_NAME}" "AppEulaPath"     "${APP_EULA_PATH}"
     ${ReadINIStrWithDefault} $APP_DOWNLOAD_URL  "${INIPATH}" "${INSTALLER_NAME}" "AppDownloadUrl"  "${APP_DOWNLOAD_URL}"
@@ -2434,7 +2441,7 @@ FunctionEnd
 !insertmacro CheckAppProc "un."
 
 Function GetCurrentAppRegKey
-  LogEx::Write "GetCurrentAppRegKey"
+  ${LogWithTimestamp} "GetCurrentAppRegKey"
   ${ReadINIStrWithDefault} $APP_IS_ESR "${INIPATH}" "${INSTALLER_NAME}" "AppIsESR" "${APP_IS_ESR}"
   ${If} "$APP_IS_ESR" == "true"
     StrCpy $APP_REG_KEY "Software\${APP_KEY_ESR}"
@@ -2458,8 +2465,8 @@ Function GetCurrentAppRegKey
       StrCpy $APP_VERSIONS_ROOT_REG_KEY "Software\${APP_KEY}"
     ${EndIf}
   ${EndIf}
-  LogEx::Write "  APP_REG_KEY:               $APP_REG_KEY"
-  LogEx::Write "  APP_VERSIONS_ROOT_REG_KEY: $APP_VERSIONS_ROOT_REG_KEY"
+  ${LogWithTimestamp} "  APP_REG_KEY:               $APP_REG_KEY"
+  ${LogWithTimestamp} "  APP_VERSIONS_ROOT_REG_KEY: $APP_VERSIONS_ROOT_REG_KEY"
 FunctionEnd
 
 Function un.GetCurrentAppRegKey
@@ -2485,10 +2492,10 @@ FunctionEnd
 !insertmacro GetCurrentAppVersion "un."
 
 Function GetAppPath
-    LogEx::Write "GetAppPath"
+    ${LogWithTimestamp} "GetAppPath"
     ${IfThen} "$APP_INSTALLED" != "1" ${|} StrCpy $APP_INSTALLED "0" ${|}
 
-    LogEx::Write "  Application installed"
+    ${LogWithTimestamp} "  Application installed"
 
   !if ${APP_INSTALL_MODE} != "EXTRACT"
 
@@ -2505,7 +2512,7 @@ Function GetAppPath
     ${EndIf}
     ${IfThen} "$APP_EXE_PATH" == "" ${|} GoTo ERR ${|}
 
-    LogEx::Write "  APP_EXE_PATH: $APP_EXE_PATH"
+    ${LogWithTimestamp} "  APP_EXE_PATH: $APP_EXE_PATH"
 
     ; Application directory
     ${If} "$APP_IS_64BIT" == "true"
@@ -2517,30 +2524,30 @@ Function GetAppPath
     ${EndIf}
     ${IfThen} "$APP_DIR" == "" ${|} GoTo ERR ${|}
 
-    LogEx::Write "  APP_DIR: $APP_DIR"
+    ${LogWithTimestamp} "  APP_DIR: $APP_DIR"
 
   !endif
 
     ${If} ${FileExists} "$APP_INSTALLER_INI"
       ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"
-      LogEx::Write "  InstallDirectoryName: $INI_TEMP"
+      ${LogWithTimestamp} "  InstallDirectoryName: $INI_TEMP"
       ReadINIStr $INI_TEMP2 "$APP_INSTALLER_INI" "Install" "InstallDirectoryPath"
-      LogEx::Write "  InstallDirectoryPath: $INI_TEMP2"
+      ${LogWithTimestamp} "  InstallDirectoryPath: $INI_TEMP2"
       ${If} $INI_TEMP2 != ""
       ${AndIf} $INI_TEMP != ""
-        LogEx::Write "  Both InstallDirectoryName and InstallDirectoryPath are specified!!"
-        LogEx::Write "  Clearing InstallDirectoryPath to use only InstallDirectoryName."
+        ${LogWithTimestamp} "  Both InstallDirectoryName and InstallDirectoryPath are specified!!"
+        ${LogWithTimestamp} "  Clearing InstallDirectoryPath to use only InstallDirectoryName."
         StrCpy $INI_TEMP2 ""
       ${EndIf}
       ${If} $INI_TEMP2 != ""
         ${If} "$APP_DIR" != "$INI_TEMP2"
-          LogEx::Write "  APP_DIR must be $INI_TEMP2"
+          ${LogWithTimestamp} "  APP_DIR must be $INI_TEMP2"
           StrCpy $APP_DIR "$INI_TEMP2"
           StrCpy $APP_EXE_PATH "$APP_DIR\${APP_EXE}"
         ${EndIf}
       ${ElseIf} $INI_TEMP != ""
         ${If} "$APP_DIR" != "$APP_PROGRAMFILES\$INI_TEMP"
-          LogEx::Write "  APP_DIR must be $APP_PROGRAMFILES\$INI_TEMP"
+          ${LogWithTimestamp} "  APP_DIR must be $APP_PROGRAMFILES\$INI_TEMP"
           StrCpy $APP_DIR "$APP_PROGRAMFILES\$INI_TEMP"
           StrCpy $APP_EXE_PATH "$APP_DIR\${APP_EXE}"
         ${EndIf}
@@ -2550,7 +2557,7 @@ Function GetAppPath
     ${If} ${FileExists} "$APP_EXE_PATH"
       ${If} ${FileExists} "$APP_DIR"
       ${OrIf} ${FileExists} "$APP_DIR\*.*"
-        LogEx::Write "  Application exists"
+        ${LogWithTimestamp} "  Application exists"
         StrCpy $APP_EXISTS "1"
         ; get actual version number from application.ini because
         ; the version can be mismatched.
@@ -2562,18 +2569,18 @@ Function GetAppPath
 FunctionEnd
 
 Function CheckAppVersion
-    LogEx::Write "CheckAppVersion"
+    ${LogWithTimestamp} "CheckAppVersion"
     ; try to remove " (ja)" part
     ${StrStrAdv} $NORMALIZED_APP_VERSION "$APP_VERSION" " " ">" "<" "0" "0" "0"
     ${If} "$NORMALIZED_APP_VERSION" == ""
       StrCpy $NORMALIZED_APP_VERSION "$APP_VERSION"
     ${EndIf}
 
-    LogEx::Write "  APP_VERSION            = $APP_VERSION"
-    LogEx::Write "  NORMALIZED_APP_VERSION = $NORMALIZED_APP_VERSION"
-    LogEx::Write "  APP_MIN_VERSION        = $APP_MIN_VERSION"
-    LogEx::Write "  APP_MAX_VERSION        = $APP_MAX_VERSION"
-    LogEx::Write "  APP_ALLOW_DOWNGRADE    = $APP_ALLOW_DOWNGRADE"
+    ${LogWithTimestamp} "  APP_VERSION            = $APP_VERSION"
+    ${LogWithTimestamp} "  NORMALIZED_APP_VERSION = $NORMALIZED_APP_VERSION"
+    ${LogWithTimestamp} "  APP_MIN_VERSION        = $APP_MIN_VERSION"
+    ${LogWithTimestamp} "  APP_MAX_VERSION        = $APP_MAX_VERSION"
+    ${LogWithTimestamp} "  APP_ALLOW_DOWNGRADE    = $APP_ALLOW_DOWNGRADE"
 
     ${ReadINIStrWithDefault} $APP_ALLOW_DOWNGRADE "${INIPATH}" "${INSTALLER_NAME}" "AppAllowDowngrade" "${APP_ALLOW_DOWNGRADE}"
     ${If} "$APP_ALLOW_DOWNGRADE" == "1"
@@ -2583,7 +2590,7 @@ Function CheckAppVersion
 
     ${IfThen} "$APP_EXISTS" != "1" ${|} GoTo RETURN ${|}
 
-    LogEx::Write "  Application exists"
+    ${LogWithTimestamp} "  Application exists"
 
     ${ReadINIStrWithDefault} $0 "${INIPATH}" "${INSTALLER_NAME}" "AppMinVersion" "${APP_MIN_VERSION}"
     ${ReadINIStrWithDefault} $1 "${INIPATH}" "${INSTALLER_NAME}" "AppMaxVersion" "${APP_MAX_VERSION}"
@@ -2599,7 +2606,7 @@ Var ACCEPTABLE_MAX_VERSION
 Function IsInAcceptableVersionRange
     StrCpy $ACCEPTABLE_MIN_VERSION "$0"
     StrCpy $ACCEPTABLE_MAX_VERSION "$1"
-    LogEx::Write "IsInAcceptableVersionRange $ACCEPTABLE_MIN_VERSION-$ACCEPTABLE_MAX_VERSION"
+    ${LogWithTimestamp} "IsInAcceptableVersionRange $ACCEPTABLE_MIN_VERSION-$ACCEPTABLE_MAX_VERSION"
 
     StrCpy $APP_VERSION_STATUS "acceptable"
     ${VersionConvert} "$NORMALIZED_APP_VERSION" "abcdefghijklmnopqrstuvwxyz" $APP_VERSION_NUM
@@ -2613,11 +2620,11 @@ Function IsInAcceptableVersionRange
     ${ElseIf} "$1" == "2" ; ACCEPTABLE_MAX_VERSION < APP_VERSION_NUM
       StrCpy $APP_VERSION_STATUS "too high"
     ${EndIf}
-    LogEx::Write "  => Installed version $APP_VERSION_NUM is $APP_VERSION_STATUS"
+    ${LogWithTimestamp} "  => Installed version $APP_VERSION_NUM is $APP_VERSION_STATUS"
 FunctionEnd
 
 Function CheckAppVersionWithMessage
-    LogEx::Write "CheckAppVersionWithMessage"
+    ${LogWithTimestamp} "CheckAppVersionWithMessage"
     ${IfThen} "$APP_EXISTS" != "1" ${|} GoTo RETURN ${|}
 
     Call CheckAppVersion
@@ -2653,7 +2660,7 @@ Function CheckAppVersionWithMessage
 FunctionEnd
 
 Function "SetUpRequiredDirectories"
-    LogEx::Write "SetUpRequiredDirectories: setup $REQUIRED_DIRECTORY"
+    ${LogWithTimestamp} "SetUpRequiredDirectories: setup $REQUIRED_DIRECTORY"
 
     StrCpy $CREATED_TOP_REQUIRED_DIRECTORY ""
     StrCpy $REQUIRED_DIRECTORIES "$REQUIRED_DIRECTORY"
@@ -2666,7 +2673,7 @@ Function "SetUpRequiredDirectories"
       StrCpy $R0 "$R1"
     ${EndWhile}
 
-    LogEx::Write "  folders = $REQUIRED_DIRECTORIES"
+    ${LogWithTimestamp} "  folders = $REQUIRED_DIRECTORIES"
 
     StrCpy $REQUIRED_DIRECTORY_INDEX 0
     ${While} 1 == 1
@@ -2681,26 +2688,26 @@ Function "SetUpRequiredDirectories"
       ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
         ${Continue}
       ${EndIf}
-      LogEx::Write "  create $ITEM_LOCATION"
+      ${LogWithTimestamp} "  create $ITEM_LOCATION"
       CreateDirectory "$ITEM_LOCATION"
       ${IfThen} "$USERNAME" != "" ${|} AccessControl::SetFileOwner "$ITEM_LOCATION" "$USERNAME" ${|}
       ${If} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
         StrCpy $CREATED_TOP_REQUIRED_DIRECTORY "$ITEM_LOCATION"
-        LogEx::Write "  top level = $ITEM_LOCATION"
+        ${LogWithTimestamp} "  top level = $ITEM_LOCATION"
       ${EndIf}
     ${EndWhile}
 FunctionEnd
 
 Function "ResolveItemLocation"
-    LogEx::Write "ResolveItemLocation for $ITEM_LOCATION"
+    ${LogWithTimestamp} "ResolveItemLocation for $ITEM_LOCATION"
     Call ResolveItemLocationBasic
     ExpandEnvStrings $ITEM_LOCATION "$ITEM_LOCATION"
     Call NormalizePathDelimiter
-    LogEx::Write "  => $ITEM_LOCATION"
+    ${LogWithTimestamp} "  => $ITEM_LOCATION"
 FunctionEnd
 
 Function "ResolveItemLocationBasic"
-    LogEx::Write "ResolveItemLocationBasic for $ITEM_LOCATION"
+    ${LogWithTimestamp} "ResolveItemLocationBasic for $ITEM_LOCATION"
     ; Windows Environment Variables
     ${FillPlaceHolderWithTerms} SystemDrive Systemdrive systemdrive SYSTEMDRIVE "$%systemdrive%"
     ${FillPlaceHolderWithTerms} SystemRoot Systemroot systemroot SYSTEMROOT "$WINDIR"
@@ -2727,7 +2734,7 @@ Function "ResolveItemLocationBasic"
     ${FillPlaceHolderWithTerms} Startup StartUp startup STARTUP "$SMSTARTUP"
 
     Call NormalizePathDelimiter
-    LogEx::Write "  => $ITEM_LOCATION"
+    ${LogWithTimestamp} "  => $ITEM_LOCATION"
 FunctionEnd
 
 Function "un.ResolveItemLocation"
