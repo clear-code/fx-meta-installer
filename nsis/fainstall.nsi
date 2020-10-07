@@ -38,7 +38,7 @@ Var TimeStampString
 !define LogWithTimestamp "!insertmacro _LogWithTimestamp"
 !macro _LogWithTimestamp Message
   ${TimeStamp} $TimeStampString
-  LogEx::Write "${TimeStampString}: ${Message}"
+  LogEx::Write "$TimeStampString: ${Message}"
 !macroend
 
 Function IsTrue
