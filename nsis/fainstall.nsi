@@ -35,9 +35,10 @@ ${UnStrStrAdv} ; activate macro for uninstallation
 !macroend
 
 Var TimeStampString
-!macro LogWithTimestamp Message
+!define LogWithTimestamp "!insertmacro _LogWithTimestamp"
+!macro _LogWithTimestamp Message
   ${TimeStamp} $TimeStampString
-  ${LogWithTimestamp} "${TimeStampString}: ${Message}"
+  LogEx::Write "${TimeStampString}: ${Message}"
 !macroend
 
 Function IsTrue
