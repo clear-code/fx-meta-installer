@@ -1139,12 +1139,13 @@ Function "InstallProfileToEachUser"
 
       ${IfThen} "$USERNAME" == "Guest" ${|} ${Continue} ${|}
 
-      StrCpy $ITEM_LOCATION "%HOMEPATH%"
+      StrCpy $ITEM_LOCATION "$HOMEPATH_TEMPLATE"
+      ${FillPlaceHolderWithTerms} UserName Username username USERNAME "$USERNAME"
       Call ResolveItemLocation
-      StrCpy $1 "$ITEM_LOCATION"
-      ${GetFileAttributes} "$1" "DIRECTORY" $2
-      ${If} $2 == 0
-        ${LogWithTimestamp} "  skip installation for a user without home"
+      ${LogWithTimestamp} "  checking user home existence: $ITEM_LOCATION"
+      ${GetFileAttributes} "$ITEM_LOCATION" "DIRECTORY" $1
+      ${If} $1 != 1
+        ${LogWithTimestamp} "  => skip installation for a user without home"
         ${Continue}
       ${EndIf}
 
