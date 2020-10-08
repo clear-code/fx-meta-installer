@@ -20,7 +20,6 @@ ${StrStrAdv} ; activate macro for installation
 ${UnStrStrAdv} ; activate macro for uninstallation
 !include "native_message_box.nsh"
 !include "logiclib_dir_exists.nsh"
-!include "GetFileAttributes.nsh"
 !include "touch.nsh"
 !include "timestamp.nsh"
 !include "ExecWaitJob.nsh"
