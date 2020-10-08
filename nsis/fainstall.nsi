@@ -1191,7 +1191,10 @@ Function "InstallProfile"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "IsRelative" "1"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "Path" "Profiles/$INI_TEMP"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile0" "Default" "1"
-      ${IfThen} "$USERNAME" != "" ${|} AccessControl::SetFileOwner "$ITEM_LOCATION\profiles.ini" "$USERNAME" ${|}
+      ${If} "$USERNAME" != ""
+      ${AndIf} "$USERNAME" != "Default"
+        AccessControl::SetFileOwner "$ITEM_LOCATION\profiles.ini" "$USERNAME"
+      ${EndIf}
     ${Else}
       ${LogWithTimestamp} "  CreateProfile: profile exists"
       ReadINIStr $INI_TEMP "${INIPATH}" "profile" "Name"
@@ -1215,7 +1218,10 @@ Function "InstallProfile"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "IsRelative" "1"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "Path" "Profiles/$INI_TEMP"
       WriteINIStr "$ITEM_LOCATION\profiles.ini" "Profile$PROFILE_INDEX" "Default" "1"
-      ${IfThen} "$USERNAME" != "" ${|} AccessControl::SetFileOwner "$ITEM_LOCATION\profiles.ini" "$USERNAME" ${|}
+      ${If} "$USERNAME" != ""
+      ${AndIf} "$USERNAME" != "Default"
+        AccessControl::SetFileOwner "$ITEM_LOCATION\profiles.ini" "$USERNAME"
+      ${EndIf}
     ${EndIf}
 
     ${If} ${FileExists} "$RES_DIR\profile.zip"
@@ -2707,7 +2713,10 @@ Function "SetUpRequiredDirectories"
       ${EndIf}
       ${LogWithTimestamp} "  create $ITEM_LOCATION"
       CreateDirectory "$ITEM_LOCATION"
-      ${IfThen} "$USERNAME" != "" ${|} AccessControl::SetFileOwner "$ITEM_LOCATION" "$USERNAME" ${|}
+      ${If} "$USERNAME" != ""
+      ${AndIf} "$USERNAME" != "Default"
+        AccessControl::SetFileOwner "$ITEM_LOCATION" "$USERNAME"
+      ${EndIf}
       ${If} "$CREATED_TOP_REQUIRED_DIRECTORY" == ""
         StrCpy $CREATED_TOP_REQUIRED_DIRECTORY "$ITEM_LOCATION"
         ${LogWithTimestamp} "  top level = $ITEM_LOCATION"
