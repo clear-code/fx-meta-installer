@@ -20,6 +20,7 @@ ${StrStrAdv} ; activate macro for installation
 ${UnStrStrAdv} ; activate macro for uninstallation
 !include "native_message_box.nsh"
 !include "logiclib_dir_exists.nsh"
+!include "GetFileAttributes.nsh"
 !include "touch.nsh"
 !include "timestamp.nsh"
 !include "ExecWaitJob.nsh"
@@ -2685,8 +2686,14 @@ Function "SetUpRequiredDirectories"
       ${EndIf}
       StrCpy $ITEM_LOCATION "$REQUIRED_DIRECTORY"
       Call ResolveItemLocation
-      ${If} ${FileExists} "$ITEM_LOCATION"
-      ${AndIf} ${FileExists} "$ITEM_LOCATION\*.*"
+      StrLen $0 "$ITEM_LOCATION"
+      ${If} $0 == 2
+        ${LogWithTimestamp} "  skip creation of top level directory $ITEM_LOCATION"
+        ${Continue}
+      ${EndIf}
+      ${GetFileAttributes} "$ITEM_LOCATION" "DIRECTORY" $0
+      ${If} $0 == 1
+        ${LogWithTimestamp} "  skip creation of existing directory $ITEM_LOCATION"
         ${Continue}
       ${EndIf}
       ${LogWithTimestamp} "  create $ITEM_LOCATION"
