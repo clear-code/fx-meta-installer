@@ -2447,7 +2447,9 @@ FunctionEnd
 
 !macro CheckAppProc un
   Function ${un}CheckAppProc
+    ${LogWithTimestamp} "${un}CheckAppProc for ${APP_EXE}"
     FindProcDLL::FindProc "${APP_EXE}" $R0
+    ${LogWithTimestamp} "FindProc result: $R0"
     ${If} "$R0" == "1"
       MessageBox MB_OK|MB_ICONINFORMATION `$(MSG_APP_IS_RUNNING)`
       Abort
