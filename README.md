@@ -29,6 +29,7 @@ Fx Meta Installer is written as a NSIS script, and depends on these plugins.
  * [UserMgr](http://nsis.sourceforge.net/UserMgr_plug-in)
  * [LogEx](http://nsis.sourceforge.net/LogEx_plug-in)
  * [NSISArray](https://nsis.sourceforge.io/Arrays_in_NSIS)
+ * [EnVar](https://nsis.sourceforge.io/EnVar_plug-in)
 
 ## How to build
 

@@ -15,6 +15,7 @@ https://nsis.sourceforge.io/mediawiki/images/4/4a/AccessControl.zip
 https://nsis.sourceforge.io/mediawiki/images/0/08/UserMgr.zip
 https://nsis.sourceforge.io/mediawiki/images/d/d1/LogEx.zip
 https://nsis.sourceforge.io/mediawiki/images/4/44/NSISArray.zip
+https://nsis.sourceforge.io/mediawiki/images/7/7f/EnVar_plugin.zip
 "
 
 mkdir -p plugins
