@@ -8,7 +8,7 @@ Thunderbird to PCs in a specific organization.
 
 To use this, you need to do following steps:
 
- 1. Setup your environment to build NSIS binary.
+ 1. Setup your environment to build NSIS2 binary.
  2. Prepare configuration files and resouces (addons, CSS files, etc.) to
     include the final installer package.
  3. Build the binary of Fx Meta Instlaler (fainstall) and the final installer
@@ -39,7 +39,7 @@ environments at first.
 
 #### Windows
 
- 1. Download the installer v2.46 and instlal it.
+ 1. Download the installer v2.x and instlal it.
     See [NSIS wiki](http://nsis.sourceforge.net/Main_Page).
     (If you want to debug Fx Meta Installer with detailed logs, you should use
     the "advanced logging" build of the NSIS.
@@ -51,6 +51,7 @@ environments at first.
 #### Linux (Debian, Ubuntu)
 
  1. Install required packages "nsis", "pwgen" and "uuid-runtime".
+    Please note that "nsis" version 3.0 and later (default on Ubuntu 20.04LTS or others) is not supported yet and you need to install version 2.x (default on Ubuntu 18.04LTS or others).
 
         $ sudo apt-get install nsis pwgen uuid-runtime
 
