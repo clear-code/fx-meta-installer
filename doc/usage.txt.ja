@@ -183,6 +183,7 @@ Firefox/Thunderbirdのインストールに関する設定
 ESR版かどうか                      | APP_IS_ESR                 | AppIsESR
 Developer Editionかどうか          | APP_IS_DEV_EDITION         | AppIsDevEdition
 ダウングレードの可否               | APP_ALLOW_DOWNGRADE        | AppAllowDowngrade
+ダウングレード後のプロファイル流用可否 | APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE | AppAllowReuseProfileAfterDowngrade
 インストーラの設置場所のパス       | APP_DOWNLOAD_PATH          | AppDownloadPath
 インストーラのダウンロード元URL    | APP_DOWNLOAD_URL           | AppDownloadUrl
 インストーラの検証用ハッシュ値     | APP_HASH                   | AppHash
@@ -471,6 +472,14 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
 　取り得る値               ：APP_ALLOW_DOWNGRADEを定義すると真、未定義だと偽。
 　                           AppAllowDownguradeは、true/falseの
 　                           いずれかで指定する。
+  デフォルト値             ：false
+■■ダウングレード後のプロファイル流用可否（省略可能）
+  config.nshでの設定キー   ：APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE
+  fainstall.iniでの設定キー：[fainstall] > AppAllowReuseProfileAfterDowngrade
+　説明                     ：より新しいバージョンのFirefox向けに移行済みの
+　                           ユーザープロファイルを、古いバージョンのFirefoxでも
+　                           使用することを許容するかどうか。
+　取り得る値               ：true/falseのいずれかで指定する。
   デフォルト値             ：false
 ■■インストーラの設置場所のパス（省略可能）
   config.nshでの設定キー   ：APP_DOWNLOAD_PATH

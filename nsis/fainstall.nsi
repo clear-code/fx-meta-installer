@@ -146,6 +146,7 @@ ${DefineDefaultValue} APP_INSTALL_MODE  "QUIET"
 ${DefineDefaultValue} APP_IS_64BIT      "false"
 ${DefineDefaultValue} APP_IS_ESR        "false"
 ${DefineDefaultValue} APP_CLEANUP_DIRS ""
+${DefineDefaultValue} APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE "false"
 
 ${DefineDefaultValue} FX_ENABLED_SEARCH_PLUGINS  "*"
 ${DefineDefaultValue} FX_DISABLED_SEARCH_PLUGINS ""
@@ -338,6 +339,7 @@ Var APP_ALLOW_DOWNGRADE
 Var APP_EULA_DL_FAILED
 Var APP_IS_64BIT
 Var APP_IS_ESR
+Var APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE
 Var APP_PROGRAMFILES
 
 Var PROCESSING_FILE
@@ -1116,6 +1118,14 @@ Section "Install Profiles" InstallProfiles
       ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX" "$DIST_PATH"
     ${EndIf}
 
+    ${ReadINIStrWithDefault} $APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE "${INIPATH}" "${INSTALLER_NAME}" "AppAllowReuseProfileAfterDowngrade" "${APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE}"
+    ${IsTrue} $R0 "$APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE"
+    ${ReadRegStrSafely} $R1 "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "MOZ_ALLOW_DOWNGRADE"
+    ${If} "$R0" == "1"
+    ${AndIf} "$R1" == ""
+      ${WriteRegStrSafely} "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "MOZ_ALLOW_DOWNGRADE" "1"
+      ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "AppAllowReuseProfileAfterDowngrade" "true"
+    ${EndIf}
 SectionEnd
 
 Function "InstallProfileToEachUser"
@@ -2160,6 +2170,11 @@ Section Uninstall
     ${AndIf} ${FileExists} "$BACKUP_PATH\*.*"
       ${LogWithTimestamp} "  DistributonCustomizerBackup: Restore $BACKUP_PATH"
       Rename "$BACKUP_PATH" "$INSTALLED_FILE"
+    ${EndIf}
+
+    ${ReadRegStrSafely} $APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE "${PRODUCT_UNINST_KEY}" "AppAllowReuseProfileAfterDowngrade"
+    ${If} "$APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE" == "true"
+      DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "MOZ_ALLOW_DOWNGRADE"
     ${EndIf}
 
     ; extra registry entries
