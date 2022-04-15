@@ -172,6 +172,7 @@ PRODUCT_WEB_SITEのアンカーテキスト | PRODUCT_WEB_LABEL          |
 正常終了時タイトル                 | FINISH_TITLE               | FinishTitle
 再起動確認メッセージ               | CONFIRM_RESTART_MESSAGE    | ConfirmRestartMessage
 再起動確認タイトル                 | CONFIRM_RESTART_TITLE      | ConfirmRestartTitle
+MSIの実行モード                    | MSI_EXEC_WAIT_MODE         | MSIExecWaitMode
 -----------------------------------+----------------------------+-----------------------------
 Firefox/Thunderbirdのインストールに関する設定
 -----------------------------------+----------------------------+-----------------------------
@@ -335,6 +336,18 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
                              タイトルになる。
 　取り得る値               ：文字列。
   デフォルト値             ：メタインストーラのアプリケーション名。 
+■■MSIの実行モード
+  config.nshでの設定キー   ：MSI_EXEC_WAIT_MODE
+  fainstall.iniでの設定キー：[fainstlal] > MSIExecWaitMode
+　説明                     ：MSI形式のインストーラの実行完了を待つ方法の選択。
+　                           MSI形式のインストーラを複数含めた場合に、2つ目以降の
+　                           インストーラが、他のMSI形式のインストーラのインストーラが
+　                           実行中であるとして停止してしまう場合、この設定を
+　                           切り替えることで現象を回避できる可能性がある。
+　取り得る値               ：0（ExecWaitJobを使用）
+　                           1（ExecWaitを使用）
+　                           2（nsExec::Execを使用）
+  デフォルト値             ：0
 ■■インストール対象のアドオン
   config.nshでの設定キー   ：INSTALL_ADDONS
   fainstall.iniでの設定キー：Addons

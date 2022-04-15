@@ -1750,16 +1750,32 @@ Function "RunMSISilentlyForLocate"
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
+Var MSI_EXEC_WAIT_MODE;
 Function "RunMSISilently"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
     ;       otherwise only the first found file will be installed and others are ignored.
     ${LogWithTimestamp} "RunMSISilently: installing $PROCESSING_FILE"
-    !if ${PRODUCT_INSTALL_MODE} == "QUIET"
-      !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /quiet'
-    !else
-      !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /passive'
-    !endif
+    ${ReadINIStrWithDefault} $MSI_EXEC_WAIT_MODE "${INIPATH}" "${INSTALLER_NAME}" "MSIExecWaitMode" "0"
+    ${If} "$MSI_EXEC_WAIT_MODE" == "0"
+      !if ${PRODUCT_INSTALL_MODE} == "QUIET"
+        !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /quiet'
+      !else
+        !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /passive'
+      !endif
+    ${ElseIf} "$MSI_EXEC_WAIT_MODE" == "1"
+      !if ${PRODUCT_INSTALL_MODE} == "QUIET"
+        ExecWait '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /quiet'
+      !else
+        ExecWait '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /passive'
+      !endif
+    ${Else}
+      !if ${PRODUCT_INSTALL_MODE} == "QUIET"
+        nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /quiet'
+      !else
+        nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /passive'
+      !endif
+    ${EndIf}
     ${LogWithTimestamp} "  $PROCESSING_FILE is successfully executed"
 FunctionEnd
 
