@@ -1750,7 +1750,7 @@ Function "RunMSISilentlyForLocate"
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
-Var MSI_EXEC_WAIT_MODE;
+Var MSI_EXEC_WAIT_MODE
 Function "RunMSISilently"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
