@@ -1767,7 +1767,6 @@ Function "RunMSISilently"
     ${ReadINIStrWithDefault} $MSI_EXEC_LOGGING "${INIPATH}" "${INSTALLER_NAME}" "MSIExecLogging" "${MSI_EXEC_LOGGING}"
     ${IsTrue} $R0 "$MSI_EXEC_LOGGING"
     ${If} "$R0" == "1"
-      StrCpy $MSI_EXEC_LOG_PATH ""
       StrCpy $MSI_EXEC_LOG_PARAM '/l*v "$INSTDIR\$PROCESSING_FILE.log"'
     ${EndIf}
 
