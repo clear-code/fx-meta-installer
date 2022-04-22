@@ -173,6 +173,7 @@ PRODUCT_WEB_SITEのアンカーテキスト | PRODUCT_WEB_LABEL          |
 再起動確認メッセージ               | CONFIRM_RESTART_MESSAGE    | ConfirmRestartMessage
 再起動確認タイトル                 | CONFIRM_RESTART_TITLE      | ConfirmRestartTitle
 MSIの実行モード                    | MSI_EXEC_WAIT_MODE         | MSIExecWaitMode
+MSIのログ出力                      | MSI_EXEC_LOGGING           | MSIExecLogging
 -----------------------------------+----------------------------+-----------------------------
 Firefox/Thunderbirdのインストールに関する設定
 -----------------------------------+----------------------------+-----------------------------
@@ -348,6 +349,14 @@ Firefoxで無効化する検索エンジン    | FX_DISABLED_SEARCH_PLUGINS | Fx
 　                           1（ExecWaitを使用）
 　                           2（nsExec::Execを使用）
   デフォルト値             ：0
+■■MSIのログ出力
+  config.nshでの設定キー   ：MSI_EXEC_Logging
+  fainstall.iniでの設定キー：[fainstlal] > MSIExecLogging
+　説明                     ：MSI形式のインストーラの実行時に、fainstall.logと同じ位置に
+　                           詳細なログを出力するかどうか。
+　取り得る値               ：true（ログを出力する）
+　                           false（ログを出力しない）
+  デフォルト値             ：false
 ■■インストール対象のアドオン
   config.nshでの設定キー   ：INSTALL_ADDONS
   fainstall.iniでの設定キー：Addons

@@ -172,6 +172,9 @@ ${DefineDefaultValue} FINISH_TITLE            ""
 ${DefineDefaultValue} CONFIRM_RESTART_MESSAGE ""
 ${DefineDefaultValue} CONFIRM_RESTART_TITLE   ""
 
+${DefineDefaultValue} MSI_EXEC_WAIT_MODE "0"
+${DefineDefaultValue} MSI_EXEC_LOGGING   "false"
+
 
 !ifndef APP_EXE
 !if ${APP_NAME} == "Firefox"
@@ -1751,29 +1754,40 @@ Function "RunMSISilentlyForLocate"
 FunctionEnd
 
 Var MSI_EXEC_WAIT_MODE
+Var MSI_EXEC_LOGGING
+Var MSI_EXEC_LOG_PARAM
 Function "RunMSISilently"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
     ;       otherwise only the first found file will be installed and others are ignored.
     ${LogWithTimestamp} "RunMSISilently: installing $PROCESSING_FILE"
-    ${ReadINIStrWithDefault} $MSI_EXEC_WAIT_MODE "${INIPATH}" "${INSTALLER_NAME}" "MSIExecWaitMode" "0"
+    ${ReadINIStrWithDefault} $MSI_EXEC_WAIT_MODE "${INIPATH}" "${INSTALLER_NAME}" "MSIExecWaitMode" "${MSI_EXEC_WAIT_MODE}"
+
+    StrCpy $MSI_EXEC_LOG_PARAM ""
+    ${ReadINIStrWithDefault} $MSI_EXEC_LOGGING "${INIPATH}" "${INSTALLER_NAME}" "MSIExecLogging" "${MSI_EXEC_LOGGING}"
+    ${IsTrue} $R0 "$MSI_EXEC_LOGGING"
+    ${If} "$R0" == "1"
+      StrCpy $MSI_EXEC_LOG_PATH ""
+      StrCpy $MSI_EXEC_LOG_PARAM '/l*v "$INSTDIR\$PROCESSING_FILE.log"'
+    ${EndIf}
+
     ${If} "$MSI_EXEC_WAIT_MODE" == "0"
       !if ${PRODUCT_INSTALL_MODE} == "QUIET"
-        !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /quiet'
+        !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /quiet'
       !else
-        !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /passive'
+        !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /passive'
       !endif
     ${ElseIf} "$MSI_EXEC_WAIT_MODE" == "1"
       !if ${PRODUCT_INSTALL_MODE} == "QUIET"
-        ExecWait '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /quiet'
+        ExecWait '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /quiet'
       !else
-        ExecWait '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /passive'
+        ExecWait '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /passive'
       !endif
     ${Else}
       !if ${PRODUCT_INSTALL_MODE} == "QUIET"
-        nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /quiet'
+        nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /quiet'
       !else
-        nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" /passive'
+        nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /passive'
       !endif
     ${EndIf}
     ${LogWithTimestamp} "  $PROCESSING_FILE is successfully executed"
