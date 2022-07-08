@@ -39,14 +39,43 @@ environments at first.
 
 #### Windows
 
- 1. Download the installer v2.x and instlal it.
+ 1. Setup [MSYS2](https://www.msys2.org/) environment and install additional software. 
+
+    For example:
+
+        $ pacman -Syu
+        $ pacman -S git gcc make zip
+        $ wget https://ja.osdn.net/projects/nkf/downloads/70406/nkf-2.1.5.tar.gz
+        $ tar xf nkf-2.1.5.tar.gz
+        $ cd nkf-2.1.5
+        $ make install
+
+ 2. Download the installer v2.x and instlal it.
     See [NSIS wiki](http://nsis.sourceforge.net/Main_Page).
     (If you want to debug Fx Meta Installer with detailed logs, you should use
     the "advanced logging" build of the NSIS.
     See [Special Builds](http://nsis.sourceforge.net/Special_Builds).)
- 2. Install plugins. Download zip files, decompress them,
+ 3. Install plugins. Download zip files, decompress them,
     move "*.dll" files to "c:\Program Files\NSIS\Plugins\", and
     move "*.nsh" files to "c:\Program Files\NSIS\Include\".
+    NOTE that NSIS 2.x is 32 bit program, so you need to 32 bit plugins.
+    
+    For example:
+
+        $ cp AccessControl/Plugins/i386-unicode/AccessControl.dll /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+        $ cp CustomLicense/Plugins/Unicode/CustomLicense.dll /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+        $ cp FindProc/FindProcDLL.dll /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+        $ cp Inetc/Plugins/x86-unicode/INetC.dll /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+        $ cp LogEx/Plugins/Unicode/LogEx.dll /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+        $ cp Md5dll/UNICODE/md5dll.dll /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+        $ cp NSISArray/Unicode/Plugins/NSISArray.dll /c/Program\ Files\\)/NSIS/Include/
+        $ cp NSISArray/Include/NSISArray.nsh /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+        $ cp UAC/Plugins/x86-unicode/UAC.dll /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+        $ cp UserMgr/UserMgr.dll /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+        $ cp Xml/Include/XML.nsh /c/Program\ Files\ \(x86\)/NSIS/Include/
+        $ cp Xml/Plugin/xml.dll /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+        $ cp ZipDLL/ZipDLL.dll /c/Program\ Files\ \(x86\)/NSIS/Plugins/
+
 
 #### Linux (Debian, Ubuntu)
 
