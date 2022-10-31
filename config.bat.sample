@@ -3,7 +3,7 @@ rem This file must be encoded in Shift_JIS
 
 rem ====================== CUSTOMIZABLE SECTION =======================
 
-set NSIS_PATH=C:\Program Files\NSIS
+set NSIS_PATH=C:\Program Files (x86)\NSIS
 set SIGNTOOL_PATH=C:\Program Files\Microsoft Platform SDK\Bin
 
 set SIGN_PFX=C:\Documents and Settings\All Users\Documents\ms_authenticode_cert.pfx
