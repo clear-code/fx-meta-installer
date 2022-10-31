@@ -9,7 +9,7 @@
 !define PRODUCT_YEAR         "2012"
 !define PRODUCT_PUBLISHER    "ClearCode Inc."
 !define PRODUCT_DOMAIN       "clear-code.com"
-!define PRODUCT_WEB_SITE     "http://www.clear-code.com/"
+!define PRODUCT_WEB_SITE     "https://www.clear-code.com/"
 !define PRODUCT_WEB_LABEL    "Go to Clear Code Inc."
 !define PRODUCT_LANGUAGE     "Japanese"
 
