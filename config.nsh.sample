@@ -6,7 +6,7 @@
 !define PRODUCT_FULL_NAME    "Fx Meta Installer"
 !define PRODUCT_NAME         "FxMetaInstaller"
 !define PRODUCT_VERSION      "0.0.0.0"
-!define PRODUCT_YEAR         "2012"
+!define PRODUCT_YEAR         "2022"
 !define PRODUCT_PUBLISHER    "ClearCode Inc."
 !define PRODUCT_DOMAIN       "clear-code.com"
 !define PRODUCT_WEB_SITE     "https://www.clear-code.com/"
