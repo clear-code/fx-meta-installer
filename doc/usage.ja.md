@@ -38,50 +38,49 @@ resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向
 
 ## それ以外のファイルの自動配置
 
-・resourcesフォルダ内に特定の名前のファイルを置くと、所定の位置に自動的に
-　インストールされる。
-  ・*.js, *.jsc   ：初期設定ファイルとして、%AppDir%\defaults\pref\ に
+* resourcesフォルダ内に特定の名前のファイルを置くと、所定の位置に自動的にインストールされる。
+  * *.js, *.jsc   ：初期設定ファイルとして、%AppDir%\defaults\pref\ に
                     インストールされる。
-  ・*.cfg         ：AutoConfigファイルとして、%AppDir%\ にインストールされる。
-  ・override.ini  ：%AppDir%\ にインストールされる。
+  * *.cfg         ：AutoConfigファイルとして、%AppDir%\ にインストールされる。
+  * override.ini  ：%AppDir%\ にインストールされる。
                     （Firefoxの場合は %AppDir%\browser にもインストールされる。）
-  ・*.properties  ：%AppDir%\ にインストールされる。（*.jsなどからの参照用）
-  ・distribution.ini, policies.json
+  * *.properties  ：%AppDir%\ にインストールされる。（*.jsなどからの参照用）
+  * distribution.ini, policies.json
                   ：%AppDir%\distribution\ にインストールされる。
-  ・bookmarks.html：新規プロファイルの初期ブックマークの内容として
+  * bookmarks.html：新規プロファイルの初期ブックマークの内容として
                     %AppDir%\defaults\profile\ および
                     %AppDir%\browser\defaults\profile\ にインストールされる。
-  ・*.rdf         ：新規プロファイルの初期設定として
+  * *.rdf         ：新規プロファイルの初期設定として
                     %AppDir%\defaults\profile\ および
                     %AppDir%\browser\defaults\profile\ にインストールされる。
-  ・*.xml         ：ThunderbirdのAutoConfiguration用設定ファイルとして
+  * *.xml         ：ThunderbirdのAutoConfiguration用設定ファイルとして
                     %AppDir%\isp\ にインストールされる。
-  ・*.jar         ：Mozillaアプリケーションの追加モジュールとして、
+  * *.jar         ：Mozillaアプリケーションの追加モジュールとして、
                     %AppDir%\chrome\ にインストールされる。
-  ・*.manifest    ：Mozillaアプリケーションの追加モジュールの定義ファイルとして、
+  * *.manifest    ：Mozillaアプリケーションの追加モジュールの定義ファイルとして、
                     %AppDir%\chrome\ にインストールされる。
-  ・*.css         ：%AppDir%\chrome\ にインストールされる。（globalChrome.css用）
-  ・*.ico         ：%AppDir%\chrome\icons\default\ および
+  * *.css         ：%AppDir%\chrome\ にインストールされる。（globalChrome.css用）
+  * *.ico         ：%AppDir%\chrome\icons\default\ および
                     %AppDir%\browser\chrome\icons\default\main-window.ico
                     にインストールされる。
-  ・*.cer, *.pem, *.crt, *.der,
+  * *.cer, *.pem, *.crt, *.der,
     *.cer.override, *.pem.override, *.crt.override, *.der.override
                   ：%AppDir%\defaults\ にインストールされる。（certimporter用）
-  ・*.permissions ：%AppDir%\defaults\ にインストールされる。
-  ・*.xpt         ：%AppDir%\components\ にインストールされる。
-  ・*.dll         ：%AppDir%\plugins\ にインストールされる。
+  * *.permissions ：%AppDir%\defaults\ にインストールされる。
+  * *.xpt         ：%AppDir%\components\ にインストールされる。
+  * *.dll         ：%AppDir%\plugins\ にインストールされる。
                     （Firefoxの場合は %AppDir%\browser\plugins にも
                       インストールされる。）
-  ・*.lnk         ：デスクトップ上にインストールされる。
-  ・*.reg         ：内容がそのまま実行環境のレジストリにインポートされる。
-  ・*.msi         ：配置はされず、サイレントインストールの形で実行される。
-・これら以外の形式のファイルを配置するには、「ExtraFiles」での指定が必要。
+  * *.lnk         ：デスクトップ上にインストールされる。
+  * *.reg         ：内容がそのまま実行環境のレジストリにインポートされる。
+  * *.msi         ：配置はされず、サイレントインストールの形で実行される。
+* これら以外の形式のファイルを配置するには、「ExtraFiles」での指定が必要。
 
 ただし、fainstall.iniにおいて、ファイル名に対応するセクションを定義することで、
 ファイルのインストール先をカスタマイズすることができる。
 各[ファイル名]セクションでは以下のキーを指定できる。
 
-TargetLocation：（省略可能）
+* TargetLocation：（省略可能）
   ファイルのインストール先フォルダのパス。以下のプレースホルダを使用可能。
     %AppDir%  : Firefoxのインストール先フォルダ
     %AppData% : Windowsのアプリケーション情報保存先フォルダ
@@ -93,12 +92,14 @@ TargetLocation：（省略可能）
 「\defaults\profile\quicktext\」以下に置きたいのであれば、
 以下のように設定する。
 
-  [templates.xml]
-  TargetLocation=%AppDir%\defaults\profile\quicktext\
+```
+[templates.xml]
+TargetLocation=%AppDir%\defaults\profile\quicktext\
+```
 
 ## ビルド方法
 
-README.mdを参照。
+[README.md](../README.md)を参照。
 
 ### 環境設定
 
