@@ -965,7 +965,7 @@ fainstall.iniの[fainstall]セクションのShortcutsにパイプ（|）区切�
 
 例えば、All Users（パブリック）のデスクトップ上にFirefoxのプロファイルマネージャを
 起動するショートカットを作成する場合は、以下の通り記述する。
-（※非ASCII文字を使う場合、ファイルの文字エンコーディングはShift_JISで保存する必要がある。）
+（※非ASCII文字を使う場合、ファイルの文字エンコーディングはShift_JISもしくはUTF-8で保存する必要がある。）
 
 ```
 [fainstall]
@@ -978,6 +978,9 @@ Options=-p
 TargetUser=all
 TargetLocation=%Desktop%
 ```
+
+> **Warning**
+> UTF-8の場合BOMつきだとメタインストーラーがFirefox-setup.iniやfainstall.iniの設定をただしく読み込めず、指定通りにショートカットが作成されない。
 
 ### Firefoxをコンピュータの既定のブラウザに設定する/設定しない
 
