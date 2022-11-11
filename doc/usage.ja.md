@@ -18,18 +18,13 @@
 
 ## Mozillaアプリケーションの自動インストールの概要
 
-・Mozillaアプリケーションについて、インストールされていない、またはインストー
-　ル済みのバージョンが指定バージョンよりも古い場合、指定バージョンのMozilla
-　アプリケーションを自動的にインストールする。
-・Mozillaアプリケーションの自動インストールに使用するインストーラは、以下の
-　いずれかの方法で提供できる。
-　1. パッケージにインストーラを含める。
-　2. 任意のパスに置いたファイルを利用する。
-　3. Web上の任意のダウンロードURIから自動的にダウンロードさせる。
-・クラッシュ報告機能の有効・無効、初期状態で無効にする検索プラグインを指定で
-　きる。
-・Mozillaアプリケーションのサイレントインストール時の挙動をINIファイルで
-　指定できる。
+* Mozillaアプリケーションについて、インストールされていない、またはインストール済みのバージョンが指定バージョンよりも古い場合、指定バージョンのMozillaアプリケーションを自動的にインストールする。
+* Mozillaアプリケーションの自動インストールに使用するインストーラは、以下のいずれかの方法で提供できる。
+  * 1. パッケージにインストーラを含める。
+  * 2. 任意のパスに置いたファイルを利用する。
+  * 3. Web上の任意のダウンロードURIから自動的にダウンロードさせる。
+* クラッシュ報告機能の有効・無効、初期状態で無効にする検索プラグインを指定できる。
+* Mozillaアプリケーションのサイレントインストール時の挙動をINIファイルで指定できる。
 
 ## アドオンのインストールの概要
 
@@ -819,29 +814,29 @@ fainstall.iniにおいて、XPIファイル名に対応するセクションを�
 アドオンのインストール先などの詳細をカスタマイズすることができる。
 各[XPIファイル名]セクションでは以下のキーを指定できる。
 
-AddonId：（省略可能）
+* AddonId：（省略可能）
   アドオンの内部ID。アドオンのインストール先フォルダに、このID文字列の
   名前でフォルダが作成され、その中にXPIファイルの内容が展開される。
   省略時は
   「<アドオンのファイル名から拡張子を除いた部分>@<PRODUCT_DOMAINの値>」
   として扱われる。
   正しい内部IDを指定ないとアドオンのアンインストールに失敗するので注意。
-TargetLocation：（省略可能）
-  アドオンのインストール先フォルダのパス。以下のプレースホルダを使用可能。
-    %AppDir%  : Firefoxのインストール先フォルダ
-    %AppData% : Windowsのアプリケーション情報保存先フォルダ
+* TargetLocation：（省略可能）
+  * アドオンのインストール先フォルダのパス。以下のプレースホルダを使用可能。
+    * %AppDir%  : Firefoxのインストール先フォルダ
+    * %AppData% : Windowsのアプリケーション情報保存先フォルダ
                 （C:\Users\<username>\AppData\Roaming など）
-    %Home%    : ユーザのホーム（C:\Users\<username> など）
-  省略時は、Firefox 10よりも前のバージョンでは「%AppDir%\extensions」、
+    * %Home%    : ユーザのホーム（C:\Users\<username> など）
+  * 省略時は、Firefox 10よりも前のバージョンでは「%AppDir%\extensions」、
   Firefox 10以降のバージョンでは「%AppDir%\distribution\bundles」として
   扱われる。
-Uninstall：（省略可能）
-  メタインストーラのアンインストール時にアドオンをアンインストールするかどうか。
+* Uninstall：（省略可能）
+  * メタインストーラのアンインストール時にアドオンをアンインストールするかどうか。
   trueを指定すると、アドオンもアンインストールする。
   falseを指定すると、アドオンはそのまま残る。
   省略時はtrue。
-Overwrite：（省略可能）
-  すでに前のバージョンのアドオンがインストールされている場合に、古いファイルに
+* Overwrite：（省略可能）
+  * すでに前のバージョンのアドオンがインストールされている場合に、古いファイルに
   新しいファイルを上書きするかどうか。
   trueを指定すると、ファイルを上書きする。
   falseを指定すると、既存のファイルをそのまま使う（新しいファイルは使用されない）。
@@ -923,44 +918,44 @@ fainstall.iniの[fainstall]セクションのShortcutsにパイプ（|）区切�
 
 * Name：ショートカット名
 * Path：
-  ショートカットのリンク先実行ファイルのパス。以下のプレースホルダを使用可能。
-    %AppDir%  : Firefoxのインストール先フォルダ
-    %AppData% : Windowsのアプリケーション情報保存先フォルダ
+  * ショートカットのリンク先実行ファイルのパス。以下のプレースホルダを使用可能。
+    * %AppDir%  : Firefoxのインストール先フォルダ
+    * %AppData% : Windowsのアプリケーション情報保存先フォルダ
                 （C:\Users\<username>\AppData\Roaming など）
-    %Home%    : ユーザのホーム（C:\Users\<username> など）
+    * %Home%    : ユーザのホーム（C:\Users\<username> など）
 * Options：（省略可能）
-  追加の起動オプション。以下のプレースホルダを使用可能。
-    %AppDir%    : Firefoxのインストール先フォルダ
-    %Home%      : ユーザのホーム（C:\Users\<username> など）
-    %Desktop%   : デスクトップ（C:\Users\<username>\Desktop など）
-    %StartMenu% : スタートメニュー直下
-    %Programs%  : スタートメニュー内の「すべてのプログラム」
-    %StartUp%   : スタートメニュー内の「スタートアップ」
+  * 追加の起動オプション。以下のプレースホルダを使用可能。
+    * %AppDir%    : Firefoxのインストール先フォルダ
+    * %Home%      : ユーザのホーム（C:\Users\<username> など）
+    * %Desktop%   : デスクトップ（C:\Users\<username>\Desktop など）
+    * %StartMenu% : スタートメニュー直下
+    * %Programs%  : スタートメニュー内の「すべてのプログラム」
+    * %StartUp%   : スタートメニュー内の「スタートアップ」
 * IconPath：（省略可能）
-  ショートカットのアイコンファイルのパス。
-  省略時はPath（リンク先実行ファイルのパス）と同じ値が指定されたものとして扱う。
-  以下のプレースホルダを使用可能。
-    %AppDir%  : Firefoxのインストール先フォルダ
-    %AppData% : Windowsのアプリケーション情報保存先フォルダ
+  * ショートカットのアイコンファイルのパス。
+  * 省略時はPath（リンク先実行ファイルのパス）と同じ値が指定されたものとして扱う。
+  * 以下のプレースホルダを使用可能。
+    * %AppDir%  : Firefoxのインストール先フォルダ
+    * %AppData% : Windowsのアプリケーション情報保存先フォルダ
                 （C:\Users\<username>\AppData\Roaming など）
-    %Home%    : ユーザのホーム（C:\Users\<username> など）
+    * %Home%    : ユーザのホーム（C:\Users\<username> など）
 * IconIndex：（省略可能）
   Pathで示されたファイルにアイコンが複数含まれている場合に、ショートカットの
   アイコンとして使うアイコンの番号を示す。
 * TargetUser：（省略可能）
-  ショートカットの作成先ユーザ。以下のいずれかを指定可能。
-    current : 現在のユーザ
-    all     : All Users（パブリック）
+  * ショートカットの作成先ユーザ。以下のいずれかを指定可能。
+    * current : 現在のユーザ
+    * all     : All Users（パブリック）
 * TargetLocation：（省略可能）
-  ショートカットの作成先フォルダのパス。以下のプレースホルダを使用可能。
-    %AppDir%    : Firefoxのインストール先フォルダ
-    %AppData%   : Windowsのアプリケーション情報保存先フォルダ
+  * ショートカットの作成先フォルダのパス。以下のプレースホルダを使用可能。
+    * %AppDir%    : Firefoxのインストール先フォルダ
+    * %AppData%   : Windowsのアプリケーション情報保存先フォルダ
                   （C:\Users\<username>\AppData\Roaming など）
-    %Home%      : ユーザのホーム（C:\Users\<username> など）
-    %Desktop%   : デスクトップ（C:\Users\<username>\Desktop など）
-    %StartMenu% : スタートメニュー直下
-    %Programs%  : スタートメニュー内の「すべてのプログラム」
-    %StartUp%   : スタートメニュー内の「スタートアップ」
+    * %Home%      : ユーザのホーム（C:\Users\<username> など）
+    * %Desktop%   : デスクトップ（C:\Users\<username>\Desktop など）
+    * %StartMenu% : スタートメニュー直下
+    * %Programs%  : スタートメニュー内の「すべてのプログラム」
+    * %StartUp%   : スタートメニュー内の「スタートアップ」
   省略時は「%Desktop%」として扱われる。
 
 例えば、All Users（パブリック）のデスクトップ上にFirefoxのプロファイルマネージャを
@@ -991,14 +986,12 @@ TargetLocation=%Desktop%
 
  * 現在のブラウザをそのままコンピュータの既定のブラウザとして使い続ける場合：
    設定を削除する、または値を空にする。
- * Firefoxをコンピュータの既定のブラウザに設定する場合：
-   設定値を「StartMenuInternet\FIREFOX.EXE」にする。
- * それ以外のブラウザをコンピュータの既定のブラウザに設定する場合：
-   設定値を以下の通り設定する。
-   Internet Explorer：StartMenuInternet\IEXPLORE.EXE
-   Opera            ：StartMenuInternet\Opera.exe
-   Google Chrome    ：StartMenuInternet\Google Chrome
-   Thunderbird      ：Mail\Mozilla Thunderbird
+ * Firefoxをコンピュータの既定のブラウザに設定する場合： 設定値を「StartMenuInternet\FIREFOX.EXE」にする。
+ * それ以外のブラウザをコンピュータの既定のブラウザに設定する場合： 設定値を以下の通り設定する。
+   * Internet Explorer：StartMenuInternet\IEXPLORE.EXE
+   * Opera            ：StartMenuInternet\Opera.exe
+   * Google Chrome    ：StartMenuInternet\Google Chrome
+   * Thunderbird      ：Mail\Mozilla Thunderbird
 
 ### 「プログラムのアクセスと既定の設定」の変更
 
