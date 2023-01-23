@@ -147,6 +147,7 @@ ${DefineDefaultValue} APP_IS_64BIT      "false"
 ${DefineDefaultValue} APP_IS_ESR        "false"
 ${DefineDefaultValue} APP_CLEANUP_DIRS ""
 ${DefineDefaultValue} APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE "false"
+${DefineDefaultValue} APP_USE_ACTUAL_INSTALL_DIR "false"
 
 ${DefineDefaultValue} FX_ENABLED_SEARCH_PLUGINS  "*"
 ${DefineDefaultValue} FX_DISABLED_SEARCH_PLUGINS ""
@@ -344,6 +345,7 @@ Var APP_IS_64BIT
 Var APP_IS_ESR
 Var APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE
 Var APP_PROGRAMFILES
+Var APP_USE_ACTUAL_INSTALL_DIR
 
 Var PROCESSING_FILE
 Var RES_DIR
@@ -2594,7 +2596,14 @@ Function GetAppPath
 
   !endif
 
+    ${ReadINIStrWithDefault} $APP_USE_ACTUAL_INSTALL_DIR "${INIPATH}" "${INSTALLER_NAME}" "AppUseActualInstallDir" "${APP_USE_ACTUAL_INSTALL_DIR}"
+    ${If} "$APP_USE_ACTUAL_INSTALL_DIR" == "1"
+    ${OrIf} "$APP_USE_ACTUAL_INSTALL_DIR" == "yes"
+      StrCpy $APP_USE_ACTUAL_INSTALL_DIR "true"
+    ${EndIf}
+
     ${If} ${FileExists} "$APP_INSTALLER_INI"
+    ${AndIf} "$APP_USE_ACTUAL_INSTALL_DIR" != "true"
       ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"
       ${LogWithTimestamp} "  InstallDirectoryName: $INI_TEMP"
       ReadINIStr $INI_TEMP2 "$APP_INSTALLER_INI" "Install" "InstallDirectoryPath"
