@@ -800,7 +800,9 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
     !else
 
         ${LogWithTimestamp} "  Let's run installer"
-        ${If} ${FileExists} "$APP_INSTALLER_INI"
+        ${If} ${FileExists} "$APP_INSTALLER_INI.actual_install_dir"
+          ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI.actual_install_dir"'
+        ${ElseIf} ${FileExists} "$APP_INSTALLER_INI"
           ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
         ${Else}
           !if ${APP_INSTALL_MODE} == "QUIET"
@@ -2633,8 +2635,15 @@ Function GetAppPath
       StrCpy $APP_USE_ACTUAL_INSTALL_DIR "true"
     ${EndIf}
 
-    ${If} ${FileExists} "$APP_INSTALLER_INI"
-    ${AndIf} "$APP_USE_ACTUAL_INSTALL_DIR" != "true"
+    ${If} "$APP_USE_ACTUAL_INSTALL_DIR" == "true"
+      ${LogWithTimestamp} "  Preparing $APP_INSTALLER_INI.actual_install_dir with actually insalled path: $APP_DIR"
+      ${If} ${FileExists} "$APP_INSTALLER_INI"
+        CopyFiles "$APP_INSTALLER_INI" "$APP_INSTALLER_INI.actual_install_dir"
+      ${EndIf}
+      WriteINIStr "$APP_INSTALLER_INI.actual_install_dir" "Install" "InstallDirectoryName" ""
+      WriteINIStr "$APP_INSTALLER_INI.actual_install_dir" "Install" "InstallDirectoryPath" "$APP_DIR"
+    ${ElseIf} ${FileExists} "$APP_INSTALLER_INI"
+      ${LogWithTimestamp} "  Using given $APP_INSTALLER_INI"
       ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"
       ${LogWithTimestamp} "  InstallDirectoryName: $INI_TEMP"
       ReadINIStr $INI_TEMP2 "$APP_INSTALLER_INI" "Install" "InstallDirectoryPath"
