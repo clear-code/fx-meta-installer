@@ -2569,7 +2569,6 @@ FunctionEnd
         SetRegView 32
       ${EndIf}
     ${EndIf}
-    ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
     ;MessageBox MB_OK|MB_ICONEXCLAMATION "APP_IS_64BIT = $APP_IS_64BIT / APP_REG_KEY = $APP_REG_KEY / APP_VERSION = $APP_VERSION" /SD IDOK
   FunctionEnd
 !macroend
