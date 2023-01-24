@@ -801,13 +801,17 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
         ${LogWithTimestamp} "  Let's run installer"
         ${If} ${FileExists} "$APP_INSTALLER_INI.actual_install_dir"
+          ${LogWithTimestamp} "  with $APP_INSTALLER_INI.actual_install_dir"
           ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI.actual_install_dir"'
         ${ElseIf} ${FileExists} "$APP_INSTALLER_INI"
+          ${LogWithTimestamp} "  with $APP_INSTALLER_INI"
           ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
         ${Else}
           !if ${APP_INSTALL_MODE} == "QUIET"
+            ${LogWithTimestamp} "  with ${SILENT_INSTALL_OPTIONS}"
             ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
           !else
+            ${LogWithTimestamp} "  with no option"
             ExecWait '$APP_INSTALLER_FINAL_PATH'
           !endif
         ${EndIf}
