@@ -2551,14 +2551,12 @@ FunctionEnd
       ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
       SetRegView 32
       ${If} "$APP_VERSION" == ""
-      ${Then}
         ${LogWithTimestamp} "  APP_VERSION: 64bit version not found, fallback to 32bit version"
         ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
       ${EndIf}
     ${Else}
       ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
       ${If} "$APP_VERSION" == ""
-      ${Then}
         ${LogWithTimestamp} "  APP_VERSION: 32bit version not found, fallback to 64bit version"
         SetRegView 64
         ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
@@ -2589,14 +2587,12 @@ Function GetAppPath
       ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
       SetRegView 32
       ${If} "$APP_EXE_PATH" == ""
-      ${Then}
         ${LogWithTimestamp} "  APP_EXE_PATH: 64bit version not found, fallback to 32bit version"
         ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
       ${EndIf}
     ${Else}
       ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
       ${If} "$APP_EXE_PATH" == ""
-      ${Then}
         ${LogWithTimestamp} "  APP_EXE_PATH: 32bit version not found, fallback to 64bit version"
         SetRegView 64
         ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
@@ -2613,14 +2609,12 @@ Function GetAppPath
       ${ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
       SetRegView 32
       ${If} "$APP_DIR" == ""
-      ${Then}
         ${LogWithTimestamp} "  APP_DIR: 64bit version not found, fallback to 32bit version"
         ${ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
       ${EndIf}
     ${Else}
       ${ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
       ${If} "$APP_DIR" == ""
-      ${Then}
         ${LogWithTimestamp} "  APP_DIR: 32bit version not found, fallback to 64bit version"
         SetRegView 64
         ${ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
