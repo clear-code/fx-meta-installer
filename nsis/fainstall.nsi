@@ -2548,12 +2548,25 @@ FunctionEnd
     Call ${un}GetCurrentAppRegKey
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 64
+      ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
+      SetRegView 32
+      ${If} "$APP_VERSION" == ""
+      ${Then}
+        ${LogWithTimestamp} "  APP_VERSION: 64bit version not found, fallback to 32bit version"
+        ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
+      ${EndIf}
+    ${Else}
+      ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
+      ${If} "$APP_VERSION" == ""
+      ${Then}
+        ${LogWithTimestamp} "  APP_VERSION: 32bit version not found, fallback to 64bit version"
+        SetRegView 64
+        ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
+        SetRegView 32
+      ${EndIf}
     ${EndIf}
     ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
     ;MessageBox MB_OK|MB_ICONEXCLAMATION "APP_IS_64BIT = $APP_IS_64BIT / APP_REG_KEY = $APP_REG_KEY / APP_VERSION = $APP_VERSION" /SD IDOK
-    ${If} "$APP_IS_64BIT" == "true"
-      SetRegView 32
-    ${EndIf}
   FunctionEnd
 !macroend
 !insertmacro GetCurrentAppVersion ""
@@ -2563,7 +2576,7 @@ Function GetAppPath
     ${LogWithTimestamp} "GetAppPath"
     ${IfThen} "$APP_INSTALLED" != "1" ${|} StrCpy $APP_INSTALLED "0" ${|}
 
-    ${LogWithTimestamp} "  Application installed"
+    ${LogWithTimestamp} "  Checking application installed path"
 
   !if ${APP_INSTALL_MODE} != "EXTRACT"
 
