@@ -5,7 +5,7 @@ set -e
 
 URI="
 https://nsis.sourceforge.io/mediawiki/images/3/3c/FindProc.zip
-https://nsis.sourceforge.io/mediawiki/images/c/c9/Inetc.zip
+https://github.com/DigitalMediaServer/NSIS-INetC-plugin/releases/download/v1.0.5.7/InetC.zip
 https://nsis.sourceforge.io/mediawiki/images/d/d9/ZipDLL.zip
 https://nsis.sourceforge.io/mediawiki/images/b/b3/CustomLicense.zip
 https://nsis.sourceforge.io/mediawiki/images/5/55/Xml.zip
