@@ -100,18 +100,15 @@ FunctionEnd
   StrCpy $R8 $R0
   # dump them into an array object
   StrCpy $9 0
-  NSISArray::New ${USER_ARRAY_NAME} 5 ${NSIS_MAX_STRLEN}
   ${Index}-loop:
     StrCmp $9 $R2 ${Index}-stop +1
     System::Call "*$R0(w.R9)"
-    NSISArray::Write ${USER_ARRAY_NAME} $9 "$R9"
+    nsArray::Set ${USER_ARRAY_NAME} "$R9"
     IntOp $R0 $R0 + 4
     IntOp $9 $9 + 1
     Goto ${Index}-loop
   ${Index}-stop:
-  NSISArray::SizeOf ${USER_ARRAY_NAME}
-  Pop $0
-  Pop $0
+  nsArray::Length ${USER_ARRAY_NAME}
   Pop $0
   StrCmp $0 $R2 +2 +1
     MessageBox MB_OK|MB_ICONEXCLAMATION 'Could not place all the user accounts into an array!'
@@ -1139,14 +1136,13 @@ Function "InstallProfileToEachUser"
     !insertmacro GetServerName $0
     !insertmacro EnumerateUsers "$0" "LocalUsers"
     ${While} 1 == 1
-      NSISArray::SizeOf LocalUsers
-      Pop $0
-      Pop $0
+      nsArray::Length LocalUsers
       Pop $0
       ${LogWithTimestamp} "  Rest users count: $0"
       ${IfThen} "$0" == "0" ${|} ${Break} ${|}
 
-      NSISArray::Pop LocalUsers
+      nsArray::Iterate LocalUsers
+      Pop $1
       Pop $USERNAME
       ${LogWithTimestamp} "  Local User: $USERNAME"
 
@@ -1171,7 +1167,7 @@ Function "InstallProfileToEachUser"
       Call ResolveItemLocation
       Call InstallProfile
     ${EndWhile}
-    NSISArray::Delete LocalUsers
+    nsArray::Clear LocalUsers
 
     StrCpy $USERNAME "Default"
     StrCpy $ITEM_LOCATION "$ITEM_LOCATION_BACKUP"
