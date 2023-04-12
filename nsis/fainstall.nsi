@@ -24,7 +24,7 @@ ${UnStrStrAdv} ; activate macro for uninstallation
 !include "timestamp.nsh"
 !include "ExecWaitJob.nsh"
 !include "x64.nsh"
-!include NSISArray.nsh
+!include NsArray.nsh
 
 ;== Definition of utilities
 !define DefineDefaultValue "!insertmacro DefineDefaultValue"

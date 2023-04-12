@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2017-2018 ClearCode Inc.
+# Copyright (C) 2017-2023 ClearCode Inc.
 
 set -e
 
@@ -14,7 +14,7 @@ https://nsis.sourceforge.io/mediawiki/images/8/8f/UAC.zip
 https://nsis.sourceforge.io/mediawiki/images/4/4a/AccessControl.zip
 https://nsis.sourceforge.io/mediawiki/images/0/08/UserMgr.zip
 https://nsis.sourceforge.io/mediawiki/images/d/d1/LogEx.zip
-https://nsis.sourceforge.io/mediawiki/images/4/44/NSISArray.zip
+https://nsis.sourceforge.io/mediawiki/images/9/97/NsArray.zip
 "
 
 mkdir -p plugins
