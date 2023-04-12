@@ -29,8 +29,10 @@ if [ "$1" = "install" ]; then
     cd plugins
     ls *.zip | sed -e 's/\.zip$//' | xargs -I{} unzip -u {}.zip -d {}
     find . -name "*.dll" | grep -E -v -i "x64" | grep -i "unicode" | sudo xargs mv -n -t /usr/share/nsis/Plugins/x86-unicode/
+    find . -name "*.dll" | grep -E -v -i "x64" | grep -v -i "ansi" | sudo xargs mv -n -t /usr/share/nsis/Plugins/x86-unicode/
     find . -name "*.dll" | grep -E -v -i "x64" | grep -v -i "unicode" | sudo xargs mv -n -t /usr/share/nsis/Plugins/x86-ansi/
     find . -name "*.dll" | grep -E -i "x64" | sudo xargs mv -n -t /usr/share/nsis/Plugins/amd64-unicode/
+    find . -name "*.dll" | grep -E -v -i "x86|i386" | sudo xargs mv -n -t /usr/share/nsis/Plugins/amd64-unicode/
     find . -name "*.nsh" | sudo xargs mv -t /usr/share/nsis/Include/
 fi
 
