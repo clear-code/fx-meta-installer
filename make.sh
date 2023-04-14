@@ -133,7 +133,12 @@ fi
 $sed "s/<addon_files>/$addon_files/" -i $inifile
 
 
-makensis fainstall.nsi
+makensis -VERSION | \grep v3
+if [ $? -eq 0 ]; then
+    makensis -INPUTCHARSET UTF8 fainstall.nsi
+else
+    makensis fainstall.nsi
+fi
 cd ..
 
 if [ ! -f ./fainstall.exe ]
