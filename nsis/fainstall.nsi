@@ -147,6 +147,7 @@ ${DefineDefaultValue} APP_IS_64BIT      "false"
 ${DefineDefaultValue} APP_IS_ESR        "false"
 ${DefineDefaultValue} APP_CLEANUP_DIRS ""
 ${DefineDefaultValue} APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE "false"
+${DefineDefaultValue} APP_USE_ACTUAL_INSTALL_DIR "false"
 
 ${DefineDefaultValue} FX_ENABLED_SEARCH_PLUGINS  "*"
 ${DefineDefaultValue} FX_DISABLED_SEARCH_PLUGINS ""
@@ -344,6 +345,7 @@ Var APP_IS_64BIT
 Var APP_IS_ESR
 Var APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE
 Var APP_PROGRAMFILES
+Var APP_USE_ACTUAL_INSTALL_DIR
 
 Var PROCESSING_FILE
 Var RES_DIR
@@ -798,12 +800,18 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
     !else
 
         ${LogWithTimestamp} "  Let's run installer"
-        ${If} ${FileExists} "$APP_INSTALLER_INI"
+        ${If} ${FileExists} "$APP_INSTALLER_INI.actual_install_dir"
+          ${LogWithTimestamp} "  with $APP_INSTALLER_INI.actual_install_dir"
+          ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI.actual_install_dir"'
+        ${ElseIf} ${FileExists} "$APP_INSTALLER_INI"
+          ${LogWithTimestamp} "  with $APP_INSTALLER_INI"
           ExecWait '"$APP_INSTALLER_FINAL_PATH" /INI="$APP_INSTALLER_INI"'
         ${Else}
           !if ${APP_INSTALL_MODE} == "QUIET"
+            ${LogWithTimestamp} "  with ${SILENT_INSTALL_OPTIONS}"
             ExecWait '"$APP_INSTALLER_FINAL_PATH" ${SILENT_INSTALL_OPTIONS}'
           !else
+            ${LogWithTimestamp} "  with no option"
             ExecWait '$APP_INSTALLER_FINAL_PATH'
           !endif
         ${EndIf}
@@ -2546,12 +2554,22 @@ FunctionEnd
     Call ${un}GetCurrentAppRegKey
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 64
-    ${EndIf}
-    ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
-    ;MessageBox MB_OK|MB_ICONEXCLAMATION "APP_IS_64BIT = $APP_IS_64BIT / APP_REG_KEY = $APP_REG_KEY / APP_VERSION = $APP_VERSION" /SD IDOK
-    ${If} "$APP_IS_64BIT" == "true"
+      ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
       SetRegView 32
+      ${If} "$APP_VERSION" == ""
+        ${LogWithTimestamp} "  APP_VERSION: 64bit version not found, fallback to 32bit version"
+        ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
+      ${EndIf}
+    ${Else}
+      ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
+      ${If} "$APP_VERSION" == ""
+        ${LogWithTimestamp} "  APP_VERSION: 32bit version not found, fallback to 64bit version"
+        SetRegView 64
+        ${ReadRegStrSafely} $APP_VERSION "$APP_REG_KEY" "CurrentVersion"
+        SetRegView 32
+      ${EndIf}
     ${EndIf}
+    ;MessageBox MB_OK|MB_ICONEXCLAMATION "APP_IS_64BIT = $APP_IS_64BIT / APP_REG_KEY = $APP_REG_KEY / APP_VERSION = $APP_VERSION" /SD IDOK
   FunctionEnd
 !macroend
 !insertmacro GetCurrentAppVersion ""
@@ -2561,7 +2579,7 @@ Function GetAppPath
     ${LogWithTimestamp} "GetAppPath"
     ${IfThen} "$APP_INSTALLED" != "1" ${|} StrCpy $APP_INSTALLED "0" ${|}
 
-    ${LogWithTimestamp} "  Application installed"
+    ${LogWithTimestamp} "  Checking application installed path"
 
   !if ${APP_INSTALL_MODE} != "EXTRACT"
 
@@ -2571,10 +2589,20 @@ Function GetAppPath
     ; EXE path
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 64
-    ${EndIf}
-    ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
-    ${If} "$APP_IS_64BIT" == "true"
+      ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
       SetRegView 32
+      ${If} "$APP_EXE_PATH" == ""
+        ${LogWithTimestamp} "  APP_EXE_PATH: 64bit version not found, fallback to 32bit version"
+        ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
+      ${EndIf}
+    ${Else}
+      ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
+      ${If} "$APP_EXE_PATH" == ""
+        ${LogWithTimestamp} "  APP_EXE_PATH: 32bit version not found, fallback to 64bit version"
+        SetRegView 64
+        ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
+        SetRegView 32
+      ${EndIf}
     ${EndIf}
     ${IfThen} "$APP_EXE_PATH" == "" ${|} GoTo ERR ${|}
 
@@ -2583,10 +2611,20 @@ Function GetAppPath
     ; Application directory
     ${If} "$APP_IS_64BIT" == "true"
       SetRegView 64
-    ${EndIf}
-    ${ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
-    ${If} "$APP_IS_64BIT" == "true"
+      ${ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
       SetRegView 32
+      ${If} "$APP_DIR" == ""
+        ${LogWithTimestamp} "  APP_DIR: 64bit version not found, fallback to 32bit version"
+        ${ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
+      ${EndIf}
+    ${Else}
+      ${ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
+      ${If} "$APP_DIR" == ""
+        ${LogWithTimestamp} "  APP_DIR: 32bit version not found, fallback to 64bit version"
+        SetRegView 64
+        ${ReadRegStrSafely} $APP_DIR "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "Install Directory"
+        SetRegView 32
+      ${EndIf}
     ${EndIf}
     ${IfThen} "$APP_DIR" == "" ${|} GoTo ERR ${|}
 
@@ -2594,7 +2632,21 @@ Function GetAppPath
 
   !endif
 
-    ${If} ${FileExists} "$APP_INSTALLER_INI"
+    ${ReadINIStrWithDefault} $APP_USE_ACTUAL_INSTALL_DIR "${INIPATH}" "${INSTALLER_NAME}" "AppUseActualInstallDir" "${APP_USE_ACTUAL_INSTALL_DIR}"
+    ${If} "$APP_USE_ACTUAL_INSTALL_DIR" == "1"
+    ${OrIf} "$APP_USE_ACTUAL_INSTALL_DIR" == "yes"
+      StrCpy $APP_USE_ACTUAL_INSTALL_DIR "true"
+    ${EndIf}
+
+    ${If} "$APP_USE_ACTUAL_INSTALL_DIR" == "true"
+      ${LogWithTimestamp} "  Preparing $APP_INSTALLER_INI.actual_install_dir with actually insalled path: $APP_DIR"
+      ${If} ${FileExists} "$APP_INSTALLER_INI"
+        CopyFiles "$APP_INSTALLER_INI" "$APP_INSTALLER_INI.actual_install_dir"
+      ${EndIf}
+      WriteINIStr "$APP_INSTALLER_INI.actual_install_dir" "Install" "InstallDirectoryName" ""
+      WriteINIStr "$APP_INSTALLER_INI.actual_install_dir" "Install" "InstallDirectoryPath" "$APP_DIR"
+    ${ElseIf} ${FileExists} "$APP_INSTALLER_INI"
+      ${LogWithTimestamp} "  Using given $APP_INSTALLER_INI"
       ReadINIStr $INI_TEMP "$APP_INSTALLER_INI" "Install" "InstallDirectoryName"
       ${LogWithTimestamp} "  InstallDirectoryName: $INI_TEMP"
       ReadINIStr $INI_TEMP2 "$APP_INSTALLER_INI" "Install" "InstallDirectoryPath"

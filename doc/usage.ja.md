@@ -182,6 +182,7 @@ Firefox/Thunderbirdのインストールに関する設定
 | 64bit版かどうか                        | APP_IS_64BIT                            | AppIs64bit                         |
 | ESR版かどうか                          | APP_IS_ESR                              | AppIsESR                           |
 | Developer Editionかどうか              | APP_IS_DEV_EDITION                      | AppIsDevEdition                    |
+| 指定の配置先以外も許容するかどうか     | APP_USE_ACTUAL_INSTALL_DIR              | AppUseActualInstallDir             |
 | ダウングレードの可否                   | APP_ALLOW_DOWNGRADE                     | AppAllowDowngrade                  |
 | ダウングレード後のプロファイル流用可否 | APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE | AppAllowReuseProfileAfterDowngrade |
 | インストーラの設置場所のパス           | APP_DOWNLOAD_PATH                       | AppDownloadPath                    |
@@ -541,6 +542,20 @@ Firefox/Thunderbirdのインストールに関する設定
                              どうかを示す。
 * 取り得る値               ：APP_IS_DEV_EDITIONを定義すると真、未定義だと偽。
 　                           AppIsDevEditionは、true/falseのいずれ
+                             かで指定する。
+* デフォルト値             ：false
+
+### 指定の配置先以外も許容するかどうか（省略可能）
+
+* config.nshでの設定キー   ：APP_USE_ACTUAL_INSTALL_DIR
+* fainstall.iniでの設定キー：[fainstall] > AppUseActualInstallDir
+* 説明                     ：Firefox/Thunderbirdがその環境において
+                             Firefox/Thunderbird-setup.iniで指定された位置以外に
+                             インストールされていた場合に、そのインストール先で
+                             処理を継続するか、指定の配置先へのインストールを
+                             強行するかを示す。
+* 取り得る値               ：APP_USE_ACTUAL_INSTALL_DIRを定義すると真、未定義だと偽。
+　                           AppUseActualInstallDirは、true/falseのいずれ
                              かで指定する。
 * デフォルト値             ：false
 
