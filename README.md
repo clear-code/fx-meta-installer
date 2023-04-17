@@ -8,7 +8,7 @@ Thunderbird to PCs in a specific organization.
 
 To use this, you need to do following steps:
 
- 1. Setup your environment to build NSIS2 binary.
+ 1. Setup your environment to build NSIS3 binary.
  2. Prepare configuration files and resouces (addons, CSS files, etc.) to
     include the final installer package.
  3. Build the binary of Fx Meta Instlaler (fainstall) and the final installer
@@ -79,19 +79,14 @@ environments at first.
 
 #### Linux (Debian, Ubuntu)
 
- 1. Install required packages "nsis", "pwgen" and "uuid-runtime".
+ 1. Install required packages "nsis", "nsis-common", "pwgen" and "uuid-runtime".
     Please note that "nsis" version 3.0 and later (default on Ubuntu 20.04LTS or others) is not supported yet and you need to install version 2.x (default on Ubuntu 18.04LTS or others).
 
-        $ sudo apt-get install nsis pwgen uuid-runtime
+        $ sudo apt-get install nsis nsis-common pwgen uuid-runtime
 
  2. Install plugins. Download zip files, decompress them,
-    move "*.dll" files to "/usr/share/nsis/Plugins/", and
-    move "*.nsh" files to "/usr/share/nsis/Include".
-    For example:
 
-        $ ls *.zip | sed -e 's/\.zip$//' | xargs -i unzip {}.zip -d {}
-        $ find . -name "*.dll" | grep -v -i "unicode" | sudo xargs mv -t /usr/share/nsis/Plugins/
-        $ find . -name "*.nsh" | sudo xargs mv -t /usr/share/nsis/Include/
+        $ scripts/download_plugins.sh install
 
 #### OS X (Homebrew)
 
@@ -100,13 +95,8 @@ environments at first.
         $ brew install makensis
 
  2. Install plugins. Download zip files, decompress them,
-    move "*.dll" files to "/usr/local/share/nsis/Plugins/", and
-    move "*.nsh" files to "/usr/local/share/nsis/Include".
-    For example:
 
-        $ unzip *.zip
-        $ find . -name "*.dll" | grep -v -i "unicode" | xargs -J % mv % /usr/local/share/nsis/Plugins/
-        $ find . -name "*.nsh" | xargs -J % mv % /usr/local/share/nsis/Include/
+        $ scripts/download_plugins.sh install
 
  3. install GNU origin commands.
 

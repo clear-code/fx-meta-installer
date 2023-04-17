@@ -1,5 +1,26 @@
 ;Copyright (C) 2008-2012 ClearCode Inc.
 
+;===================== SETUP NSIS-DBG FOR DEBUGGING ================
+
+; See http://nsis.sourceforge.net/Nsisdbg_plug-in for details
+
+!if 0x3000000 <= "${NSIS_PACKEDVERSION}"
+  Unicode true
+!endif
+
+!ifdef DEBUG
+
+!define MUI_CUSTOMFUNCTION_GUIINIT myGUIInit
+
+Function myGUIInit
+  InitPluginsDir
+  nsisdbg::init /NOUNLOAD
+  nsisdbg::setoption /NOUNLOAD "notifymsgs" "1"
+FunctionEnd
+
+!endif
+;===================================================================
+;
 ;=== Libraries
 !include "LogicLib.nsh"
 !include "FileFunc.nsh"
@@ -24,7 +45,7 @@ ${UnStrStrAdv} ; activate macro for uninstallation
 !include "timestamp.nsh"
 !include "ExecWaitJob.nsh"
 !include "x64.nsh"
-!include NSISArray.nsh
+!include NsArray.nsh
 
 ;== Definition of utilities
 !define DefineDefaultValue "!insertmacro DefineDefaultValue"
@@ -100,18 +121,15 @@ FunctionEnd
   StrCpy $R8 $R0
   # dump them into an array object
   StrCpy $9 0
-  NSISArray::New ${USER_ARRAY_NAME} 5 ${NSIS_MAX_STRLEN}
   ${Index}-loop:
     StrCmp $9 $R2 ${Index}-stop +1
     System::Call "*$R0(w.R9)"
-    NSISArray::Write ${USER_ARRAY_NAME} $9 "$R9"
+    nsArray::Set ${USER_ARRAY_NAME} "$R9"
     IntOp $R0 $R0 + 4
     IntOp $9 $9 + 1
     Goto ${Index}-loop
   ${Index}-stop:
-  NSISArray::SizeOf ${USER_ARRAY_NAME}
-  Pop $0
-  Pop $0
+  nsArray::Length ${USER_ARRAY_NAME}
   Pop $0
   StrCmp $0 $R2 +2 +1
     MessageBox MB_OK|MB_ICONEXCLAMATION 'Could not place all the user accounts into an array!'
@@ -569,7 +587,7 @@ Var CLEAN_INSTALL
           ${Else}
             FindWindow $0 "#32770" "" $HWNDPARENT
             EnableWindow $HWNDPARENT 0
-            inetc::get /SILENT /NOCANCEL \
+            INetC::get /SILENT /NOCANCEL \
               "$APP_EULA_URL" "$APP_EULA_FINAL_PATH"
             Pop $R0
             EnableWindow $HWNDPARENT 1
@@ -727,7 +745,7 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
 
         ; overwrite subtitle
         SendMessage $mui.Header.SubText ${WM_SETTEXT} 0 "STR:$(MSG_APP_DOWNLOAD_START)"
-        inetc::get \
+        INetC::get \
             /TRANSLATE $(MSG_DL_DOWNLOADING)    \
                        $(MSG_DL_CONNECTIING)    \
                        $(MSG_DL_SECOND)         \
@@ -1147,14 +1165,13 @@ Function "InstallProfileToEachUser"
     !insertmacro GetServerName $0
     !insertmacro EnumerateUsers "$0" "LocalUsers"
     ${While} 1 == 1
-      NSISArray::SizeOf LocalUsers
-      Pop $0
-      Pop $0
+      nsArray::Length LocalUsers
       Pop $0
       ${LogWithTimestamp} "  Rest users count: $0"
       ${IfThen} "$0" == "0" ${|} ${Break} ${|}
 
-      NSISArray::Pop LocalUsers
+      nsArray::Iterate LocalUsers
+      Pop $1
       Pop $USERNAME
       ${LogWithTimestamp} "  Local User: $USERNAME"
 
@@ -1179,7 +1196,7 @@ Function "InstallProfileToEachUser"
       Call ResolveItemLocation
       Call InstallProfile
     ${EndWhile}
-    NSISArray::Delete LocalUsers
+    nsArray::Clear LocalUsers
 
     StrCpy $USERNAME "Default"
     StrCpy $ITEM_LOCATION "$ITEM_LOCATION_BACKUP"
