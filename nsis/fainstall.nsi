@@ -364,6 +364,7 @@ Var APP_IS_ESR
 Var APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE
 Var APP_PROGRAMFILES
 Var APP_USE_ACTUAL_INSTALL_DIR
+Var APP_NEED_UNINSTALL
 
 Var PROCESSING_FILE
 Var RES_DIR
@@ -816,6 +817,11 @@ Section "Cleanup Before Installation" CleanupBeforeInstall
         ${LogWithTimestamp} "    => $0"
 
     !else
+
+        ${If} $APP_NEED_UNINSTALL == "1"
+          ${LogWithTimestamp} "  Uninstall mismatched architecture version"
+          ExecWait `"$APP_DIR\uninstall\helper.exe" /S`
+        ${EndIf}
 
         ${LogWithTimestamp} "  Let's run installer"
         ${If} ${FileExists} "$APP_INSTALLER_INI.actual_install_dir"
@@ -2718,11 +2724,13 @@ Function GetAppPath
         ${If} $APP_64BIT_EXISTS == "1"
           ${If} "$APP_IS_64BIT" != "true"
             StrCpy $APP_EXISTS "0"
+            StrCpy $APP_NEED_UNINSTALL "1"
             ${LogWithTimestamp} "  Application architecture mismatch: installing 32bit but installed 64bit"
           ${EndIf}
         ${ElseIf} "$APP_32BIT_EXISTS" == "1"
           ${If} "$APP_IS_64BIT" == "true"
             StrCpy $APP_EXISTS "0"
+            StrCpy $APP_NEED_UNINSTALL "1"
             ${LogWithTimestamp} "  Application architecture mismatch: installing 64bit but installed 32bit"
           ${EndIf}
         ${EndIf}
