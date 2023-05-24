@@ -2594,8 +2594,8 @@ FunctionEnd
 !insertmacro GetCurrentAppVersion ""
 !insertmacro GetCurrentAppVersion "un."
 
-Var APP_64BIT_INSTALLED
-Var APP_32BIT_INSTALLED
+Var APP_64BIT_EXISTS
+Var APP_32BIT_EXISTS
 Function GetAppPath
     ${LogWithTimestamp} "GetAppPath"
     ${IfThen} "$APP_INSTALLED" != "1" ${|} StrCpy $APP_INSTALLED "0" ${|}
@@ -2615,9 +2615,9 @@ Function GetAppPath
       ${If} "$APP_EXE_PATH" == ""
         ${LogWithTimestamp} "  APP_EXE_PATH: 64bit version not found, fallback to 32bit version"
         ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
-        StrCpy $APP_32BIT_INSTALLED "1"
+        StrCpy $APP_32BIT_EXISTS "1"
       ${Else}
-        StrCpy $APP_64BIT_INSTALLED "1"
+        StrCpy $APP_64BIT_EXISTS "1"
       ${EndIf}
     ${Else}
       ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
@@ -2626,14 +2626,14 @@ Function GetAppPath
         SetRegView 64
         ${ReadRegStrSafely} $APP_EXE_PATH "$APP_VERSIONS_ROOT_REG_KEY\$APP_VERSION\Main" "PathToExe"
         SetRegView 32
-        StrCpy $APP_64BIT_INSTALLED "1"
+        StrCpy $APP_64BIT_EXISTS "1"
       ${Else}
-        StrCpy $APP_32BIT_INSTALLED "1"
+        StrCpy $APP_32BIT_EXISTS "1"
       ${EndIf}
     ${EndIf}
     ${If} "$APP_EXE_PATH" == ""
-      StrCpy $APP_64BIT_INSTALLED "0"
-      StrCpy $APP_32BIT_INSTALLED "0"
+      StrCpy $APP_64BIT_EXISTS "0"
+      StrCpy $APP_32BIT_EXISTS "0"
       GoTo ERR
     ${EndIf}
 
@@ -2658,8 +2658,8 @@ Function GetAppPath
       ${EndIf}
     ${EndIf}
     ${If} "$APP_DIR" == ""
-      StrCpy $APP_64BIT_INSTALLED "0"
-      StrCpy $APP_32BIT_INSTALLED "0"
+      StrCpy $APP_64BIT_EXISTS "0"
+      StrCpy $APP_32BIT_EXISTS "0"
       GoTo ERR
     ${EndIf}
 
@@ -2715,20 +2715,20 @@ Function GetAppPath
         ; get actual version number from application.ini because
         ; the version can be mismatched.
         ReadINIStr $APP_VERSION "$APP_DIR\application.ini" "App" "Version"
-        ${If} $APP_64BIT_INSTALLED == "1"
+        ${If} $APP_64BIT_EXISTS == "1"
           ${If} "$APP_IS_64BIT" != "true"
             StrCpy $APP_EXISTS "0"
             ${LogWithTimestamp} "  Application architecture mismatch: installing 32bit but installed 64bit"
           ${EndIf}
-        ${ElseIf} "$APP_32BIT_INSTALLED" == "1"
+        ${ElseIf} "$APP_32BIT_EXISTS" == "1"
           ${If} "$APP_IS_64BIT" == "true"
             StrCpy $APP_EXISTS "0"
             ${LogWithTimestamp} "  Application architecture mismatch: installing 64bit but installed 32bit"
           ${EndIf}
         ${EndIf}
       ${Else}
-        StrCpy $APP_64BIT_INSTALLED "0"
-        StrCpy $APP_32BIT_INSTALLED "0"
+        StrCpy $APP_64BIT_EXISTS "0"
+        StrCpy $APP_32BIT_EXISTS "0"
       ${EndIf}
     ${EndIf}
 
