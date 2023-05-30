@@ -1799,12 +1799,14 @@ Function "RunMSISilently"
     ${EndIf}
 
     ${If} "$MSI_EXEC_WAIT_MODE" == "0"
+    ${OrIf} "$MSI_EXEC_WAIT_MODE" == "ExecWaitJob"
       !if ${PRODUCT_INSTALL_MODE} == "QUIET"
         !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /quiet'
       !else
         !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /passive'
       !endif
     ${ElseIf} "$MSI_EXEC_WAIT_MODE" == "1"
+    ${OrIf} "$MSI_EXEC_WAIT_MODE" == "ExecWait"
       !if ${PRODUCT_INSTALL_MODE} == "QUIET"
         ExecWait '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /quiet'
       !else
