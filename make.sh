@@ -1,5 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2008-2016 ClearCode Inc.
+# Copyright (C) 2008-2023 ClearCode Inc.
+
+work_dir="$(pwd)"
+cd "$work_dir"
 
 if [ ! -d ./resources ]
 then
@@ -26,16 +29,11 @@ then
 fi
 
 case $(uname) in
-  Darwin|*BSD) sed="sed -E -e" ;;
-  *)           sed="sed -r -e" ;;
-esac
-
-case $(uname) in
   Darwin|*BSD) tar="gtar" ;;
   *)           tar="tar" ;;
 esac
 
-product_name=`grep --binary-files=text 'PRODUCT_NAME' config.nsh | $sed 's/^[^"]*"//' | $sed 's/".*$\r?\n?//'`
+product_name=`grep --binary-files=text 'PRODUCT_NAME' config.nsh | sed -E -e 's/^[^"]*"//' | sed -E -e 's/".*$\r?\n?//'`
 echo $product_name
 
 rm fainstall.exe
@@ -50,15 +48,15 @@ cd nsis
 inifile=../fainstall.ini
 
 has_config() {
-  cat ../config.nsh | grep -v -E "^;" | grep $1 >/dev/null 2>&1
+  cat "$work_dir/config.nsh" | grep -v -E "^;" | grep $1 >/dev/null 2>&1
 }
 
 read_config() {
-  cat ../config.nsh | grep -v -E "^;" | grep $1 | cut -d '"' -f 2
+  cat "$work_dir/config.nsh" | grep -v -E "^;" | grep $1 | cut -d '"' -f 2
 }
 
 read_boolean_config() {
-  found=$(cat ../config.nsh | grep -v -E "^;" | grep $1)
+  found=$(cat "$work_dir/config.nsh" | grep -v -E "^;" | grep $1)
   if [ "$found" = "" ]
   then
     echo -n "false"
@@ -105,11 +103,11 @@ do
   if [ -f $filename ]
   then
     echo reading $filename
-    addon_file=$(echo $filename | $sed 's/.+\/([^\/]+)$/\1/')
+    addon_file=$(echo $filename | sed -E -e 's/.+\/([^\/]+)$/\1/')
     addon_files="$addon_files|$addon_file"
     echo "[$addon_file]" >> $inifile
     install_rdf=`unzip -p $filename install.rdf`
-    addon_id=`echo $install_rdf | $sed "s%(em:id=['\"]|<em:id>)([^'\"<]+).*%\1\2%g" | $sed "s%.*(em:id=['\"]|<em:id>)%%"`
+    addon_id=`echo $install_rdf | sed -E -e "s%(em:id=['\"]|<em:id>)([^'\"<]+).*%\1\2%g" | sed -E -e "s%.*(em:id=['\"]|<em:id>)%%"`
     echo "id = $addon_id"
     echo "AddonId=$addon_id" >> $inifile
     echo "TargetLocation=%AppDir%/browser/extensions" >> $inifile
@@ -122,7 +120,7 @@ nkf -Lw $inifile > $inifile.crlf
 rm $inifile
 mv $inifile.crlf $inifile
 
-addon_files=$(echo "$addon_files" | $sed 's/^\|//')
+addon_files=$(echo "$addon_files" | sed -E -e 's/^\|//')
 
 given_addon_files=$(read_config "INSTALL_ADDONS")
 if [ -n "${given_addon_files}" ]
@@ -130,7 +128,7 @@ then
   addon_files=$given_addon_files
 fi
 
-$sed "s/<addon_files>/$addon_files/" -i $inifile
+sed -E -e "s/<addon_files>/$addon_files/" -i $inifile
 
 
 makensis -VERSION | \grep v3
