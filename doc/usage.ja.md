@@ -163,6 +163,8 @@ config.nshでの設定よりもfainstall.iniでの設定の方が優先的に適
 | 実行する他のインストーラ           | EXTRA_INSTALLERS        | Installers                   |
 | 作成するショートカット             | EXTRA_SHORTCUTS         | Shortcuts                    |
 | ピン留めされたショートカットの更新 | UPDATE_PINNED_SHORTCUTS | UpdatePinnedShortcuts        |
+| 追加でインストールするファイル     | EXTRA_FILES             | ExtraFiles                   |
+| 追加で設定するレジストリ情報       | EXTRA_REG_ENTRIES       | ExtraRegistryEntries         |
 | 正常終了時メッセージ               | FINISH_MESSAGE          | FinishMessage                |
 | 正常終了時タイトル                 | FINISH_TITLE            | FinishTitle                  |
 | 再起動確認メッセージ               | CONFIRM_RESTART_MESSAGE | ConfirmRestartMessage        |
@@ -377,14 +379,14 @@ Firefox/Thunderbirdのインストールに関する設定
 　                           インストーラが、他のMSI形式のインストーラのインストーラが
 　                           実行中であるとして停止してしまう場合、この設定を
 　                           切り替えることで現象を回避できる可能性がある。
-* 取り得る値               ：0（ExecWaitJobを使用）
-　                           1（ExecWaitを使用）
-　                           2（nsExec::Execを使用）
+* 取り得る値               ：0/ExecWaitJob（ExecWaitJobを使用）
+　                           1/ExecWait（ExecWaitを使用）
+　                           2/nsExec::Exec（nsExec::Execを使用）
 * デフォルト値             ：0
 
 ### MSIのログ出力
 
-* config.nshでの設定キー   ：MSI_EXEC_Logging
+* config.nshでの設定キー   ：MSI_EXEC_LOGGING
 * fainstall.iniでの設定キー：[fainstlal] > MSIExecLogging
 * 説明                     ：MSI形式のインストーラの実行時に、fainstall.logと同じ位置に
 　                           詳細なログを出力するかどうか。
@@ -438,6 +440,24 @@ Firefox/Thunderbirdのインストールに関する設定
     "false" ：何もしない。
     "delete"：古いショートカットがあった場合は削除のみ行う。
 * デフォルト値             ："false"
+
+### 追加でインストールするファイル
+
+* config.nshでの設定キー   ：EXTRA_FILES
+* fainstall.iniでの設定キー：ExtraFiles
+* 説明                     ：追加でインストールするファイルの定義のリスト。
+                             詳細は「その他のファイルのインストール」を参照。
+* 取り得る値               ：ファイルのインストール方法定義のセクション名のリスト。
+* デフォルト値             ：なし。
+
+### 追加で設定するレジストリ情報
+
+* config.nshでの設定キー   ：EXTRA_REG_ENTRIES
+* fainstall.iniでの設定キー：ExtraRegistryEntries
+* 説明                     ：追加で設定するレジストリ情報の定義のリスト。
+                             詳細は「任意のレジストリ情報の追加」を参照。
+* 取り得る値               ：レジストリ情報の定義のセクション名のリスト。
+* デフォルト値             ：なし。
 
 
 ## Mozillaアプリケーション（Firefox、Thunderbird）用の設定項目
@@ -921,6 +941,47 @@ ExtraFiles=proxy.pac
 
 [proxy.pac]
 TargetLocation=%AppDir%/defaults/
+```
+
+### 任意のレジストリ情報の追加
+
+fainstall.iniの[fainstall]セクションのExtraRegistryEntriesにパイプ（|）
+区切りで記述されたセクション名に対応するセクションを定義することで、任
+意のレジストリ情報を追加することができる。(メタインストーラが通常書き込
+むことを想定していないレジストリ上の値をやむを得ず書き込まなければなら
+ない場合に使用。)
+
+各セクションでは以下のキーを指定できる。
+
+Root:
+  書き込み先のメインキー。
+  KHCU, HKEY_CURRENT_USER, HKLM, HKEY_LOCAL_MACHINE のいずれか。
+  省略時の初期値はHKLM。
+Path:（省略不可）
+  書き込み先のキーのパス。
+DefaultStringData:（DefaultDwordDataとは併用不可）
+  既定の値に文字列型として書き込むデータ。
+DefaultDwordData:（DefaultStringDataとは併用不可）
+  既定の値にDWORD型として書き込むデータ（「0x」から始まる16進数表記）。
+StringValueN/StringDataN:
+  文字列型の値として設定する値の名前とデータ。
+  Nは0から始まる連番。
+DwordValueN/DwordValueN:
+  DWORD型の値として設定する値の名前とデータ（「0x」から始まる16進数表記）。
+  Nは0から始まる連番。
+
+例えばIE用コンテキストメニュー拡張を登録する場合は、以下の通り。
+
+```
+[fainstall]
+ExtraRegistryEntries=IEContextMenu
+
+[IEContextMenu]
+Root=HKCU
+Path=Software\Microsoft\Internet Explorer\MenuExt\FireFoxで開く
+DefaultStringData=C:\Program Files (x86)\Mozilla Firefox\distribution\OpenFirefox.htm
+DwordValue0=Contexts
+DwordData0=0x00000033
 ```
 
 ### ショートカットの作成
