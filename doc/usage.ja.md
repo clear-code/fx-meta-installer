@@ -210,7 +210,7 @@ Firefox/Thunderbirdのインストールに関する設定
 *  config.nshでの設定キー   ：PRODUCT_INSTALL_MODE
 * 説明                     ：対話モードとサイレントインストールモードを切り替
                              える。
-* 取り得る値               ：
+* 取り得る値               ：以下のいずれか1つを選択。
   * "NORMAL"  : 対話モード。通常のウィザードを表示する。
   * "PASSIVE" : 準サイレントインストールモード。
                 インストールの進行状況だけを表示する。
@@ -283,7 +283,7 @@ Firefox/Thunderbirdのインストールに関する設定
  
 * config.nshでの設定キー   ：PRODUCT_LANGUAGE
 * 説明                     ：インストールウィザードの言語。
-* 取り得る値               ：
+* 取り得る値               ：以下のいずれか1つを選択。
     "Japanese"：日本語
     "English" ：英語
 * デフォルト値             ："English"
@@ -296,7 +296,7 @@ Firefox/Thunderbirdのインストールに関する設定
 　                           デスクトップ上へのショートカットのインストール
 　                           のみを行うなど、管理者権限を必要としない場合は、
 　                           明示的に「false」を指定する。
-* 取り得る値               ：
+* 取り得る値               ：以下のいずれか1つを選択。
     "true" ：管理者権限を要求する。
     "false"：管理者権限を要求しない。
 * デフォルト値             ："true"
@@ -379,9 +379,10 @@ Firefox/Thunderbirdのインストールに関する設定
 　                           インストーラが、他のMSI形式のインストーラのインストーラが
 　                           実行中であるとして停止してしまう場合、この設定を
 　                           切り替えることで現象を回避できる可能性がある。
-* 取り得る値               ：0/ExecWaitJob（ExecWaitJobを使用）
-　                           1/ExecWait（ExecWaitを使用）
-　                           2/nsExec::Exec（nsExec::Execを使用）
+* 取り得る値               ：以下のいずれか1つを選択。
+   "0"または"ExecWaitJob" : ExecWaitJobを使用。
+   "1"または"ExecWait"    : ExecWaitを使用。
+   "2"または"nsExec::Exec": nsExec::Execを使用。
 * デフォルト値             ：0
 
 ### MSIのログ出力
@@ -390,8 +391,9 @@ Firefox/Thunderbirdのインストールに関する設定
 * fainstall.iniでの設定キー：[fainstlal] > MSIExecLogging
 * 説明                     ：MSI形式のインストーラの実行時に、fainstall.logと同じ位置に
 　                           詳細なログを出力するかどうか。
-* 取り得る値               ：true（ログを出力する）
-　                           false（ログを出力しない）
+* 取り得る値               ：以下のいずれか1つを選択。
+    "true" : ログを出力する。
+    "false": ログを出力しない。
 * デフォルト値             ：false
 
 ### インストール対象のアドオン
@@ -435,7 +437,7 @@ Firefox/Thunderbirdのインストールに関する設定
 * fainstall.iniでの設定キー：UpdatePinnedShortcuts
 * 説明                     ：スタートメニューとタスクバー上に保存された
                              ショートカットの取り扱い。
-* 取り得る値               ：
+* 取り得る値               ：以下のいずれか1つを選択。
     "true"  ：新しいショートカットで置き換える。
     "false" ：何もしない。
     "delete"：古いショートカットがあった場合は削除のみ行う。
@@ -467,7 +469,7 @@ Firefox/Thunderbirdのインストールに関する設定
 * config.nshでの設定キー   ：APP_INSTALL_MODE
 * 説明                     ：Mozillaアプリケーションのインストールを自動的に
 　                           行うかどうか。
-* 取り得る値               ：
+* 取り得る値               ：以下のいずれか1つを選択。
   * "NORMAL" : Mozillaアプリケーションのインストールウィザードを表示する。
   * "QUIET"  : Mozillaアプリケーションのインストーラ自身のインストール
                ウィザードを表示せず、APP_EULA_PATHまたはAPP_EULA_URLによって
@@ -480,9 +482,9 @@ Firefox/Thunderbirdのインストールに関する設定
 
 * config.nshでの設定キー   ：APP_NAME
 * 説明                     ：インストールするMozillaアプリケーションの名称。
-* 取り得る値               ：
-    Firefox    ：Mozilla Firefox
-    Thunderbird：Mozilla Thunderbird
+* 取り得る値               ：以下のいずれか1つを選択。
+    "Firefox"    ：Mozilla Firefox
+    "Thunderbird"：Mozilla Thunderbird
 * デフォルト値             ：なし。
 
 ### 実行ファイル名（省略可能）
@@ -539,9 +541,10 @@ Firefox/Thunderbirdのインストールに関する設定
 * config.nshでの設定キー   ：APP_IS_64BIT
 * fainstall.iniでの設定キー：[fainstall] > AppIs64bit
 * 説明                     ：インストール対象のFirefoxが64bit版かどうかを示す。
-* 取り得る値               ：APP_IS_64BITを定義すると真、未定義だと偽。
-　                           AppIs64bitは、true/falseのいずれかで
-　                           指定する。
+* 取り得る値               ：
+* 取り得る値               ：以下のいずれか1つを選択。
+    "true"  ：64bit版を使用。
+    "false" ：32bit版を使用。
 * デフォルト値             ：false
 
 ### ESR版かどうか（省略可能）
@@ -549,9 +552,9 @@ Firefox/Thunderbirdのインストールに関する設定
 * config.nshでの設定キー   ：APP_IS_ESR
 * fainstall.iniでの設定キー：[fainstall] > AppIsESR
 * 説明                     ：インストール対象のFirefoxがESR版かどうかを示す。
-* 取り得る値               ：APP_IS_ESRを定義すると真、未定義だと偽。
-　                           AppIsESRは、true/falseのいずれかで
-　                           指定する。
+* 取り得る値               ：以下のいずれか1つを選択。
+    "true"  ：ESR版を使用。
+    "false" ：通常リリース版、もしくはDeveloper Editionを使用。
 * デフォルト値             ：false
 
 ### Developer Editionかどうか（省略可能）
@@ -560,9 +563,9 @@ Firefox/Thunderbirdのインストールに関する設定
 * fainstall.iniでの設定キー：[fainstall] > AppIsDevEdition
 * 説明                     ：インストール対象のFirefoxがDeveloper Editionか
                              どうかを示す。
-* 取り得る値               ：APP_IS_DEV_EDITIONを定義すると真、未定義だと偽。
-　                           AppIsDevEditionは、true/falseのいずれ
-                             かで指定する。
+* 取り得る値               ：以下のいずれか1つを選択。
+    "true"  ：Developer Editionを使用。
+    "false" ：通常リリース版、もしくはESR版を使用。
 * デフォルト値             ：false
 
 ### 指定の配置先以外も許容するかどうか（省略可能）
@@ -574,9 +577,9 @@ Firefox/Thunderbirdのインストールに関する設定
                              インストールされていた場合に、そのインストール先で
                              処理を継続するか、指定の配置先へのインストールを
                              強行するかを示す。
-* 取り得る値               ：APP_USE_ACTUAL_INSTALL_DIRを定義すると真、未定義だと偽。
-　                           AppUseActualInstallDirは、true/falseのいずれ
-                             かで指定する。
+* 取り得る値               ：以下のいずれか1つを選択。
+    "true"  ：既存のインストール先に上書きインストールする。
+    "false" ：指定のインストール先にインストールする。
 * デフォルト値             ：false
 
 ### ダウングレードの可否（省略可能）
@@ -587,9 +590,9 @@ Firefox/Thunderbirdのインストールに関する設定
 　                           トールされている場合において、Mozillaアプリケー
 　                           ション自体の上書きインストール（ダウングレード）
 　                           を試みるかどうか。
-* 取り得る値               ：APP_ALLOW_DOWNGRADEを定義すると真、未定義だと偽。
-　                           AppAllowDownguradeは、true/falseの
-　                           いずれかで指定する。
+* 取り得る値               ：以下のいずれか1つを選択。
+    "true"  ：既存バージョンより古いバージョンでの上書きインストールを許容する。
+    "false" ：既存バージョンより古いバージョンでの上書きインストールを禁止する。
 * デフォルト値             ：false
 
 ### ダウングレード後のプロファイル流用可否（省略可能）
@@ -599,7 +602,9 @@ Firefox/Thunderbirdのインストールに関する設定
 * 説明                     ：より新しいバージョンのFirefox向けに移行済みの
 　                           ユーザープロファイルを、古いバージョンのFirefoxでも
 　                           使用することを許容するかどうか。
-* 取り得る値               ：true/falseのいずれかで指定する。
+* 取り得る値               ：以下のいずれか1つを選択。
+    "true"  ：ダウングレード後のプロファイルの流用を許可する。
+    "false" ：ダウングレード後のプロファイルの流用を禁止する。
 * デフォルト値             ：false
 
 ### インストーラの設置場所のパス（省略可能）
@@ -722,7 +727,7 @@ Firefox/Thunderbirdのインストールに関する設定
 　                           する場合に、インストールを中断するかどうか。
 　                           既存の環境を破壊する恐れがあり、既存の環境を維持
 　                           することを最重要視する場合に使用する。
-* 取り得る値               ：
+* 取り得る値               ：以下のいずれか1つを選択。
     "PREFERRED" : プロファイルが既に存在する場合はインストールを継続するか
                   どうかユーザに確認を求める。ユーザが中断を選択した場合は
                   インストールを中断する。
@@ -786,7 +791,7 @@ Firefox/Thunderbirdのインストールに関する設定
 * 説明                     ：Mozillaアプリケーションをサイレントインストール
 　                           する場合に、クラッシュ報告機能を有効にするかどう
 　                           か。
-* 取り得る値               ：
+* 取り得る値               ：以下のいずれか1つを選択。
     "true" ：クラッシュ報告機能を有効にする。
     "false"：クラッシュ報告機能を無効にする。
 * デフォルト値             ："false"
