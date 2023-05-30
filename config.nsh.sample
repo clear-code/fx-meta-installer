@@ -6,15 +6,13 @@
 !define PRODUCT_FULL_NAME    "Fx Meta Installer"
 !define PRODUCT_NAME         "FxMetaInstaller"
 !define PRODUCT_VERSION      "0.0.0.0"
-!define PRODUCT_YEAR         "2022"
+!define PRODUCT_YEAR         "2023"
 !define PRODUCT_PUBLISHER    "ClearCode Inc."
 !define PRODUCT_DOMAIN       "clear-code.com"
 !define PRODUCT_WEB_SITE     "https://www.clear-code.com/"
 !define PRODUCT_WEB_LABEL    "Go to Clear Code Inc."
 !define PRODUCT_LANGUAGE     "Japanese"
 
-!define REQUIRE_ADMIN "true"
-;!define ADMIN_CHECK_DIR ""
 
 ; Type of the wizard
 ;  NORMAL  : Show full wizard
@@ -26,19 +24,23 @@
 !define APP_NAME            "Firefox"
 ;!define APP_EXE             "something.exe"
 ;!define APP_KEY             "Vendor\Something"
-!define APP_MIN_VERSION     "10.0"
-!define APP_MAX_VERSION     "99.99"
-;!define APP_IS_ESR
-;!define APP_IS_DEV_EDITION
-;!define APP_ALLOW_DOWNGRADE
-;!define APP_DOWNLOAD_PATH   "\\fileserver\shared\Firefox Setup 15.0.1.exe"
-;!define APP_DOWNLOAD_URL    "http://download.mozilla.org/?product=firefox-15.0.1&os=win&lang=ja"
-;!define APP_HASH            "8d017402de51a144d0e0fe4d3e2132cb"
-;!define APP_EULA_PATH       "\\fileserver\shared\Firefox Setup 15.0.1.txt"
+!define APP_MIN_VERSION     "102.0"
+!define APP_MAX_VERSION     "102.99"
+;!define APP_IS_ESR          "true"
+;!define APP_IS_DEV_EDITION  "false"
+;!define APP_ALLOW_DOWNGRADE "true"
+;!define APP_DOWNLOAD_PATH   "\\fileserver\shared\Firefox Setup 102.0.exe"
+;!define APP_DOWNLOAD_URL    "https://download.mozilla.org/?product=firefox-102.0&os=win&lang=ja"
+;!define APP_HASH            "b0bae19c6e4510447d753240b9cc8e5a"
+;!define APP_EULA_PATH       "\\fileserver\shared\Firefox Setup 102.0.txt"
 ;!define APP_EULA_URL        "http://www.mozilla.com/en-US/legal/eula/firefox2-en.txt"
-!define APP_ENABLE_CRASH_REPORT
+;!define APP_ENABLE_CRASH_REPORT "true"
+;ldefine APP_ALLOW_REUSE_PROFILE_AFTER_DOWNGRADE "true"
+;!define APP_USE_ACTUAL_INSTALL_DIR "true"
 ;!define DEFAULT_CLIENT      "StartMenuInternet\FIREFOX.EXE"
 ;!define DISABLED_CLIENTS    ""
+;!define MSI_EXEC_WAIT_MODE  "ExecWaitJob"
+;!define MSI_EXEC_LOGGING    "true"
 
 ; Type of installation of Firefox/Thunderbird itself
 ;  NORMAL : Show full wizard
@@ -46,7 +48,10 @@
 ;  EXTRACT: Extract files without running installer
 ;  SKIP   : Do not install Firefox/Thunderbird
 !define APP_INSTALL_MODE    "QUIET"
+!define REQUIRE_ADMIN       "true"
+!define ADMIN_CHECK_DIR     "%ProgramFiles%"
 
+!define UPDATE_PINNED_SHORTCUTS    "false"
 !define FX_ENABLED_SEARCH_PLUGINS  "*"
 !define FX_DISABLED_SEARCH_PLUGINS ""
 
@@ -67,6 +72,8 @@
 ;!define INSTALL_ADDONS            ""
 ;!define EXTRA_INSTALLERS          ""
 ;!define EXTRA_SHORTCUTS           ""
+;!define EXTRA_FILES               ""
+;!define EXTRA_REG_ENTRIES         ""
 
 ;!define FINISH_TITLE   ""
 ;!define FINISH_MESSAGE ""
