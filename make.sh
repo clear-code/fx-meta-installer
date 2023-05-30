@@ -50,7 +50,7 @@ cd nsis
 inifile=../fainstall.ini
 
 has_config() {
-  cat ../config.nsh | grep -v -E "^;" | grep $1 >/dev/null 2&>1
+  cat ../config.nsh | grep -v -E "^;" | grep $1 >/dev/null 2>&1
 }
 
 read_config() {
