@@ -966,7 +966,7 @@ DefaultDwordData:（DefaultStringDataとは併用不可）
 StringValueN/StringDataN:
   文字列型の値として設定する値の名前とデータ。
   Nは0から始まる連番。
-DwordValueN/DwordValueN:
+DwordValueN/DwordDataN:
   DWORD型の値として設定する値の名前とデータ（「0x」から始まる16進数表記）。
   Nは0から始まる連番。
 
