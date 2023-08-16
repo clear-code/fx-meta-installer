@@ -944,8 +944,13 @@ Function "UpdateShortcutsExistence"
         ${EndIf}
       ${EndIf}
 
-      ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "StartMenuShortcuts"
-      ${LogWithTimestamp} "  StartMenuShortcuts: $1"
+      ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "StartMenuShortcut"
+      ${LogWithTimestamp} "  StartMenuShortcut: $1"
+      ; for backward compatibility
+      ${If} "$1" == ""
+        ReadINIStr $1 "$APP_INSTALLER_INI" "Install" "StartMenuShortcuts"
+        ${LogWithTimestamp} "  StartMenuShortcuts: $1"
+      ${EndIf}
       ${If} "$1" == "false"
         ${If} "$EXISTS_SHORTCUT_STARTMENU" == ""
         ${AndIf} ${FileExists} "$SHORTCUT_PATH_STARTMENU"
