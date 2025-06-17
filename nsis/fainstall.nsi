@@ -35,10 +35,14 @@ FunctionEnd
 !insertmacro WordReplace
 !insertmacro VersionCompare
 !insertmacro VersionConvert
+!include "TextFunc.nsh"
 !include "StrFunc.nsh"
 ${StrStr} ; activate macro for installation
 ${StrStrAdv} ; activate macro for installation
 ${UnStrStrAdv} ; activate macro for uninstallation
+${StrTok} ; activate macro for installation
+${StrRep} ; activate macro for installation
+!include "StrContains.nsh"
 !include "native_message_box.nsh"
 !include "logiclib_dir_exists.nsh"
 !include "touch.nsh"
@@ -367,6 +371,7 @@ Var APP_USE_ACTUAL_INSTALL_DIR
 Var APP_NEED_UNINSTALL
 
 Var PROCESSING_FILE
+Var LOCALIZED_RES_DIR
 Var RES_DIR
 Var DIST_DIR
 Var DIST_PATH
@@ -641,6 +646,8 @@ Function InitializeVariables
     ${EndIf}
     ${LogWithTimestamp} "  resources is $RES_DIR"
 
+    Call InitializeLocalizedResDir
+
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.exe" "DetectAppInstallerPath"
     ${If} "$APP_INSTALLER_PATH" == ""
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*setup*${APP_NAME}*.exe" "DetectAppInstallerPath"
@@ -673,6 +680,147 @@ Function InitializeVariables
     ${WordReplace} "$HOMEPATH_TEMPLATE" "$USERNAME" "%USERNAME%" "+" $HOMEPATH_TEMPLATE
     ${LogWithTimestamp} "  HOMEPATH_TEMPLATE is $HOMEPATH_TEMPLATE"
     StrCpy $USERNAME ""
+FunctionEnd
+
+Var LOCALE_CODE
+Var LOCALE_NAME
+Var CITY_HASH
+Var PROFILE_INI_PATH
+Var PROFILE_PATH
+Var PREFS_PATH
+Var CUR_VER
+Var INSTALL_DIR
+Var FOUND
+Function InitializeLocalizedResDir
+    StrCpy $LOCALE_CODE ""
+    StrCpy $LOCALE_NAME ""
+    StrCpy $FOUND "0"
+
+    Call TryDetectLocaleFromPref
+    Pop $FOUND
+
+    ${If} $FOUND == "0"
+      ${ReadRegStrSafely} $CUR_VER "$APP_REG_KEY" "CurrentVersion"
+      ${If} $CUR_VER != ""
+        Push $CUR_VER
+        Call ExtractParens
+        Pop $LOCALE_CODE
+        ${If} $LOCALE_CODE != ""
+          Push $LOCALE_CODE
+          Call ExtractLocaleName
+          Pop $LOCALE_NAME
+          StrCpy $FOUND "1"
+        ${EndIf}
+      ${EndIf}
+    ${EndIf}
+
+    ${LogWithTimestamp} "  locale name: $LOCALE_NAME"
+    ${LogWithTimestamp} "  locale code: $LOCALE_CODE"
+
+    ${If} $FOUND == "1"
+      ${ReadINIStrWithDefault} $LOCALIZED_RES_DIR "${INIPATH}" "${INSTALLER_NAME}" "Resources" "resources"
+      ${If} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_NAME"
+        StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_NAME"
+      ${ElseIf} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_CODE"
+        StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_CODE"
+      ${ElseIf} ${DirExists} "$EXEDIR\$LOCALE_NAME"
+        StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALE_NAME"
+      ${ElseIf} ${DirExists} "$EXEDIR\$LOCALE_CODE"
+        StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALE_CODE"
+      ${Else}
+        StrCpy $LOCALIZED_RES_DIR ""
+      ${EndIf}
+      ${LogWithTimestamp} "  localized resources is $LOCALIZED_RES_DIR"
+    ${Else}
+      ${LogWithTimestamp} "  localized resources for $LOCALE_CODE not found"
+    ${EndIf}
+FunctionEnd
+
+Function TryDetectLocaleFromPref
+    Call GetAppPath
+
+    ${ReadRegStrSafely} $CITY_HASH "Software\Mozilla\${APP_NAME}\TaskBarIDs" "$APP_DIR"
+    ${LogWithTimestamp} "  CITY_HASH: $CITY_HASH"
+    ${If} $CITY_HASH == ""
+      Push "0"
+      Return
+    ${EndIf}
+
+    StrCpy $PROFILE_INI_PATH "${APP_PROFILE_PATH}\installs.ini"
+    ${IfNot} ${FileExists} $PROFILE_INI_PATH
+      Push "0"
+      Return
+    ${EndIf}
+
+    ReadINIStr $PROFILE_PATH "$PROFILE_INI_PATH" "$CITY_HASH" "Default"
+    ${StrRep} $PROFILE_PATH "$PROFILE_PATH" "/" "\"
+    ${LogWithTimestamp} "  PROFILE_PATH: $PROFILE_PATH"
+    ${If} $PROFILE_PATH == ""
+      Push "0"
+      Return
+    ${EndIf}
+
+    StrCpy $PREFS_PATH "${APP_PROFILE_PATH}\$PROFILE_PATH\prefs.js"
+    ${IfNot} ${FileExists} $PREFS_PATH
+      Push "0"
+      Return
+    ${EndIf}
+
+    Push $PREFS_PATH
+    Call GetLocaleCodeFromPrefs
+    Pop $LOCALE_CODE
+    ${If} $LOCALE_CODE == ""
+      Push "0"
+      Return
+    ${EndIf}
+
+    Push $LOCALE_CODE
+    Call ExtractLocaleName
+    Pop $LOCALE_NAME
+
+    Push "1"
+FunctionEnd
+
+Function ExtractParens
+    Pop $R0
+    ${StrStr} $R1 "$R0" "("
+    ${If} "$R1" != ""
+      StrCpy $R1 "$R1" "" 1
+      ${StrStr} $R1 "$R1" ")"
+      ${If} $R1 != ""
+        StrCpy $R1 "$R1" "" 0
+      ${EndIf}
+    ${Else}
+      StrCpy $R1 ""
+    ${EndIf}
+    Push $R1
+FunctionEnd
+
+Function ExtractLocaleName
+    Pop $R0
+    ${StrTok} $R1 "$R0" "-" 0 1
+    Push $R1
+FunctionEnd
+
+Function GetLocaleCodeFromPrefs
+    Pop $R0
+    ClearErrors
+    FileOpen $9 $R0 r
+    ${Do}
+      FileRead $9 $R1
+      ${If} ${Errors}
+        ${Break}
+      ${EndIf}
+      ${StrContains} $R2 'user_pref("intl.locale.requested",' "$R1"
+      ${If} "$R2" != ""
+        ${StrTok} $R3 "$R1" '"' 3 1
+        ${StrTok} $R4 "$R3" ',' 0 1
+        StrCpy $R4 "$R4" ; Trim
+        ${Break}
+      ${EndIf}
+    ${Loop}
+    FileClose $9
+    Push $R4
 FunctionEnd
 
 Function "DetectAppInstallerPath"
