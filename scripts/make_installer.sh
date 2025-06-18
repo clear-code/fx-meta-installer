@@ -41,7 +41,7 @@ make_installer() {
     for localized_resources in "${base_dir}/.."/resources-*
     do
       (cd "$localized_resources" &&
-          mkdir -p $(basename "$localized_resources")
+          mkdir -p "${base_dir}/$(basename "$localized_resources")/"
           $cp -t "${base_dir}/$(basename "$localized_resources")/" *.*)
     done
 
