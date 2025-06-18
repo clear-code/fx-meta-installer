@@ -28,12 +28,12 @@
 
 ## アドオンのインストールの概要
 
-resourcesフォルダ内に*.xpiファイルを置くことで、全ユーザ向けにアドオンを
+`resources`フォルダおよび`resources-*`フォルダ内に`*.xpi`ファイルを置くことで、全ユーザ向けにアドオンを
 インストールできる。
 
 ## それ以外のファイルの自動配置
 
-* resourcesフォルダ内に特定の名前のファイルを置くと、所定の位置に自動的にインストールされる。
+* `resources`フォルダおよび`resources-*`フォルダ内に特定の名前のファイルを置くと、所定の位置に自動的にインストールされる。
   * *.js, *.jsc   ：初期設定ファイルとして、%AppDir%\defaults\pref\ に
                     インストールされる。
   * *.cfg         ：AutoConfigファイルとして、%AppDir%\ にインストールされる。
@@ -404,8 +404,8 @@ Firefox/Thunderbirdのインストールに関する設定
 　                           りのリスト。
                              この値として記述されたXPIファイルが、記述された
                              順番に従ってインストールされる。
-                             省略時は、resourcesフォルダ内にあるすべてのXPI
-                             ファイルが順不同でインストールされる。
+                             省略時は、resourcesフォルダおよびresources-*フォルダ
+                             内にあるすべてのXPIファイルが順不同でインストールされる。
                              詳細は「同梱アドオンのインストール」を参照。
 * 取り得る値               ：ファイル名のリスト。
 * デフォルト値             ：なし。
@@ -414,10 +414,9 @@ Firefox/Thunderbirdのインストールに関する設定
 
 * config.nshでの設定キー   ：EXTRA_INSTALLERS
 * fainstall.iniでの設定キー：Installers
-* 説明                     ：resourcesフォルダ内に置いたインストーラのEXEファ
-　                           イル名のパイプ（|）区切りのリスト。
-                             詳細は「その他の同梱アプリケーションのインストー
-                             ル」を参照。
+* 説明                     ：resourcesフォルダまたはresources-*内に置いたインストーラの
+　                           EXEファイル名のパイプ（|）区切りのリスト。
+                             詳細は「その他の同梱アプリケーションのインストール」を参照。
                              省略時は、何も行わない。
 * 取り得る値               ：ファイル名のリスト。
 * デフォルト値             ：なし。
@@ -611,9 +610,9 @@ Firefox/Thunderbirdのインストールに関する設定
 
 * config.nshでの設定キー   ：APP_DOWNLOAD_PATH
 * fainstall.iniでの設定キー：[fainstall] > AppDownloadPath
-* 説明                     ：resources以下にインストーラが同梱されていない場
-　                           合に使用するインストーラを、システムのファイルパ
-　                           スで指定する。
+* 説明                     ：resourcesおよびresources-*以下にインストーラが
+                             同梱されていない場合に使用するインストーラを、
+                             システムのファイルパスで指定する。
                              無指定、またはファイルが見つからない場合、
                              APP_DOWNLOAD_URLからのダウンロードを試みる。
 * 取り得る値               ：ファイル共有サーバ上のパスまたはローカルのファイ
@@ -624,12 +623,11 @@ Firefox/Thunderbirdのインストールに関する設定
 
 * config.nshでの設定キー   ：APP_DOWNLOAD_URL
 * fainstall.iniでの設定キー：[fainstall] > AppDownloadUrl
-* 説明                     ：resources以下にインストーラが同梱されておらず、
-                             APP_DOWNLOAD_PATHが無指定またはファイルが見つか
-                             らない場合に、このURLからMozillaアプリケーション
-                             のインストーラのダウンロードを試行する。
-                             ダウンロードに失敗した場合は、インストールを中断
-                             する。
+* 説明                     ：resourcesおよびresources-*以下にインストーラが
+                             同梱されておらず、APP_DOWNLOAD_PATHが無指定または
+                             ファイルが見つからない場合に、このURLからMozilla
+                             アプリケーションのインストーラのダウンロードを試行する。
+                             ダウンロードに失敗した場合は、インストールを中断する。
 * 取り得る値               ：URL。
 * デフォルト値             ：なし。
 
@@ -645,23 +643,27 @@ Firefox/Thunderbirdのインストールに関する設定
 * デフォルト値             ：なし。
 
 ### 利用許諾書の設置場所のパス（省略可能）
-  * config.nshでの設定キー   ：APP_EULA_PATH
+
+* config.nshでの設定キー   ：APP_EULA_PATH
 * fainstall.iniでの設定キー：[fainstall] > AppEulaPath
 * 説明                     ：APP_INSTALL_MODEが"QUIET"の時に表示するMozillaア
 　                           プリケーションの利用許諾書（テキストファイル）が、
-　                           resources以下にCOPYING.txtとして同梱されていない
-　                           場合に使用するファイルを、システムのファイルパス
-　                           で指定する。
+　                           resourcesおよびresources-*以下にCOPYING.txtとして
+　                           同梱されていない場合に使用するファイルを、システムの
+　                           ファイルパスで指定する。
                              無指定、またはファイルがそのパスに存在しない場合、
                              APP_EULA_URLからのダウンロードを試みる。
                              サイレントインストールモードでは無視される。
 * 取り得る値               ：ファイル共有サーバ上のパスまたはローカルのファイ
 　                           ルパス。
 * デフォルト値             ：なし。
+
 ### 利用許諾書のダウンロード元URL（省略可能）
-  * config.nshでの設定キー   ：APP_EULA_URL
+
+* config.nshでの設定キー   ：APP_EULA_URL
 * fainstall.iniでの設定キー：[fainstall] > AppEulaUrl
-* 説明                     ：resources以下にCOPYING.txtが同梱されておらず、
+* 説明                     ：resourcesおよびresources-*以下にCOPYING.txtが同梱
+                             されておらず、
                              APP_EULA_PATHが無指定またはファイルが見つからな
                              い場合に、このURLから利用許諾書のダウンロードを
                              試行する。
@@ -670,7 +672,8 @@ Firefox/Thunderbirdのインストールに関する設定
 * 取り得る値               ：URL。
 * デフォルト値             ：なし。
 ### Firefoxで有効化する検索エンジン（省略可能）
-  * config.nshでの設定キー   ：FX_ENABLED_SEARCH_PLUGINS
+
+* config.nshでの設定キー   ：FX_ENABLED_SEARCH_PLUGINS
 * fainstall.iniでの設定キー：[fainstall] > FxEnabledSearchPlugins
 * 説明                     ：Firefoxの検索バーで、初期状態で有効にする検索エ
 　                           ンジンのファイル名の、半角スペース区切りのリスト。
@@ -685,6 +688,7 @@ Firefox/Thunderbirdのインストールに関する設定
 * 取り得る値               ：GoogleとYahooのみを有効化する場合の例。
 　                           "google-jp.xml yahoo-jp.xml"
 * デフォルト値             ："*"
+
 ### Firefoxで無効化する検索エンジン（省略可能）
 
 * config.nshでの設定キー   ：FX_DISABLED_SEARCH_PLUGINS
@@ -811,7 +815,7 @@ Firefox/Thunderbirdのインストールに関する設定
 ### Mozillaアプリケーションのインストーラの同梱
 
 メタインストーラにMozillaアプリケーションのインストーラを含める場合、
-インストーラをresourcesフォルダ内に置く。
+インストーラをresourcesフォルダまたはresources-*フォルダに置く。
 
 メタインストーラは、アプリケーション名（FirefoxまたはThunderbird）と
 「setup」の文字列を大文字小文字の違いを問わず両方とも名前に含む実行ファイルを、
@@ -823,28 +827,28 @@ Mozillaアプリケーションのインストーラとして自動認識する�
  * Firefox-setup.exe
  * setup-thunderbird-ja.exe
 
-ファイルをresourcesフォルダに含めなかった場合、メタインストーラは設定に従って、
+ファイルをresourcesフォルダおよびresources-*フォルダに含めなかった場合、メタインストーラは設定に従って、
 ネットワーク経由でのファイルの取得を試みる。
 
 ### MozillaアプリケーションのEULAの同梱
 
 メタインストーラを対話モードでビルドし、かつ、Mozillaアプリケーションを
-サイレントインストールする設定にすると、resourcesフォルダ内に置かれた
+サイレントインストールする設定にすると、resourcesフォルダまたはresources-*フォルダ内に置かれた
 <Mozillaアプリケーション名>-EULA.txt（テキストファイル）の内容が、
 インストールウィザードにおいて利用許諾書として表示される。
 
-ファイルをresourcesフォルダに含めなかった場合、メタインストーラは設定に従って、
+ファイルをresourcesフォルダまたはresources-*フォルダに含めなかった場合、メタインストーラは設定に従って、
 ネットワーク経由でのファイルの取得を試みる。
 
 ### COPYING.txt
 
-メタインストーラを対話モードでビルドすると、resourcesフォルダ内に置かれた
+メタインストーラを対話モードでビルドすると、resourcesフォルダまたはresources-*フォルダ内に置かれた
 COPYING.txt（テキストファイル）の内容が、インストールウィザードにおいて
 利用許諾書として表示される。
 
 ### 同梱アドオンのインストール
 
-resourcesフォルダ内に置かれたXPIファイルは、自動的にインストールの対象として
+resourcesフォルダおよびresources-*フォルダ内に置かれたXPIファイルは、自動的にインストールの対象として
 認識される。
 インストールするファイルを限定したい場合や、インストールする順番を指定したい
 場合には、fainstall.iniの[fainstall]セクションのAddonsにパイプ（|）区切りで
@@ -885,7 +889,7 @@ fainstall.iniにおいて、XPIファイル名に対応するセクションを�
 ### ネイティブマニフェストのインストール
 
 アドオンにマニフェストファイルが付属している場合は、`<アドオン名>.<マニフェスト種別>`
-というファイル名でresourcesフォルダに配置する。すると、インストーラが自動的に
+というファイル名でresourcesフォルダまたはresources-*フォルダに配置する。すると、インストーラが自動的に
 マニフェストの存在を検知し、それぞれのマニフェストを適切な箇所に配置する。
 
 例えば、マネージドストレージを利用する場合は次のようにファイルを配置する：
@@ -1098,7 +1102,7 @@ Thunderbird      ：Mail\Mozilla Thunderbird
 
 fainstall.iniに[profile]セクションを定義すると、インストール時に専用のユーザ
 プロファイルを準備することができる。
-また、profile.zipというファイルをresourcesフォルダ内に配置することで、
+また、profile.zipというファイルをresourcesフォルダまたはresources-*フォルダ内に配置することで、
 その内容をプロファイルの初期状態の内容として利用できる。
 
 [profile]セクションに設定できる情報：
@@ -1114,7 +1118,7 @@ RootPath：
 ### Mozillaアプリケーションのサイレントインストールの挙動の変更
 
 Mozillaアプリケーションをサイレントインストールする際の挙動は、resources
-フォルダ内に「Firefox-setup.ini」のような名前で置いた
+フォルダまたはresources-*フォルダ内に「Firefox-setup.ini」のような名前で置いた
 「サイレントインストール用INIファイル」で変更できる。
 
 メタインストーラは、アプリケーション名（FirefoxまたはThunderbird）と

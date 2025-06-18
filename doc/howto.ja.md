@@ -4,7 +4,7 @@
 
 ### 同梱のMozillaアプリケーションを新しいバージョンに入れ替えるには？
 
-resourcesフォルダ内のアプリケーションのインストーラの実行ファイルを入れ替えて、
+resourcesフォルダおよびresources-*フォルダ内のアプリケーションのインストーラの実行ファイルを入れ替えて、
 
 fainstall.ini の [fainstall] セクションに
 
@@ -24,7 +24,7 @@ AppIsESR=true
 
 ### Mozillaアプリケーションのインストール先を変えるには？
 
-→resourcesフォルダ内に<アプリケーション名>-setup.iniを作成して
+→resourcesフォルダまたはresources-*フォルダ内に<アプリケーション名>-setup.iniを作成して
 [Install] セクションに
 
 ```
@@ -41,7 +41,7 @@ InstallDirectoryName=<Program Files内に作成するフォルダ名>
 
 ### デスクトップへのショートカットの作成を禁止するには？
 
-resourcesフォルダ内に<アプリケーション名>-setup.iniを作成して
+resourcesフォルダまたはresources-*フォルダ内に<アプリケーション名>-setup.iniを作成して
 [Install] セクションに
 
 ```
@@ -52,7 +52,7 @@ DesktopShortcut=false
 
 ### スタートメニューへの項目の追加を禁止するには？
 
-resourcesフォルダ内に<アプリケーション名>-setup.iniを作成して
+resourcesフォルダまたはresources-*フォルダ内に<アプリケーション名>-setup.iniを作成して
 [Install] セクションに
 
 ```
@@ -63,7 +63,7 @@ StartMenuShortcuts=false
 
 ### クイックランチへの項目の追加を禁止するには？
 
-resourcesフォルダ内に<アプリケーション名>-setup.iniを作成して
+resourcesフォルダまたはresources-*フォルダ内に<アプリケーション名>-setup.iniを作成して
 [Install] セクションに
 
 ```
@@ -74,7 +74,7 @@ QuickLaunchShortcut=false
 
 ### Mozilla Maintenance Serviceのインストールを禁止するには？
 
-resourcesフォルダ内に<アプリケーション名>-setup.iniを作成して
+resourcesフォルダまたはresources-*フォルダ内に<アプリケーション名>-setup.iniを作成して
 [Install] セクションに
 
 ```
@@ -136,13 +136,13 @@ SIGN_DESC_URL ：署名された内容を説明するWebページのURI。（省
 #### インストール直後からSSL証明書やルート証明書をインポート済みの状態にしておくには？
 
 SSL証明書（Base64形式テキストファイル）を *.cer という名前で
-resourcesフォルダ以下に置く。
+resourcesフォルダまたはresources-*フォルダ以下に置く。
 （certimporterの利用を前提とする）
 
 ### ブックマーク
 
 #### インストール直後の初期状態のブックマークの内容を変更するには？
-resourcesフォルダ内にbookmarks.htmlを置く。
+resourcesフォルダまたはresources-*フォルダ内にbookmarks.htmlを置く。
 （実際にFirefoxでブックマークを編集してエクスポートした物を使うと良い）
 
 
@@ -150,13 +150,13 @@ resourcesフォルダ内にbookmarks.htmlを置く。
 
 #### 特定の形式のファイルをダウンロードする際の挙動をカスタマイズするには？
 
-resourcesフォルダ内に編集済みのmimeTypes.rdfを置く。
+resourcesフォルダまたはresources-*フォルダ内に編集済みのmimeTypes.rdfを置く。
 
 ### アドオン
 
 #### 任意のアドオンをインストール対象に加えるには
 
-resourcesフォルダへアドオンのxpiファイルを追加する。
+resourcesフォルダまたはresources-*フォルダへアドオンのxpiファイルを追加する。
 以下の内容をfainstall.iniに追記する
 
 ```
@@ -198,7 +198,7 @@ TargetLocation=%AppDir%/browser/extensions
 
 #### インストール直後の初期状態で特定の検索エンジンだけを有効にするには？
 
-resourcesフォルダ内に<アプリケーション名>-setup.iniを作成して
+resourcesフォルダまたはresources-*フォルダ内に<アプリケーション名>-setup.iniを作成して
 [Install] セクションに
 
 ```
@@ -209,7 +209,7 @@ FxEnabledSearchPlugins=<有効にしたい検索エンジンのファイル名�
 
 #### インストール直後の初期状態で特定の検索エンジンだけを無効化するには？
 
-resourcesフォルダ内に<アプリケーション名>-setup.iniを作成して
+resourcesフォルダまたはresources-*フォルダ内に<アプリケーション名>-setup.iniを作成して
 [Install] セクションに
 
 ```
@@ -224,7 +224,7 @@ FxDisabledSearchPlugins=<無効化したい検索エンジンの
 
 #### 初回起動時の設定移行ウィザードを無効化するには？
 
-以下の内容のoverride.iniをresourcesフォルダ内に作成する。
+以下の内容のoverride.iniをresourcesフォルダまたはresources-*フォルダ内に作成する。
 
 ```
 [XRE]
