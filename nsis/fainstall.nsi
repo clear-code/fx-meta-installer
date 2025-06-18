@@ -370,7 +370,8 @@ Var APP_PROGRAMFILES
 Var APP_USE_ACTUAL_INSTALL_DIR
 Var APP_NEED_UNINSTALL
 
-Var PROCESSING_FILE
+Var PROCESSING_FILE_PATH
+Var PROCESSING_FILE_NAME
 Var LOCALIZED_RES_DIR
 Var RES_DIR
 Var DIST_DIR
@@ -904,29 +905,21 @@ Function LanguageCodeFromLCID
 FunctionEnd
 
 Function "DetectAppInstallerPath"
-    StrCpy $PROCESSING_FILE "$R7"
+    StrCpy $PROCESSING_FILE_PATH "$R9"
     ${If} "$APP_INSTALLER_PATH" == ""
-      ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
-        StrCpy $APP_INSTALLER_PATH "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
-      ${Else}
-        StrCpy $APP_INSTALLER_PATH "$RES_DIR\$PROCESSING_FILE"
-      ${EndIf}
+      StrCpy $APP_INSTALLER_PATH "$PROCESSING_FILE_PATH"
     ${EndIf}
     StrCpy $0 StopLocate
-	Push $0
+    Push $0
 FunctionEnd
 
 Function "DetectAppInstallerIni"
-    StrCpy $PROCESSING_FILE "$R7"
+    StrCpy $PROCESSING_FILE_PATH "$R9"
     ${If} "$APP_INSTALLER_INI" == ""
-      ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
-        StrCpy $APP_INSTALLER_INI "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
-      ${Else}
-        StrCpy $APP_INSTALLER_INI "$RES_DIR\$PROCESSING_FILE"
-      ${EndIf}
+      StrCpy $APP_INSTALLER_INI "$PROCESSING_FILE_PATH"
     ${EndIf}
     StrCpy $0 StopLocate
-	Push $0
+    Push $0
 FunctionEnd
 
 Section "Cleanup Before Installation" CleanupBeforeInstall
@@ -1578,14 +1571,15 @@ Section "Install Add-ons" InstallAddons
 SectionEnd
 
 Function "CollectAddonFiles"
-    ${LogWithTimestamp} "CollectAddonFiles: $R7"
+    StrCpy $PROCESSING_FILE_NAME "$R7"
+    ${LogWithTimestamp} "CollectAddonFiles: $PROCESSING_FILE_NAME"
     ${If} "$ITEMS_LIST" == ""
-      StrCpy $ITEMS_LIST "$R7"
+      StrCpy $ITEMS_LIST "$PROCESSING_FILE_NAME"
     ${Else}
-      StrCpy $ITEMS_LIST "$ITEMS_LIST${SEPARATOR}$R7"
+      StrCpy $ITEMS_LIST "$ITEMS_LIST${SEPARATOR}$PROCESSING_FILE_NAME"
     ${EndIf}
 
-    Push $ITEMS_LIST ; for ${Locate}
+    Push $PROCESSING_FILE_NAME ; for ${Locate}
 FunctionEnd
 
 Var ADDON_NAME
@@ -1887,20 +1881,12 @@ Section "Apply Registry Changes" ApplyRegistryChanges
 SectionEnd
 
 Function "ApplyRegistryChange"
-    StrCpy $PROCESSING_FILE "$R7"
-    ${If} ${FileExists} "$RES_DIR\$PROCESSING_FILE"
-      ${LogWithTimestamp} "ApplyRegistryChange: $RES_DIR\$PROCESSING_FILE with $SYSDIR\reg.exe"
-      ${DisableX64FSRedirection}
-      ExecWait '"$SYSDIR\reg.exe" import "$RES_DIR\$PROCESSING_FILE"'
-      ${EnableX64FSRedirection}
-    ${EndIf}
-    ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
-      ${LogWithTimestamp} "ApplyRegistryChange: $LOCALIZED_RES_DIR\$PROCESSING_FILE with $SYSDIR\reg.exe"
-      ${DisableX64FSRedirection}
-      ExecWait '"$SYSDIR\reg.exe" import "$LOCALIZED_RES_DIR\$PROCESSING_FILE"'
-      ${EnableX64FSRedirection}
-    ${EndIf}
-    Push $PROCESSING_FILE ; for ${Locate}
+    StrCpy $PROCESSING_FILE_PATH "$R9"
+    ${LogWithTimestamp} "ApplyRegistryChange: $PROCESSING_FILE_PATH with $SYSDIR\reg.exe"
+    ${DisableX64FSRedirection}
+    ExecWait '"$SYSDIR\reg.exe" import "$PROCESSING_FILE_PATH"'
+    ${EnableX64FSRedirection}
+    Push $PROCESSING_FILE_PATH ; for ${Locate}
 FunctionEnd
 
 Var INSTALLING_APPLICATION_SPECIFIC_FILES
@@ -2023,8 +2009,13 @@ Function InstallAdditionalFiles
         ${If} $ITEMS_LIST_INDEX > 1
           ${IfThen} "$ITEM_NAME" == "$ITEMS_LIST" ${|} ${Break} ${|}
         ${EndIf}
-        StrCpy $PROCESSING_FILE "$ITEM_NAME"
-        ${LogWithTimestamp} "  PROCESSING_FILE: $PROCESSING_FILE"
+        StrCpy $PROCESSING_FILE_NAME "$ITEM_NAME"
+        ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE_NAME"
+          StrCpy $PROCESSING_FILE_PATH "$LOCALIZED_RES_DIR\$PROCESSING_FILE_NAME"
+        ${Else}
+          StrCpy $PROCESSING_FILE_PATH "$RES_DIR\$PROCESSING_FILE_NAME"
+        ${EndIf}
+        ${LogWithTimestamp} "  PROCESSING_FILE_PATH: $PROCESSING_FILE_PATH"
         Call InstallNormalFile
       ${EndWhile}
     ${EndUnless}
@@ -2032,31 +2023,32 @@ Function InstallAdditionalFiles
 FunctionEnd
 
 Function "InstallNormalFileForLocate"
-    StrCpy $PROCESSING_FILE "$R7"
-    ${LogWithTimestamp} "InstallNormalFileForLocate: $PROCESSING_FILE start"
+    StrCpy $PROCESSING_FILE_PATH "$R9"
+    StrCpy $PROCESSING_FILE_NAME "$R7"
+    ${LogWithTimestamp} "InstallNormalFileForLocate: $PROCESSING_FILE_PATH start"
     Call InstallNormalFile
-    ${LogWithTimestamp} "InstallNormalFileForLocate: $PROCESSING_FILE done"
-    Push $PROCESSING_FILE ; for ${Locate}
+    ${LogWithTimestamp} "InstallNormalFileForLocate: $PROCESSING_FILE_PATH done"
+    Push $PROCESSING_FILE_PATH ; for ${Locate}
 FunctionEnd
 
 Function "InstallNormalFile"
-    ${ReadINIStrWithDefault} $0 "${INIPATH}" "$PROCESSING_FILE" "AppMinVersion" "0"
-    ${ReadINIStrWithDefault} $1 "${INIPATH}" "$PROCESSING_FILE" "AppMaxVersion" "9999"
+    ${ReadINIStrWithDefault} $0 "${INIPATH}" "$PROCESSING_FILE_NAME" "AppMinVersion" "0"
+    ${ReadINIStrWithDefault} $1 "${INIPATH}" "$PROCESSING_FILE_NAME" "AppMaxVersion" "9999"
     Call IsInAcceptableVersionRange
     ${Unless} "$APP_VERSION_STATUS" == "acceptable"
       ${LogWithTimestamp} "  => skip install"
       GoTo RETURN
     ${EndUnless}
 
-    ReadINIStr $ITEM_LOCATION "${INIPATH}" "$PROCESSING_FILE" "TargetLocation"
+    ReadINIStr $ITEM_LOCATION "${INIPATH}" "$PROCESSING_FILE_NAME" "TargetLocation"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
     ;       otherwise only the first found file will be installed and others are ignored.
-    ${LogWithTimestamp} "InstallNormalFile: installing $PROCESSING_FILE to $ITEM_LOCATION"
+    ${LogWithTimestamp} "InstallNormalFile: installing $PROCESSING_FILE_PATH to $ITEM_LOCATION"
     ${Unless} "$ITEM_LOCATION" == ""
       ${If} $INSTALLING_APPLICATION_SPECIFIC_FILES == 1
         ; Don't install normal file twice to the location specified by "TargetLocation".
-        ${LogWithTimestamp} "  block to install $PROCESSING_FILE to $ITEM_LOCATION twice"
+        ${LogWithTimestamp} "  block to install $PROCESSING_FILE_PATH to $ITEM_LOCATION twice"
         GoTo RETURN
       ${EndIf}
       Call ResolveItemLocation
@@ -2065,9 +2057,9 @@ Function "InstallNormalFile"
       StrCpy $ITEM_LOCATION "$DIST_DIR"
       ${LogWithTimestamp} "  fallback to $ITEM_LOCATION"
     ${EndIf}
-    StrCpy $DIST_PATH "$ITEM_LOCATION\$PROCESSING_FILE"
+    StrCpy $DIST_PATH "$ITEM_LOCATION\$PROCESSING_FILE_NAME"
 
-    ${LogWithTimestamp} "  install $PROCESSING_FILE to $DIST_PATH"
+    ${LogWithTimestamp} "  install $PROCESSING_FILE_PATH to $DIST_PATH"
 
     ${If} ${FileExists} "$DIST_PATH"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
@@ -2083,11 +2075,7 @@ Function "InstallNormalFile"
 
     SetOutPath $ITEM_LOCATION
 
-    ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
-      CopyFiles /SILENT "$LOCALIZED_RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
-    ${Else}
-      CopyFiles /SILENT "$RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
-    ${EndIf}
+    CopyFiles /SILENT "$PROCESSING_FILE_PATH" "$DIST_PATH"
     ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
     ${If} $ITEM_INDEX > -1
       ${Touch} "$DIST_PATH"
@@ -2095,15 +2083,16 @@ Function "InstallNormalFile"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
-    ${LogWithTimestamp} "  $PROCESSING_FILE is successfully installed"
+    ${LogWithTimestamp} "  $PROCESSING_FILE_PATH is successfully installed"
 
   RETURN:
 FunctionEnd
 
 Function "RunMSISilentlyForLocate"
-    StrCpy $PROCESSING_FILE "$R7"
+    StrCpy $PROCESSING_FILE_PATH "$R9"
+    StrCpy $PROCESSING_FILE_NAME "$R7"
     Call RunMSISilently
-    Push $PROCESSING_FILE ; for ${Locate}
+    Push $PROCESSING_FILE_PATH ; for ${Locate}
 FunctionEnd
 
 Var MSI_EXEC_WAIT_MODE
@@ -2114,7 +2103,7 @@ Function "RunMSISilently"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
     ;       otherwise only the first found file will be installed and others are ignored.
-    ${LogWithTimestamp} "RunMSISilently: installing $PROCESSING_FILE"
+    ${LogWithTimestamp} "RunMSISilently: installing $PROCESSING_FILE_PATH"
     ${ReadINIStrWithDefault} $MSI_EXEC_WAIT_MODE "${INIPATH}" "${INSTALLER_NAME}" "MSIExecWaitMode" "${MSI_EXEC_WAIT_MODE}"
 
     StrCpy $MSI_EXEC_LOG_PARAM ""
@@ -2122,16 +2111,12 @@ Function "RunMSISilently"
     ${IsTrue} $R0 "$MSI_EXEC_LOGGING"
     ${If} "$R0" == "1"
       ; v=verbose, x=debug
-      StrCpy $MSI_EXEC_LOG_PARAM '/l*v "$INSTDIR\$PROCESSING_FILE.log"'
-      ;StrCpy $MSI_EXEC_LOG_PARAM '/l*vx "$INSTDIR\$PROCESSING_FILE.log"'
+      StrCpy $MSI_EXEC_LOG_PARAM '/l*v "$INSTDIR\$PROCESSING_FILE_NAME.log"'
+      ;StrCpy $MSI_EXEC_LOG_PARAM '/l*vx "$INSTDIR\$PROCESSING_FILE_NAME.log"'
       ${LogWithTimestamp} "MSI logging param: $MSI_EXEC_LOG_PARAM"
     ${EndIf}
 
-    ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
-      StrCpy $MSI_EXEC_PATH "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
-    ${Else}
-      StrCpy $MSI_EXEC_PATH "$RES_DIR\$PROCESSING_FILE"
-    ${EndIf}
+    StrCpy $MSI_EXEC_PATH "$PROCESSING_FILE_PATH"
 
     ${If} "$MSI_EXEC_WAIT_MODE" == "0"
     ${OrIf} "$MSI_EXEC_WAIT_MODE" == "ExecWaitJob"
@@ -2154,7 +2139,7 @@ Function "RunMSISilently"
         nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$MSI_EXEC_PATH" $MSI_EXEC_LOG_PARAM /passive'
       !endif
     ${EndIf}
-    ${LogWithTimestamp} "  $PROCESSING_FILE is successfully executed"
+    ${LogWithTimestamp} "  $PROCESSING_FILE_PATH is successfully executed"
 FunctionEnd
 
 Section "Initialize Search Plugins" InitSearchPlugins
@@ -2203,10 +2188,10 @@ SectionEnd
 
 Function "CheckDisableSearchPlugin"
     ${LogWithTimestamp} "CheckDisableSearchPlugin"
-    StrCpy $PROCESSING_FILE "$R7"
+    StrCpy $PROCESSING_FILE_NAME "$R7"
 
     ${Unless} "$FX_ENABLED_SEARCH_PLUGINS" == "*"
-      ${WordFind} "$FX_ENABLED_SEARCH_PLUGINS" "$PROCESSING_FILE" "E+1{" $R0
+      ${WordFind} "$FX_ENABLED_SEARCH_PLUGINS" "$PROCESSING_FILE_NAME" "E+1{" $R0
       IfErrors NOTFOUND_IN_ENABLED FOUND_IN_ENABLED
       FOUND_IN_ENABLED:
         GoTo RETURN
@@ -2222,7 +2207,7 @@ Function "CheckDisableSearchPlugin"
         GoTo RETURN
 
       ${Default}
-        ${WordFind} "$FX_ENABLED_SEARCH_PLUGINS" "$PROCESSING_FILE" "E+1{" $R0
+        ${WordFind} "$FX_ENABLED_SEARCH_PLUGINS" "$PROCESSING_FILE_NAME" "E+1{" $R0
         IfErrors NOTFOUND_IN_DISABLED FOUND_IN_DISABLED
         FOUND_IN_DISABLED:
           GoTo DISABLE_SEARCH_PLUGIN
@@ -2231,11 +2216,11 @@ Function "CheckDisableSearchPlugin"
     ${EndSwitch}
 
   DISABLE_SEARCH_PLUGIN:
-    ${LogWithTimestamp} "  $DIST_PATH\$PROCESSING_FILE to $BACKUP_PATH\$PROCESSING_FILE"
-    Rename "$DIST_PATH\$PROCESSING_FILE" "$BACKUP_PATH\$PROCESSING_FILE"
+    ${LogWithTimestamp} "  $DIST_PATH\$PROCESSING_FILE_NAME to $BACKUP_PATH\$PROCESSING_FILE_NAME"
+    Rename "$DIST_PATH\$PROCESSING_FILE_NAME" "$BACKUP_PATH\$PROCESSING_FILE_NAME"
   RETURN:
 
-    Push $PROCESSING_FILE ; for ${Locate}
+    Push $PROCESSING_FILE_NAME ; for ${Locate}
 FunctionEnd
 
 Section "Initialize Distribution Customizer" InitDistributonCustomizer
@@ -2539,7 +2524,7 @@ Section Uninstall
       ${EndIf}
 
       ${If} ${Errors}
-      ${AndIf} ${FileExists} "$PROCESSING_FILE"
+      ${AndIf} ${FileExists} "$ITEM_LOCATION"
         StrCpy $UNINSTALL_FAILED 1
         ${Break}
       ${EndIf}
@@ -2607,9 +2592,9 @@ Section Uninstall
 SectionEnd
 
 Function un.EnableSearchPlugin
-    StrCpy $PROCESSING_FILE "$R7"
-    ${LogWithTimestamp} "  EnableSearchPlugin: Restore $BACKUP_PATH\$PROCESSING_FILE"
-    Rename "$BACKUP_PATH\$PROCESSING_FILE" "$SEARCH_PLUGINS_PATH\$PROCESSING_FILE"
+    StrCpy $PROCESSING_FILE_NAME "$R7"
+    ${LogWithTimestamp} "  EnableSearchPlugin: Restore $BACKUP_PATH\$PROCESSING_FILE_NAME"
+    Rename "$BACKUP_PATH\$PROCESSING_FILE_NAME" "$SEARCH_PLUGINS_PATH\$PROCESSING_FILE_NAME"
     Push 0
 FunctionEnd
 
