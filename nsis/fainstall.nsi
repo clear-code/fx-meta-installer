@@ -756,6 +756,14 @@ Function InitializeLocalizedResDir
       StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALE_NAME"
     ${ElseIf} ${DirExists} "$EXEDIR\$LOCALE_CODE"
       StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALE_CODE"
+    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-en"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-en"
+    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-en"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-en"
+    ${ElseIf} ${DirExists} "$EXEDIR\en"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\en"
+    ${ElseIf} ${DirExists} "$EXEDIR\en"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\en"
     ${Else}
       StrCpy $LOCALIZED_RES_DIR ""
     ${EndIf}
