@@ -583,7 +583,11 @@ Var CLEAN_INSTALL
           ${LogWithTimestamp} "  Application does not exist so show EULA"
           StrCpy $APP_EULA_FINAL_PATH "$EXEDIR\EULA"
           ${Unless} ${FileExists} "$APP_EULA_PATH"
-            StrCpy $APP_EULA_FINAL_PATH "$RES_DIR\${APP_NAME}-EULA.txt"
+            ${If} ${FileExists} "$LOCALIZED_RES_DIR\${APP_NAME}-EULA.txt"
+              StrCpy $APP_EULA_FINAL_PATH "$LOCALIZED_RES_DIR\${APP_NAME}-EULA.txt"
+            ${Else}
+              StrCpy $APP_EULA_FINAL_PATH "$RES_DIR\${APP_NAME}-EULA.txt"
+            ${EndIf}
           ${EndIf}
           ${Unless} ${FileExists} "$APP_EULA_FINAL_PATH"
             StrCpy $APP_EULA_FINAL_PATH "$APP_EULA_PATH"
@@ -648,27 +652,45 @@ Function InitializeVariables
 
     Call InitializeLocalizedResDir
 
+    StrCpy $APP_INSTALLER_PATH ""
+    StrCpy $APP_INSTALLER_INI ""
+
+
+    ; find localized installer at first
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.exe" "DetectAppInstallerPath"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*setup*${APP_NAME}*.exe" "DetectAppInstallerPath"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*installer*.exe" "DetectAppInstallerPath"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*installer*${APP_NAME}*.exe" "DetectAppInstallerPath"
+    ${If} "$APP_INSTALLER_PATH" == ""
+    ${AndIf} ${FileExists} "$LOCALIZED_RES_DIR\${APP_NAME}-setup.exe"
+      StrCpy $APP_INSTALLER_PATH "$LOCALIZED_RES_DIR\${APP_NAME}-setup.exe"
+    ${EndIf}
+
+    ; fallback to general installer
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.exe" "DetectAppInstallerPath"
-    ${If} "$APP_INSTALLER_PATH" == ""
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*setup*${APP_NAME}*.exe" "DetectAppInstallerPath"
-    ${EndIf}
-    ${If} "$APP_INSTALLER_PATH" == ""
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*installer*.exe" "DetectAppInstallerPath"
-    ${EndIf}
-    ${If} "$APP_INSTALLER_PATH" == ""
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*installer*${APP_NAME}*.exe" "DetectAppInstallerPath"
-    ${EndIf}
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*setup*${APP_NAME}*.exe" "DetectAppInstallerPath"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*installer*.exe" "DetectAppInstallerPath"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*installer*${APP_NAME}*.exe" "DetectAppInstallerPath"
     ${If} "$APP_INSTALLER_PATH" == ""
       StrCpy $APP_INSTALLER_PATH "$RES_DIR\${APP_NAME}-setup.exe"
     ${EndIf}
 
-    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.ini" "DetectAppInstallerIni"
+
+    ; find localized INI at first
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.ini" "DetectAppInstallerIni"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*setup*${APP_NAME}*.ini" "DetectAppInstallerIni"
     ${If} "$APP_INSTALLER_INI" == ""
-      ${Locate} "$RES_DIR" "/L=F /G=0 /M=*setup*${APP_NAME}*.ini" "DetectAppInstallerIni"
+    ${AndIf} ${FileExists} "$LOCALIZED_RES_DIR\${APP_NAME}-setup.ini"
+      StrCpy $APP_INSTALLER_INI "$LOCALIZED_RES_DIR\${APP_NAME}-setup.ini"
     ${EndIf}
+
+    ; fallback to general INI
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*${APP_NAME}*setup*.ini" "DetectAppInstallerIni"
+    ${Locate} "$RES_DIR" "/L=F /G=0 /M=*setup*${APP_NAME}*.ini" "DetectAppInstallerIni"
     ${If} "$APP_INSTALLER_INI" == ""
       StrCpy $APP_INSTALLER_INI "$RES_DIR\${APP_NAME}-setup.ini"
     ${EndIf}
+
 
     ${ReadINIStrWithDefault} $DISPLAY_VERSION "${INIPATH}" "${INSTALLER_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
 
@@ -825,14 +847,26 @@ FunctionEnd
 
 Function "DetectAppInstallerPath"
     StrCpy $PROCESSING_FILE "$R7"
-    StrCpy $APP_INSTALLER_PATH "$RES_DIR\$PROCESSING_FILE"
+    ${If} "$APP_INSTALLER_PATH" == ""
+      ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
+        StrCpy $APP_INSTALLER_PATH "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
+      ${Else}
+        StrCpy $APP_INSTALLER_PATH "$RES_DIR\$PROCESSING_FILE"
+      ${EndIf}
+    ${EndIf}
     StrCpy $0 StopLocate
 	Push $0
 FunctionEnd
 
 Function "DetectAppInstallerIni"
     StrCpy $PROCESSING_FILE "$R7"
-    StrCpy $APP_INSTALLER_INI "$RES_DIR\$PROCESSING_FILE"
+    ${If} "$APP_INSTALLER_INI" == ""
+      ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
+        StrCpy $APP_INSTALLER_INI "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
+      ${Else}
+        StrCpy $APP_INSTALLER_INI "$RES_DIR\$PROCESSING_FILE"
+      ${EndIf}
+    ${EndIf}
     StrCpy $0 StopLocate
 	Push $0
 FunctionEnd
@@ -1290,7 +1324,8 @@ Section "Install Profiles" InstallProfiles
       ${EndWhile}
     ${EndUnless}
 
-    ${If} ${FileExists} "$RES_DIR\profile.zip"
+    ${If} ${FileExists} "$LOCALIZED_RES_DIR\profile.zip"
+    ${OrIf} ${FileExists} "$RES_DIR\profile.zip"
       ${LogWithTimestamp} "  Install Default Profile"
       StrCpy $DIST_PATH "$APP_DIR\defaults\profile"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
@@ -1302,7 +1337,11 @@ Section "Install Profiles" InstallProfiles
       Rename "$DIST_PATH" "$BACKUP_PATH"
       ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "DefaultProfileBackups$ITEM_INDEX" "$BACKUP_PATH"
 
-      ZipDLL::extractall "$RES_DIR\profile.zip" "$DIST_PATH"
+      ${If} ${FileExists} "$LOCALIZED_RES_DIR\profile.zip"
+        ZipDLL::extractall "$LOCALIZED_RES_DIR\profile.zip" "$DIST_PATH"
+      ${Else}
+        ZipDLL::extractall "$RES_DIR\profile.zip" "$DIST_PATH"
+      ${EndIf}
       ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledDefaultProfiles$ITEM_INDEX" "$DIST_PATH"
     ${EndIf}
 
@@ -1421,7 +1460,11 @@ Function "InstallProfile"
       ${EndIf}
     ${EndIf}
 
-    ${If} ${FileExists} "$RES_DIR\profile.zip"
+    ${If} ${FileExists} "$LOCALIZED_RES_DIR\profile.zip"
+      ${Unless} ${FileExists} "$ITEM_LOCATION\Profiles\$INI_TEMP"
+        ZipDLL::extractall "$LOCALIZED_RES_DIR\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
+      ${EndUnless}
+    ${ElseIf} ${FileExists} "$RES_DIR\profile.zip"
       ${Unless} ${FileExists} "$ITEM_LOCATION\Profiles\$INI_TEMP"
         ZipDLL::extractall "$RES_DIR\profile.zip" "$ITEM_LOCATION\Profiles\$INI_TEMP"
       ${EndUnless}
@@ -1450,13 +1493,18 @@ Section "Old Distribution Directory Existence Check" OldDistDirExistenceCheck
     ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledDistributonCustomizer" "$DIST_PATH"
 SectionEnd
 
+Var STATIC_ADDONS_LIST
 Section "Install Add-ons" InstallAddons
     ${LogWithTimestamp} "InstallAddons"
     StrCpy $ITEM_INDEX 0
-    ${ReadINIStrWithDefault} $ITEMS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons" "${INSTALL_ADDONS}"
-    ${If} "$ITEMS_LIST" == ""
+    ${ReadINIStrWithDefault} $STATIC_ADDONS_LIST "${INIPATH}" "${INSTALLER_NAME}" "Addons" "${INSTALL_ADDONS}"
+    ${If} "$STATIC_ADDONS_LIST" != ""
+      StrCpy $ITEMS_LIST "$STATIC_ADDONS_LIST"
+    ${Else}
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
+      ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
     ${EndIf}
+
     ${LogWithTimestamp} "  ADDONS: $ITEMS_LIST"
     ${Unless} "$ITEMS_LIST" == ""
       StrCpy $ITEMS_LIST_INDEX 0
@@ -1538,24 +1586,38 @@ Function "InstallAddon"
 
     ${IsTrue} $R0 "$UNPACK"
     ${If} "$R0" == "1"
-      ZipDLL::extractall "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
+      ${If} ${FileExists} "$LOCALIZED_RES_DIR\$ITEM_NAME"
+        ZipDLL::extractall "$LOCALIZED_RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
+      ${Else}
+        ZipDLL::extractall "$RES_DIR\$ITEM_NAME" "$ITEM_LOCATION"
+      ${EndIf}
       ; AccessControl::GrantOnFile "$ITEM_LOCATION" "(BU)" "GenericRead"
     ${Else}
-      Rename "$RES_DIR\$ITEM_NAME" "$RES_DIR\$ADDON_NAME.xpi"
-      CopyFiles /SILENT "$RES_DIR\$ADDON_NAME.xpi" "$ITEM_LOCATION"
+      ${If} ${FileExists} "$LOCALIZED_RES_DIR\$ITEM_NAME"
+        Rename "$LOCALIZED_RES_DIR\$ITEM_NAME" "$LOCALIZED_RES_DIR\$ADDON_NAME.xpi"
+        CopyFiles /SILENT "$LOCALIZED_RES_DIR\$ADDON_NAME.xpi" "$ITEM_LOCATION"
+      ${Else}
+        Rename "$RES_DIR\$ITEM_NAME" "$RES_DIR\$ADDON_NAME.xpi"
+        CopyFiles /SILENT "$RES_DIR\$ADDON_NAME.xpi" "$ITEM_LOCATION"
+      ${EndIf}
       ${Touch} "$ITEM_LOCATION\$ADDON_NAME.xpi"
       StrCpy $ITEM_LOCATION "$ITEM_LOCATION\$ADDON_NAME.xpi"
     ${EndIf}
 
     ; Install the "Managed Storage" manifest for the addon (if one exists)
-    ${if} ${FileExists} "$RES_DIR\$ITEM_NAME.ManagedStorage"
+    ${If} ${FileExists} "$LOCALIZED_RES_DIR\$ITEM_NAME.ManagedStorage"
+    ${OrIf} ${FileExists} "$RES_DIR\$ITEM_NAME.ManagedStorage"
       ${LogWithTimestamp} "  $ADDON_NAME native manifest found (ManagedStorage)"
 
       StrCpy $MANIFEST_DIR "${APP_DISTRIBUTION_DIR}\ManagedStorage"
       SetOutPath $MANIFEST_DIR
 
       ; Distribute 'addon.xpi.ManagedStorage' as 'myaddon@clearcode.com.json'
-      CopyFiles /SILENT "$RES_DIR\$ITEM_NAME.ManagedStorage" $MANIFEST_DIR
+      ${If} ${FileExists} "$LOCALIZED_RES_DIR\$ITEM_NAME.ManagedStorage"
+        CopyFiles /SILENT "$LOCALIZED_RES_DIR\$ITEM_NAME.ManagedStorage" $MANIFEST_DIR
+      ${Else}
+        CopyFiles /SILENT "$RES_DIR\$ITEM_NAME.ManagedStorage" $MANIFEST_DIR
+      ${EndIf}
       Rename "$MANIFEST_DIR\$ITEM_NAME.ManagedStorage" "$MANIFEST_DIR\$ADDON_NAME.json"
       ${Touch} "$MANIFEST_DIR\$ADDON_NAME.json"
 
@@ -1751,7 +1813,11 @@ Function "InstallExtraInstaller"
     ReadINIStr $EXTRA_INSTALLER_OPTIONS "${INIPATH}" "$ITEM_NAME" "Options"
     ${LogWithTimestamp} "  EXTRA_INSTALLER_OPTIONS from INI: $EXTRA_INSTALLER_OPTIONS"
 
-    ExecWait '"$RES_DIR\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
+    ${If} ${FileExists} "$LOCALIZED_RES_DIR\$EXTRA_INSTALLER_NAME"
+      ExecWait '"$LOCALIZED_RES_DIR\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
+    ${Else}
+      ExecWait '"$RES_DIR\$EXTRA_INSTALLER_NAME" $EXTRA_INSTALLER_OPTIONS'
+    ${EndIf}
 
     ${LogWithTimestamp} "  InstallExtraInstaller: $ITEM_NAME successfully installed"
 FunctionEnd
@@ -1759,14 +1825,23 @@ FunctionEnd
 Section "Apply Registry Changes" ApplyRegistryChanges
     ${LogWithTimestamp} "ApplyRegistryChanges"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.reg" "ApplyRegistryChange"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.reg" "ApplyRegistryChange"
 SectionEnd
 
 Function "ApplyRegistryChange"
     StrCpy $PROCESSING_FILE "$R7"
-    ${LogWithTimestamp} "ApplyRegistryChange: $RES_DIR\$PROCESSING_FILE with $SYSDIR\reg.exe"
-    ${DisableX64FSRedirection}
-    ExecWait '"$SYSDIR\reg.exe" import "$RES_DIR\$PROCESSING_FILE"'
-    ${EnableX64FSRedirection}
+    ${If} ${FileExists} "$RES_DIR\$PROCESSING_FILE"
+      ${LogWithTimestamp} "ApplyRegistryChange: $RES_DIR\$PROCESSING_FILE with $SYSDIR\reg.exe"
+      ${DisableX64FSRedirection}
+      ExecWait '"$SYSDIR\reg.exe" import "$RES_DIR\$PROCESSING_FILE"'
+      ${EnableX64FSRedirection}
+    ${EndIf}
+    ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
+      ${LogWithTimestamp} "ApplyRegistryChange: $LOCALIZED_RES_DIR\$PROCESSING_FILE with $SYSDIR\reg.exe"
+      ${DisableX64FSRedirection}
+      ExecWait '"$SYSDIR\reg.exe" import "$LOCALIZED_RES_DIR\$PROCESSING_FILE"'
+      ${EnableX64FSRedirection}
+    ${EndIf}
     Push $PROCESSING_FILE ; for ${Locate}
 FunctionEnd
 
@@ -1779,8 +1854,11 @@ Function InstallAdditionalFiles
     StrCpy $DIST_DIR "$APP_DIR"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cfg" "InstallNormalFileForLocate"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.properties" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.cfg" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.properties" "InstallNormalFileForLocate"
     ; mainly for override.ini, but accept other file names also
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.ini" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.ini" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.cer" "InstallNormalFileForLocate"
@@ -1792,38 +1870,61 @@ Function InstallAdditionalFiles
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.pem.override" "InstallNormalFileForLocate"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.der.override" "InstallNormalFileForLocate"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.permissions" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.cer" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.crt" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.pem" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.der" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.cer.override" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.crt.override" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.pem.override" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.der.override" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.permissions" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\defaults\profile"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFileForLocate"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\isp"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xml" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.xml" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "${APP_CONFIG_DIR}"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.js" "InstallNormalFileForLocate"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.jsc" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.js" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.jsc" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\chrome"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.css" "InstallNormalFileForLocate"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.jar" "InstallNormalFileForLocate"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.manifest" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.css" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.jar" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.manifest" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\chrome\icons\default"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.ico" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.ico" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\components"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xpt" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.xpt" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$APP_DIR\plugins"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFileForLocate"
 
     StrCpy $DIST_DIR "$DESKTOP"
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFileForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFileForLocate"
   ;  StrCpy $DIST_DIR "$QUICKLAUNCH"
   ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFileForLocate"
+  ;  ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFileForLocate"
   ;  StrCpy $DIST_DIR "$SMPROGRAMS"
   ;  ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFileForLocate"
+  ;  ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.lnk" "InstallNormalFileForLocate"
 
     StrCpy $INSTALLING_APPLICATION_SPECIFIC_FILES 1
 
@@ -1831,19 +1932,25 @@ Function InstallAdditionalFiles
       ; Firefox 21 and later, these files must be placed into the "browser" directory. 
       StrCpy $DIST_DIR "$APP_DIR\browser"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=override.ini" "InstallNormalFileForLocate"
+      ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=override.ini" "InstallNormalFileForLocate"
 
       StrCpy $DIST_DIR "$APP_DIR\browser\defaults\profile"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFileForLocate"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFileForLocate"
+      ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=bookmarks.html" "InstallNormalFileForLocate"
+      ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.rdf" "InstallNormalFileForLocate"
 
       StrCpy $DIST_DIR "$APP_DIR\browser\chrome\icons\default"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.ico" "InstallNormalFileForLocate"
+      ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.ico" "InstallNormalFileForLocate"
 
       StrCpy $DIST_DIR "$APP_DIR\browser\plugins"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFileForLocate"
+      ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.dll" "InstallNormalFileForLocate"
     !endif
 
     ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.msi" "RunMSISilentlyForLocate"
+    ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.msi" "RunMSISilentlyForLocate"
 
     ${LogWithTimestamp} "InstallExtraFiles"
     ; Disable install guard for ExtraFiles=
@@ -1918,7 +2025,11 @@ Function "InstallNormalFile"
 
     SetOutPath $ITEM_LOCATION
 
-    CopyFiles /SILENT "$RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
+    ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
+      CopyFiles /SILENT "$LOCALIZED_RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
+    ${Else}
+      CopyFiles /SILENT "$RES_DIR\$PROCESSING_FILE" "$DIST_PATH"
+    ${EndIf}
     ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
     ${If} $ITEM_INDEX > -1
       ${Touch} "$DIST_PATH"
@@ -1940,6 +2051,7 @@ FunctionEnd
 Var MSI_EXEC_WAIT_MODE
 Var MSI_EXEC_LOGGING
 Var MSI_EXEC_LOG_PARAM
+Var MSI_EXEC_PATH
 Function "RunMSISilently"
     ClearErrors
     ; NOTE: this "ClearErrors" is required to process multiple files by Locate correctly!!!
@@ -1957,25 +2069,31 @@ Function "RunMSISilently"
       ${LogWithTimestamp} "MSI logging param: $MSI_EXEC_LOG_PARAM"
     ${EndIf}
 
+    ${If} ${FileExists} "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
+      StrCpy $MSI_EXEC_PATH "$LOCALIZED_RES_DIR\$PROCESSING_FILE"
+    ${Else}
+      StrCpy $MSI_EXEC_PATH "$RES_DIR\$PROCESSING_FILE"
+    ${EndIf}
+
     ${If} "$MSI_EXEC_WAIT_MODE" == "0"
     ${OrIf} "$MSI_EXEC_WAIT_MODE" == "ExecWaitJob"
       !if ${PRODUCT_INSTALL_MODE} == "QUIET"
-        !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /quiet'
+        !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$MSI_EXEC_PATH" $MSI_EXEC_LOG_PARAM /quiet'
       !else
-        !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /passive'
+        !insertmacro ExecWaitJob '"$SYSDIR\msiexec.exe" /i "$MSI_EXEC_PATH" $MSI_EXEC_LOG_PARAM /passive'
       !endif
     ${ElseIf} "$MSI_EXEC_WAIT_MODE" == "1"
     ${OrIf} "$MSI_EXEC_WAIT_MODE" == "ExecWait"
       !if ${PRODUCT_INSTALL_MODE} == "QUIET"
-        ExecWait '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /quiet'
+        ExecWait '"$SYSDIR\msiexec.exe" /i "$MSI_EXEC_PATH" $MSI_EXEC_LOG_PARAM /quiet'
       !else
-        ExecWait '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /passive'
+        ExecWait '"$SYSDIR\msiexec.exe" /i "$MSI_EXEC_PATH" $MSI_EXEC_LOG_PARAM /passive'
       !endif
     ${Else}
       !if ${PRODUCT_INSTALL_MODE} == "QUIET"
-        nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /quiet'
+        nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$MSI_EXEC_PATH" $MSI_EXEC_LOG_PARAM /quiet'
       !else
-        nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$RES_DIR\$PROCESSING_FILE" $MSI_EXEC_LOG_PARAM /passive'
+        nsExec::Exec '"$SYSDIR\msiexec.exe" /i "$MSI_EXEC_PATH" $MSI_EXEC_LOG_PARAM /passive'
       !endif
     ${EndIf}
     ${LogWithTimestamp} "  $PROCESSING_FILE is successfully executed"
@@ -2019,6 +2137,9 @@ Section "Initialize Search Plugins" InitSearchPlugins
     StrCpy $DIST_DIR "$APP_DIR\searchplugins"
     ${If} ${FileExists} "$RES_DIR\*.xml"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xml" "InstallNormalFileForLocate"
+    ${EndIf}
+    ${If} ${FileExists} "$LOCALIZED_RES_DIR\*.xml"
+      ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.xml" "InstallNormalFileForLocate"
     ${EndIf}
 SectionEnd
 
@@ -2065,6 +2186,8 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
     StrCpy $DIST_DIR "$DIST_PATH"
     ${If} ${FileExists} "$RES_DIR\distribution.*"
     ${OrIf} ${FileExists} "$RES_DIR\policies.json"
+    ${OrIf} ${FileExists} "$LOCALIZED_RES_DIR\distribution.*"
+    ${OrIf} ${FileExists} "$LOCALIZED_RES_DIR\policies.json"
       ${LogWithTimestamp} "  Preparing $DIST_PATH"
       CreateDirectory "$DIST_PATH"
       ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
@@ -2075,6 +2198,8 @@ Section "Initialize Distribution Customizer" InitDistributonCustomizer
       StrCpy $ITEM_INDEX -1
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=distribution.*" "InstallNormalFileForLocate"
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=policies.json" "InstallNormalFileForLocate"
+      ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=distribution.*" "InstallNormalFileForLocate"
+      ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=policies.json" "InstallNormalFileForLocate"
     ${EndIf}
 SectionEnd
 
