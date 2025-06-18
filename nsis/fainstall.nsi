@@ -720,17 +720,22 @@ Function InitializeLocalizedResDir
     Call TryDetectLocaleFromPref
 
     ${If} "$FULL_LOCALE_CODE" == ""
+      ${LogWithTimestamp} "  reading current version from $APP_REG_KEY"
       ${ReadRegStrSafely} $CUR_VER "$APP_REG_KEY" "CurrentVersion"
+      ${LogWithTimestamp} "   => $CUR_VER"
       ${If} $CUR_VER != ""
         Push $CUR_VER
         Call ExtractParens
         Pop $FULL_LOCALE_CODE
+        ${LogWithTimestamp} "   => $FULL_LOCALE_CODE"
       ${EndIf}
     ${EndIf}
 
     ${If} "$FULL_LOCALE_CODE" == ""
+      ${LogWithTimestamp} "  detecting locale from system settings"
       Call GetUILanguageCode
       Pop $FULL_LOCALE_CODE
+      ${LogWithTimestamp} "   => $FULL_LOCALE_CODE"
     ${EndIf}
 
     ${If} "$FULL_LOCALE_CODE" == ""
