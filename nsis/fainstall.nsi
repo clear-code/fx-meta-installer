@@ -742,7 +742,7 @@ Function InitializeLocalizedResDir
     ${EndIf}
 
     ${If} "$FULL_LOCALE_CODE" == ""
-      ${LogWithTimestamp} "  reading current version from $APP_REG_KEY"
+      ${LogWithTimestamp} "  reading current version from $APP_REG_KEY (32bit)"
       ${ReadRegStrSafely} $CUR_VER "$APP_REG_KEY" "CurrentVersion"
       ${LogWithTimestamp} "   => $CUR_VER"
       ${If} $CUR_VER != ""
