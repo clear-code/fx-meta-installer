@@ -101,7 +101,7 @@ FxDisabledSearchPlugins=$(read_config "FX_DISABLEd_SEARCH_PLUGINS")
 EOS
 
 addon_files=""
-for filename in ../resources/*.xpi
+for filename in ../resources*/*.xpi
 do
   if [ -f $filename ]
   then
@@ -153,12 +153,22 @@ fi
 
 rm -r "$product_name-source"
 mkdir "$product_name-source"
-mkdir "$product_name-source/resources"
 
 mv fainstall.exe "./$product_name-source/"
 mv fainstall.ini "./$product_name-source/"
 
+mkdir "$product_name-source/resources"
 $tar -c -f- --exclude-vcs -C resources . | $tar -x -C "./$product_name-source/resources"
+
+for localized_resources in resources-*;
+do
+  if [ -d $localized_resources ]
+  then
+    mkdir "$product_name-source/$localized_resources"
+    $tar -c -f- --exclude-vcs -C $localized_resources . | $tar -x -C "./$product_name-source/$localized_resources"
+  fi
+done
+
 cp ./7z/pack.list "./$product_name-source/"
 if has_config "ALLOW_USER_INSTALL"
 then
