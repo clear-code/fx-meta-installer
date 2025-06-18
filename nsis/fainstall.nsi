@@ -717,7 +717,29 @@ Function InitializeLocalizedResDir
     StrCpy $FULL_LOCALE_CODE ""
     StrCpy $SHORT_LOCALE_CODE ""
 
+    SetRegView 64
+    ${LogWithTimestamp} "  detecting locale from prefs (64bit)"
     Call TryDetectLocaleFromPref
+    SetRegView 32
+
+    ${If} "$FULL_LOCALE_CODE" == ""
+      ${LogWithTimestamp} "  detecting locale from prefs (32bit)"
+      Call TryDetectLocaleFromPref
+    ${EndIf}
+
+    ${If} "$FULL_LOCALE_CODE" == ""
+      ${LogWithTimestamp} "  reading current version from $APP_REG_KEY (64bit)"
+      SetRegView 64
+      ${ReadRegStrSafely} $CUR_VER "$APP_REG_KEY" "CurrentVersion"
+      SetRegView 32
+      ${LogWithTimestamp} "   => $CUR_VER"
+      ${If} $CUR_VER != ""
+        Push $CUR_VER
+        Call ExtractParens
+        Pop $FULL_LOCALE_CODE
+        ${LogWithTimestamp} "   => $FULL_LOCALE_CODE"
+      ${EndIf}
+    ${EndIf}
 
     ${If} "$FULL_LOCALE_CODE" == ""
       ${LogWithTimestamp} "  reading current version from $APP_REG_KEY"
