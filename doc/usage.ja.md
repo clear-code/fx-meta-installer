@@ -2,19 +2,12 @@
 
 ## 動作環境
 
-・Windows 98以降（Windows 2000、Windows XP、Windows Vistaにて動作検証済み）
+・Windows 10以降（Windows 10、Windows 11にて動作検証済み）
 
 ## 対応アプリケーション
 
-・Mozilla Firefox 2.0.0.x
-・Mozilla Firefox 3.0.x
-・Mozilla Firefox 3.5.x
-・Mozilla Firefox 3.6.x
-・Mozilla Firefox 10.x
-・Mozilla Thunderbird 2.0.0.x
-・Mozilla Thunderbird 3.0.x
-・Mozilla Thunderbird 3.1.x
-・Mozilla Thunderbird 10.x
+・Mozilla Firefox
+・Mozilla Thunderbird
 
 ## Mozillaアプリケーションの自動インストールの概要
 
@@ -25,6 +18,23 @@
   * 3. Web上の任意のダウンロードURIから自動的にダウンロードさせる。
 * クラッシュ報告機能の有効・無効、初期状態で無効にする検索プラグインを指定できる。
 * Mozillaアプリケーションのサイレントインストール時の挙動をINIファイルで指定できる。
+
+## 複数言語のリソースの同梱
+
+メタインストーラは、特定言語向けのリソースを同梱できる。
+インストール対象のリソースの言語は以下の順で識別する。
+
+1. すでにインストール済みのMozillaアプリケーションがあり、既定のユーザープロファイルがある場合、その `intl.locale.requested` で第一候補になっている言語を使用する。
+2. 既定のユーザープロファイルが見付からないか、`intl.locale.requested` が未設定の場合、そのMozillaアプリケーションのインストーラーの言語を使用する。
+3. Mozillaアプリケーションがまだインストールされていない場合、システムの言語を使用する。
+
+メタインストーラは、識別した言語に基づいて、同梱したリソースを以下の優先度で使用する。
+
+1. 識別した言語に対応する `resources-(地域コードを含む言語コード)` （例：`resources-ja-JP`）内のファイル
+2. 識別した言語に対応する `resources-(言語コード)` （例：`resources-ja`） 内のファイル
+3. `resources-en-US` 内のファイル
+4. `resources-en` 内のファイル
+5. `resources` 内のファイル
 
 ## アドオンのインストールの概要
 
