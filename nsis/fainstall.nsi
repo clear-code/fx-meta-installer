@@ -835,17 +835,9 @@ FunctionEnd
 
 Function ExtractParens
     Pop $R0
-    ${StrStr} $R1 "$R0" "("
-    ${If} "$R1" != ""
-      StrCpy $R1 "$R1" "" 1
-      ${StrStr} $R1 "$R1" ")"
-      ${If} $R1 != ""
-        StrCpy $R1 "$R1" "" 0
-      ${EndIf}
-    ${Else}
-      StrCpy $R1 ""
-    ${EndIf}
-    Push $R1
+    ${StrTok} $R1 "$R0" '(' 1 1
+    ${StrTok} $R2 "$R1" ')' 0 1
+    Push $R2
 FunctionEnd
 
 Function ExtractLocaleName
