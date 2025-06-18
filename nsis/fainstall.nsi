@@ -736,25 +736,34 @@ Function InitializeLocalizedResDir
       ${EndIf}
     ${EndIf}
 
+    ${If} $FOUND == "0"
+      Call GetUILanguageCode
+      Pop $LOCALE_CODE
+      Push $LOCALE_CODE
+      Call ExtractLocaleName
+      Pop $LOCALE_NAME
+    ${EndIf}
+
     ${LogWithTimestamp} "  locale name: $LOCALE_NAME"
     ${LogWithTimestamp} "  locale code: $LOCALE_CODE"
 
-    ${If} $FOUND == "1"
-      ${ReadINIStrWithDefault} $LOCALIZED_RES_DIR "${INIPATH}" "${INSTALLER_NAME}" "Resources" "resources"
-      ${If} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_NAME"
-        StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_NAME"
-      ${ElseIf} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_CODE"
-        StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_CODE"
-      ${ElseIf} ${DirExists} "$EXEDIR\$LOCALE_NAME"
-        StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALE_NAME"
-      ${ElseIf} ${DirExists} "$EXEDIR\$LOCALE_CODE"
-        StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALE_CODE"
-      ${Else}
-        StrCpy $LOCALIZED_RES_DIR ""
-      ${EndIf}
-      ${LogWithTimestamp} "  localized resources is $LOCALIZED_RES_DIR"
+    ${ReadINIStrWithDefault} $LOCALIZED_RES_DIR "${INIPATH}" "${INSTALLER_NAME}" "Resources" "resources"
+    ${If} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_NAME"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_NAME"
+    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_CODE"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_CODE"
+    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALE_NAME"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALE_NAME"
+    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALE_CODE"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALE_CODE"
     ${Else}
+      StrCpy $LOCALIZED_RES_DIR ""
+    ${EndIf}
+
+    ${If} "$LOCALIZED_RES_DIR" == ""
       ${LogWithTimestamp} "  localized resources for $LOCALE_CODE not found"
+    ${Else}
+      ${LogWithTimestamp} "  localized resources is $LOCALIZED_RES_DIR"
     ${EndIf}
 FunctionEnd
 
@@ -843,6 +852,42 @@ Function GetLocaleCodeFromPrefs
     ${Loop}
     FileClose $9
     Push $R4
+FunctionEnd
+
+Function GetUILanguageCode
+    System::Call 'kernel32::GetUserDefaultUILanguage() i .r0'
+    Push $0
+    Call LanguageCodeFromLCID
+    Pop $1
+    Push $1
+FunctionEnd
+
+Function LanguageCodeFromLCID
+  Exch $R0
+  Push $R1
+
+  ${Switch} $R0
+    ${Case} 1033
+      StrCpy $R1 "en-US"
+    ${Break}
+    ${Case} 2057
+      StrCpy $R1 "en-GB"
+    ${Break}
+    ${Case} 1041
+      StrCpy $R1 "ja-JP"
+    ${Break}
+    ${Case} 2052
+      StrCpy $R1 "zh-CN"
+    ${Break}
+    ${Case} 1028
+      StrCpy $R1 "zh-TW"
+    ${Break}
+    ${Default}
+      StrCpy $R1 "en-US" ; Fallback
+  ${EndSwitch}
+
+  Pop $R0
+  Push $R1
 FunctionEnd
 
 Function "DetectAppInstallerPath"
