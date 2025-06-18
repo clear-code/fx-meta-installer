@@ -704,8 +704,8 @@ Function InitializeVariables
     StrCpy $USERNAME ""
 FunctionEnd
 
-Var LOCALE_CODE
-Var LOCALE_NAME
+Var FULL_LOCALE_CODE
+Var SHORT_LOCALE_CODE
 Var CITY_HASH
 Var PROFILE_INI_PATH
 Var PROFILE_PATH
@@ -714,62 +714,51 @@ Var CUR_VER
 Var INSTALL_DIR
 Var FOUND
 Function InitializeLocalizedResDir
-    StrCpy $LOCALE_CODE ""
-    StrCpy $LOCALE_NAME ""
-    StrCpy $FOUND "0"
+    StrCpy $FULL_LOCALE_CODE ""
+    StrCpy $SHORT_LOCALE_CODE ""
 
     Call TryDetectLocaleFromPref
-    Pop $FOUND
 
-    ${If} $FOUND == "0"
+    ${If} "$FULL_LOCALE_CODE" == ""
       ${ReadRegStrSafely} $CUR_VER "$APP_REG_KEY" "CurrentVersion"
       ${If} $CUR_VER != ""
         Push $CUR_VER
         Call ExtractParens
-        Pop $LOCALE_CODE
-        ${If} $LOCALE_CODE != ""
-          Push $LOCALE_CODE
-          Call ExtractLocaleName
-          Pop $LOCALE_NAME
-          StrCpy $FOUND "1"
-        ${EndIf}
+        Pop $FULL_LOCALE_CODE
       ${EndIf}
     ${EndIf}
 
-    ${If} $FOUND == "0"
+    ${If} "$FULL_LOCALE_CODE" == ""
       Call GetUILanguageCode
-      Pop $LOCALE_CODE
-      Push $LOCALE_CODE
-      Call ExtractLocaleName
-      Pop $LOCALE_NAME
+      Pop $FULL_LOCALE_CODE
     ${EndIf}
 
-    ${LogWithTimestamp} "  locale name: $LOCALE_NAME"
-    ${LogWithTimestamp} "  locale code: $LOCALE_CODE"
+    ${If} "$FULL_LOCALE_CODE" == ""
+      StrCpy $FULL_LOCALE_CODE "en-US"
+    ${EndIf}
+
+    Push $FULL_LOCALE_CODE
+    Call ExtractLocaleName
+    Pop $SHORT_LOCALE_CODE
+
+    ${LogWithTimestamp} "  locale code: $SHORT_LOCALE_CODE"
+    ${LogWithTimestamp} "  full locale code: $FULL_LOCALE_CODE"
 
     ${ReadINIStrWithDefault} $LOCALIZED_RES_DIR "${INIPATH}" "${INSTALLER_NAME}" "Resources" "resources"
-    ${If} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_NAME"
-      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_NAME"
-    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_CODE"
-      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-$LOCALE_CODE"
-    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALE_NAME"
-      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALE_NAME"
-    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALE_CODE"
-      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALE_CODE"
-    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-en"
-      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-en"
-    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-en"
-      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-en"
-    ${ElseIf} ${DirExists} "$EXEDIR\en"
-      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\en"
-    ${ElseIf} ${DirExists} "$EXEDIR\en"
-      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\en"
+    ${If} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-$FULL_LOCALE_CODE"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-$FULL_LOCALE_CODE"
+    ${ElseIf} ${DirExists} "$EXEDIR\$FULL_LOCALE_CODE"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$FULL_LOCALE_CODE"
+    ${ElseIf} ${DirExists} "$EXEDIR\$LOCALIZED_RES_DIR-$SHORT_LOCALE_CODE"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$LOCALIZED_RES_DIR-$SHORT_LOCALE_CODE"
+    ${ElseIf} ${DirExists} "$EXEDIR\$SHORT_LOCALE_CODE"
+      StrCpy $LOCALIZED_RES_DIR "$EXEDIR\$SHORT_LOCALE_CODE"
     ${Else}
       StrCpy $LOCALIZED_RES_DIR ""
     ${EndIf}
 
     ${If} "$LOCALIZED_RES_DIR" == ""
-      ${LogWithTimestamp} "  localized resources for $LOCALE_CODE not found"
+      ${LogWithTimestamp} "  localized resources for $FULL_LOCALE_CODE not found"
     ${Else}
       ${LogWithTimestamp} "  localized resources is $LOCALIZED_RES_DIR"
     ${EndIf}
@@ -807,15 +796,11 @@ Function TryDetectLocaleFromPref
 
     Push $PREFS_PATH
     Call GetLocaleCodeFromPrefs
-    Pop $LOCALE_CODE
-    ${If} $LOCALE_CODE == ""
+    Pop $FULL_LOCALE_CODE
+    ${If} $FULL_LOCALE_CODE == ""
       Push "0"
       Return
     ${EndIf}
-
-    Push $LOCALE_CODE
-    Call ExtractLocaleName
-    Pop $LOCALE_NAME
 
     Push "1"
 FunctionEnd
