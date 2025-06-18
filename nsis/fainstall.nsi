@@ -767,8 +767,9 @@ FunctionEnd
 Function TryDetectLocaleFromPref
     Call GetAppPath
 
+    ${LogWithTimestamp} "  getting city hash: Software\Mozilla\${APP_NAME}\TaskBarIDs / $APP_DIR"
     ${ReadRegStrSafely} $CITY_HASH "Software\Mozilla\${APP_NAME}\TaskBarIDs" "$APP_DIR"
-    ${LogWithTimestamp} "  CITY_HASH: $CITY_HASH"
+    ${LogWithTimestamp} "   => $CITY_HASH"
     ${If} $CITY_HASH == ""
       Push "0"
       Return
