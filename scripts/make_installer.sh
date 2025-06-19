@@ -17,8 +17,7 @@ case $(uname) in
 esac
 
 main() {
-        safely rm -rf "${base_dir}/resources"
-        safely mkdir "${base_dir}/resources"
+        safely rm -rf "${base_dir}/resources*"
 
         safely rm -rf "${dist_dir}/${package_name}"
         safely mkdir "${dist_dir}"
@@ -26,8 +25,7 @@ main() {
         safely "${script_dir}/make_addons.sh" $addons
         make_installer
 
-        safely rm -rf "${base_dir}/resources"
-        safely mkdir "${base_dir}/resources"
+        safely rm -rf "${base_dir}/resources*"
 }
 
 rm_emacs_swap_file() {
@@ -39,6 +37,13 @@ make_installer() {
         safely $cp -t "${base_dir}/" *.*)
     (cd "${base_dir}/../resources" &&
         $cp -t "${base_dir}/resources/" *.*)
+
+    for localized_resources in "${base_dir}/.."/resources-*
+    do
+      (cd "$localized_resources" &&
+          mkdir -p "${base_dir}/$(basename "$localized_resources")/"
+          $cp -t "${base_dir}/$(basename "$localized_resources")/" *.*)
+    done
 
     (cd "${base_dir}" &&
         safely ./make.sh &&

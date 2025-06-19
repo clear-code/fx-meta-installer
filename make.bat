@@ -1,5 +1,7 @@
 @echo off
-rem Copyright (C) 2008-2012 ClearCode Inc.
+rem Copyright (C) 2008-2025 ClearCode Inc.
+
+setlocal enabledelayedexpansion
 
 :PREPARE_CONFIG_BAT
 IF EXIST config.bat GOTO PREPARE_CONFIG_NSH
@@ -61,6 +63,13 @@ mkdir "%INSTALLER_NAME%-source"
 move fainstall.exe "%INSTALLER_NAME%-source\"
 move fainstall.ini "%INSTALLER_NAME%-source\"
 xcopy resources "%INSTALLER_NAME%-source\resources" /i /s
+for /d %%D in (resources-*) do (
+    if exist "%%D\" (
+        echo Copying %%D to "%INSTALLER_NAME%-source\%%D"
+        xcopy "%%D" "%INSTALLER_NAME%-source\%%D" /i /s
+    )
+)
+endlocal
 copy 7z\pack.list "%INSTALLER_NAME%-source\"
 copy /b 7z\7zS.sfx.with-manifest + 7z\FxMetaInstaller.tag "%INSTALLER_NAME%-source\fainstall.sfx"
 copy 7z\7zr.exe "%INSTALLER_NAME%-source\"

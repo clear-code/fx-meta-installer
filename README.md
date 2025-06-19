@@ -109,6 +109,7 @@ environments at first.
  2. Modify both files as you like.
  3. Put .xpi, .css, .js, .cfg, .exe, and other resources to the directory
     "resources".
+    If you have localized versions, put them to the directory "resources-(locale)" e.g. "resources-ja".
 
 ### Build the binary
 
@@ -117,7 +118,7 @@ environments at first.
     a new directory "FxMetaInstaller-source".
  3. Copy the directory "FxMetaInstaller-source" to a local disk of Windows
     environment.
- 4. Confirm files in the "resources" directory and the "fainstall.ini".
+ 4. Confirm files in the "resources" (and "resources-*") directory and the "fainstall.ini".
     If there is no problem, run the batch file "FxMetaInstaller.bat".
     Then, the final installer executable "FxMetaInstaller.exe" is generated.
 
