@@ -865,7 +865,7 @@ FunctionEnd
 
 Function ExtractLangCodePart
     Pop $R0
-    ${StrTok} $R1 "$R0" " " -1 0
+    ${StrTok} $R1 "$R0" " " "L" 1
     Push $R1
 FunctionEnd
 
