@@ -787,6 +787,12 @@ Function InitializeLocalizedResDir
       StrCpy $FULL_LOCALE_CODE "en-US"
     ${EndIf}
 
+    ${LogWithTimestamp} "  extracting locale code part"
+    Push $FULL_LOCALE_CODE
+    Call ExtractLangCodePart
+    Pop $FULL_LOCALE_CODE
+    ${LogWithTimestamp} "   => $FULL_LOCALE_CODE"
+
     Push $FULL_LOCALE_CODE
     Call ExtractLocaleName
     Pop $SHORT_LOCALE_CODE
@@ -855,6 +861,12 @@ Function ExtractParens
     ${StrTok} $R1 "$R0" '(' 1 1
     ${StrTok} $R2 "$R1" ')' 0 1
     Push $R2
+FunctionEnd
+
+Function ExtractLangCodePart
+    Pop $R0
+    ${StrTok} $R1 "$R0" " " "L" 1
+    Push $R1
 FunctionEnd
 
 Function ExtractLocaleName
