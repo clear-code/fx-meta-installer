@@ -738,6 +738,8 @@ Function InitializeLocalizedResDir
     StrCpy $FULL_LOCALE_CODE ""
     StrCpy $SHORT_LOCALE_CODE ""
 
+    Call GetAppPath
+
     SetRegView 64
     ${LogWithTimestamp} "  detecting locale from prefs (64bit)"
     Call TryDetectLocaleFromPref
@@ -809,8 +811,6 @@ Function InitializeLocalizedResDir
 FunctionEnd
 
 Function TryDetectLocaleFromPref
-    Call GetAppPath
-
     ${LogWithTimestamp} "  getting city hash: Software\Mozilla\${APP_NAME}\TaskBarIDs / $APP_DIR"
     ${ReadRegStrSafely} $CITY_HASH "Software\Mozilla\${APP_NAME}\TaskBarIDs" "$APP_DIR"
     ${LogWithTimestamp} "   => $CITY_HASH"
