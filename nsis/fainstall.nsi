@@ -865,24 +865,7 @@ FunctionEnd
 
 Function ExtractLangCodePart
     Exch $0
-    Push $1
-    Push $2
-
-    StrLen $1 $0
-    StrCpy $2 $1
-
-    ${DoWhile} $2 > 0
-      IntOp $2 $2 - 1
-      StrCpy $3 $0 1 $2
-      ${If} $3 == " "
-        IntOp $2 $2 + 1
-        StrCpy $0 $0 "" $2
-        ${Break}
-      ${EndIf}
-    ${Loop}
-
-    Pop $2
-    Pop $1
+    ${StrTok} $0 $0 " " -1
     Exch $0
 FunctionEnd
 
