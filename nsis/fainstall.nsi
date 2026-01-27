@@ -864,9 +864,9 @@ Function ExtractParens
 FunctionEnd
 
 Function ExtractLangCodePart
-    Exch $0
-    ${StrTok} $0 $0 " " -1
-    Exch $0
+    Pop $R0
+    ${StrTok} $R1 "$R0 " " -1
+    Push $R1
 FunctionEnd
 
 Function ExtractLocaleName
