@@ -2139,6 +2139,7 @@ Function "InstallNormalFile"
     ${LogWithTimestamp} "  install $PROCESSING_FILE_PATH to $DIST_PATH"
 
     ${If} ${FileExists} "$DIST_PATH"
+      ${LogWithTimestamp} "  InstallNormalFile: FileExists yes"
       StrCpy $BACKUP_PATH "$DIST_PATH.bakup.0"
       StrCpy $BACKUP_COUNT 0
       ${While} ${FileExists} "$DIST_PATH.bakup.$BACKUP_COUNT"
@@ -2147,16 +2148,26 @@ Function "InstallNormalFile"
       ${EndWhile}
       ${LogWithTimestamp} "  backup old file as $BACKUP_PATH"
       Rename "$DIST_PATH" "$BACKUP_PATH"
+      ${LogWithTimestamp} "  InstallNormalFile: after Rename"
       ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEXBackup" "$BACKUP_PATH"
+      ${LogWithTimestamp} "  InstallNormalFile: after LogWithTimestamp"
+    ${Else}
+      ${LogWithTimestamp} "  InstallNormalFile: FileExists no"
     ${EndIf}
 
+    ${LogWithTimestamp} "  InstallNormalFile: before SetOutPath"
     SetOutPath $ITEM_LOCATION
+    ${LogWithTimestamp} "  InstallNormalFile: after SetOutPath"
 
     CopyFiles /SILENT "$PROCESSING_FILE_PATH" "$DIST_PATH"
+    ${LogWithTimestamp} "  InstallNormalFile: after CopyFiles"
     ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
     ${If} $ITEM_INDEX > -1
+      ${LogWithTimestamp} "  InstallNormalFile: before Touch"
       ${Touch} "$DIST_PATH"
+      ${LogWithTimestamp} "  InstallNormalFile: after Touch"
       ${WriteRegStrSafely} "${PRODUCT_UNINST_KEY}" "InstalledFile$ITEM_INDEX" "$DIST_PATH"
+      ${LogWithTimestamp} "  InstallNormalFile: after WriteRegStrSafely"
       IntOp $ITEM_INDEX $ITEM_INDEX + 1
     ${EndIf}
 
