@@ -2159,7 +2159,8 @@ Function "InstallNormalFile"
     SetOutPath $ITEM_LOCATION
     ${LogWithTimestamp} "  InstallNormalFile: after SetOutPath"
 
-    CopyFiles /SILENT "$PROCESSING_FILE_PATH" "$DIST_PATH"
+    ;CopyFiles /SILENT "$PROCESSING_FILE_PATH" "$DIST_PATH"
+    Sleep 100
     ${LogWithTimestamp} "  InstallNormalFile: after CopyFiles"
     ; AccessControl::GrantOnFile "$DIST_PATH" "(BU)" "GenericRead"
     ${If} $ITEM_INDEX > -1
