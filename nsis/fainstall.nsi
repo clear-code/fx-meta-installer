@@ -1583,6 +1583,7 @@ Section "Install Add-ons" InstallAddons
     ${If} "$STATIC_ADDONS_LIST" != ""
       StrCpy $ITEMS_LIST "$STATIC_ADDONS_LIST"
     ${Else}
+      StrCpy $ITEMS_LIST ""
       ${Locate} "$RES_DIR" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
       ${Locate} "$LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
       ${Locate} "$FULL_LOCALIZED_RES_DIR" "/L=F /G=0 /M=*.xpi" "CollectAddonFiles"
